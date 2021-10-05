@@ -1,0 +1,8 @@
+/* https://tailwindcss.com/docs/guides/nextjs */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.mySillyStyle {
+    @apply flex items-center justify-between flex-wrap bg-blue-700 p-6;
+}

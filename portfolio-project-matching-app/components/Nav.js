@@ -3,18 +3,20 @@ import Link from 'next/link'
 
 const Nav = () => {
     return (
-        <ul className="flex">
-            <li className="mr-6">
-                <Link href='/' >
-                    <a className="text-blue-500 hover:text-blue-800">Home</a>
-                </Link>
-            </li>
-            <li className="mr-6">
-                <Link href='/sillyPage' >
-                    <a className="text-blue-500 hover:text-blue-800">sillyPage</a>
-                </Link>
-            </li>
-        </ul>
+        <nav className="mySillyStyle">
+            <ul className="flex">
+                <li className="mr-6">
+                    <Link href='/' >
+                        <a className="text-white hover:text-blue-100">Home</a>
+                    </Link>
+                </li>
+                <li className="mr-6">
+                    <Link href='/sillyPage' >
+                        <a className="text-white hover:text-blue-100">sillyPage</a>
+                    </Link>
+                </li>
+            </ul>
+        </nav>
     )
 }
 

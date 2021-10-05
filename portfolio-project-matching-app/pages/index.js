@@ -1,12 +1,11 @@
 import Head from 'next/head'
 import Image from 'next/image'
-import db from '../Firebase/clientApp.ts'
+import { db } from '../Firebase/clientApp.ts'
 // import firebase from 'firebase/app'
 import { collection, getDocs } from 'firebase/firestore'
 // import { useCollection } from 'react-firebase-hooks/firestore'
 
 export default function Home({ docList }) {
-
   return (
     <div>
       <Head>
