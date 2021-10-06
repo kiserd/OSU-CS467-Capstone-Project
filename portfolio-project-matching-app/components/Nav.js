@@ -7,12 +7,12 @@ const Nav = () => {
             <ul className="flex">
                 <li className="mr-6">
                     <Link href='/' >
-                        <a className="text-white hover:text-blue-100">Home</a>
+                        <a className="text-white text-lg hover:text-blue-100">Home</a>
                     </Link>
                 </li>
                 <li className="mr-6">
                     <Link href='/sillyPage' >
-                        <a className="text-white hover:text-blue-100">sillyPage</a>
+                        <a className="text-white text-lg hover:text-blue-100">sillyPage</a>
                     </Link>
                 </li>
             </ul>

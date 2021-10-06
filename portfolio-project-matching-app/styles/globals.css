@@ -4,5 +4,5 @@
 @tailwind utilities;
 
 .mySillyStyle {
-    @apply flex items-center justify-between flex-wrap bg-blue-700 p-6;
+    @apply flex items-center justify-between flex-wrap bg-blue-700 p-4;
 }
