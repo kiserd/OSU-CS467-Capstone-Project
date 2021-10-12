@@ -13,8 +13,8 @@ export default function Home({ docList }) {
       <Head>
         <title>CS467 Portfolio Project</title>
       </Head>
-      <Button type="btnGeneral"/>
-      <Button type="btnWarning" />
+      <Button type="btnGeneral" text="btnGeneral"/>
+      <Button type="btnWarning" text="btnWarning"/>
     </div>
   )
 }

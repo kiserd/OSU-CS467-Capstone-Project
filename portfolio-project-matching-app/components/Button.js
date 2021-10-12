@@ -1,9 +1,9 @@
-const Button = ({type, onClick}) => {
+const Button = ({text, type, onClick}) => {
     // Types of buttons:
     //      btnGeneral
     //      btnWarning
     return (
-        <button className={type} onClick={onClick}>Hello</button>
+        <button className={type} onClick={onClick}>{text}</button>
     );
 };
 
