@@ -1,4 +1,4 @@
-const Button = ({text, type, onClick}) => {
+const Button = ({text, type='btnGeneral', onClick}) => {
     // Types of buttons:
     //      btnGeneral
     //      btnWarning
