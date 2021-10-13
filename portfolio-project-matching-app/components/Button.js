@@ -1,6 +1,6 @@
 import styles from './Button.module.css';
 
-const Button = ({text, type='btnGeneral', onClick}) => {
+const Button = ({text, type='btn', onClick}) => {
     // Types of buttons:
     //      btnGeneral
     //      btnWarning
