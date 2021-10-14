@@ -1,7 +1,6 @@
 import Head from 'next/head'
 import Image from 'next/image'
 import DBList from '../components/DBList'
-import Button from '../components/Button'
 import { db } from '../Firebase/clientApp.ts'
 // import firebase from 'firebase/app'
 import { collection, getDocs } from 'firebase/firestore'
@@ -13,8 +12,7 @@ export default function Home({ docList }) {
       <Head>
         <title>CS467 Portfolio Project</title>
       </Head>
-      <Button type="btnGeneral" text="btnGeneral"/>
-      <Button type="btnWarning" text="btnWarning"/>
+      <DBList docList={docList} />
     </div>
   )
 }
