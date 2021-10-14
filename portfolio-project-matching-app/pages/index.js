@@ -2,6 +2,7 @@ import Head from 'next/head'
 import Image from 'next/image'
 import DBList from '../components/DBList'
 import { db } from '../Firebase/clientApp.ts'
+import Input from '../components/Input'
 // import firebase from 'firebase/app'
 import { collection, getDocs } from 'firebase/firestore'
 // import { useCollection } from 'react-firebase-hooks/firestore'
@@ -13,6 +14,9 @@ export default function Home({ docList }) {
         <title>CS467 Portfolio Project</title>
       </Head>
       <DBList docList={docList} />
+      <Input type='text' name='text' placeholder='text'/>
+      <Input type='password' name='password' placeholder='password'/>
+      <Input type='email' name='password' placeholder='email'/>
     </div>
   )
 }
