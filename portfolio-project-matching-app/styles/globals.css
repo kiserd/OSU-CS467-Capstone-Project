@@ -6,3 +6,7 @@
 .mySillyStyle {
     @apply flex items-center justify-between flex-wrap bg-blue-700 p-4;
 }
+
+.generalButton {
+    @apply m-2 p-2 border-2 border-gray-600 text-gray-600 rounded-md hover:text-gray-900 hover:border-gray-900;
+}
