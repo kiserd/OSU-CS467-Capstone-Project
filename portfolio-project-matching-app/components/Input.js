@@ -8,7 +8,6 @@ const Input = ({type, name, placeholder}) => {
         type={type}
         name={name}
         placeholder={placeholder}
-        onChange={event => console.log(event.target.value)}
       />
     </div>
   );
