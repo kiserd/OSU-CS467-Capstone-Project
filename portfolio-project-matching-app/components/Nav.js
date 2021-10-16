@@ -5,12 +5,11 @@ import styles from './Nav.module.css'
 
 const Nav = () => {
     return (
-        <div>
         <nav className={styles.nav}>
             <ul className="grid grid-cols-3">
-                <li className="col-start-2">
+                <li className="col-start-2 justify-self-center m-2">
                     <Link href="/">
-                        <a class="col-start-2 justify-self-center font-medium text-3xl  text-gray-900">Project Finder</a>
+                        <a className="col-start-2 font-medium text-3xl  text-gray-900">Project Finder</a>
                     </Link>
                 </li>
                 <li className="justify-self-end">
@@ -20,8 +19,6 @@ const Nav = () => {
                 </li>
             </ul>
         </nav>
-        <Button text="hi"/>
-        </div>
     )
 }
 
