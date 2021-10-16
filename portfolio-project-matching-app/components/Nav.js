@@ -1,22 +1,27 @@
 import Link from 'next/link'
+import Button from './Button'
+import styles from './Nav.module.css'
 // import tailwind from 'tailwind/tailwindcss.css'
 
 const Nav = () => {
     return (
-        <nav className="mySillyStyle">
-            <ul className="flex">
-                <li className="mr-6">
-                    <Link href='/' >
-                        <a className="text-white text-lg hover:text-blue-100">Home</a>
+        <div>
+        <nav className={styles.nav}>
+            <ul className="grid grid-cols-3">
+                <li className="col-start-2">
+                    <Link href="/">
+                        <a class="col-start-2 justify-self-center font-medium text-3xl  text-gray-900">Project Finder</a>
                     </Link>
                 </li>
-                <li className="mr-6">
-                    <Link href='/sillyPage' >
-                        <a className="text-white text-lg hover:text-blue-100">sillyPage</a>
+                <li className="justify-self-end">
+                    <Link href="/myProfile">
+                        <Button text="Profile"/>
                     </Link>
                 </li>
             </ul>
         </nav>
+        <Button text="hi"/>
+        </div>
     )
 }
 
