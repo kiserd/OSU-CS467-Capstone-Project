@@ -1,9 +1,9 @@
-import Login from '../components/Login'
+import Signup from '../components/Signup'
 
 const test_loginPage = () => {
     return (
         <div className='m-12'>
-            <Login />
+            <Signup />
         </div>
     )
 }
