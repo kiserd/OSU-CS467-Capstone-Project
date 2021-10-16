@@ -1,9 +1,18 @@
+import { useRouter } from 'next/router'
 import Link from 'next/link'
 import Button from './Button'
 import styles from './Nav.module.css'
+import { useEffect, useState } from 'react'
 // import tailwind from 'tailwind/tailwindcss.css'
 
 const Nav = () => {
+    let router = useRouter();
+    const [path, setPath] = useState('');
+    useEffect(
+        () => {
+            setPath(router.pathname);
+        }
+    )
     return (
         <nav className={styles.nav}>
             <ul className="grid grid-cols-3">
@@ -13,9 +22,21 @@ const Nav = () => {
                     </Link>
                 </li>
                 <li className="justify-self-end">
-                    <Link href="/myProfile">
-                        <Button text="Profile"/>
-                    </Link>
+                    {   path === "/myProfile" ?
+                        <Link href="/" passHref>
+                            {/* Link's child must take an href, so Button must be wrapped with <a> tags */}
+                            <a>
+                            <Button text="Browse" isLink={true} addClassName="bg-white"/>
+                            </a>
+                        </Link>
+                        :
+                        <Link href="/myProfile" passHref>
+                            <a>
+                            <Button text="Profile" isLink={true} addClassName="bg-white"/>
+                            </a>
+                        </Link>
+
+                    }
                 </li>
             </ul>
         </nav>
