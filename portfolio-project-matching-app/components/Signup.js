@@ -60,7 +60,7 @@ const Signup = ({ toggleNewUser }) => {
 
 
     return (
-        <div className='w-max p-2 border-2 border-gray-400 rounded-md'>
+        <div className='w-full py-2 px-4 border-2 border-gray-400 rounded-md'>
             <div className='text-2xl text-md'>
                 Create Account
             </div>
@@ -73,28 +73,30 @@ const Signup = ({ toggleNewUser }) => {
                 </label>
                 <Input type='email' name='email' placeholder='email' value={email} onChange={(e) => setEmail(e.target.value)} />
             </div>
-            <div className=''>
+            <div className='mt-2'>
                 <label className=''>
                     Username
                 </label>
                 <Input type='text' name='username' placeholder='username' value={username} onChange={(e) => setUsername(e.target.value)} />
             </div>
-            <div className=''>
+            <div className='mt-2'>
                 <label className=''>
                     Timezone
                 </label>
                 <InputDropDown name='timezone' choices={timezones} value={timezone} onChange={(e) => setTimezone(e.target.value)}/>
             </div>
-            <div className=''>
+            <div className='mt-2'>
                 <label className=''>
                     Password
                 </label>
                 <Input type='password' name='password' placeholder='password' value={password} onChange={(e) => setPassword(e.target.value)} />
-                <Input type='password' name='passwordRepeat' placeholder='repeat password' value={passwordRepeat} onChange={(e) => setPasswordRepeat(e.target.value)} />
+                <div className='mt-1'>
+                    <Input type='password' name='passwordRepeat' placeholder='repeat password' value={passwordRepeat} onChange={(e) => setPasswordRepeat(e.target.value)} />
+                </div>
                 {!passwordsMatch && <p className='text-sm text-custom-warm-dark'>Passwords must match</p>}
             </div>
             <div>
-                <Button type='btnGeneral' text='Login' onClick={createUser} />
+                <Button type='btnGeneral' text='Sign Up' onClick={createUser} />
             </div>
             <div className='mt-12 text-center text-sm'>
                 Already have an account?&nbsp;
