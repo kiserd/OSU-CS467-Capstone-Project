@@ -18,8 +18,8 @@ const Search = ({ onSearch }) => {
         }
     }
     return (
-        <div className='inline'>
-            <span className='flex-shrink'>
+        <div className='flex'>
+            <span className='flex-shrink self-center'>
                 <Input type='text' value={searchValue} onChange={(e) => setSearchValue(e.target.value)}/>
             </span>
             <span className='flex-shrink-0'>

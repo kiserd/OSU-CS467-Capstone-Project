@@ -5,7 +5,7 @@ const test_searchPage = () => {
         console.log(searchString)
     }
     return (
-        <div className='m-12'>
+        <div className='m-12 max-w-md'>
             <Search onSearch={onSearch} />
         </div>
     )
