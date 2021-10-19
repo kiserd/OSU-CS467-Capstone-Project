@@ -1,7 +1,7 @@
 /* https://tailwindcss.com/docs/guides/nextjs */
 
 .btn {
-    @apply m-2 py-2 px-3 border-2 rounded-3xl focus:outline-none focus:ring-1;
+    @apply py-2 px-3 border-2 rounded-3xl focus:outline-none focus:ring-1;
 }
 
 .btnGeneral {
