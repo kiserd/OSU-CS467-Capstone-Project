@@ -6,3 +6,7 @@
 .mySillyStyle {
     @apply flex items-center justify-between flex-wrap bg-blue-700 p-4;
 }
+
+.defaultBorder {
+    @apply border-2 border-gray-400 rounded-md;
+}
