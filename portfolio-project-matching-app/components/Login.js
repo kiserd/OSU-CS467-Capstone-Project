@@ -7,7 +7,7 @@ const Login = ({ toggleNewUser }) => {
     }
 
     return (
-        <div className='w-max p-2 border-2 border-gray-400 rounded-md'>
+        <div className='w-full py-2 px-4 border-2 border-gray-400 rounded-md'>
             <div className='mx-2 text-2xl text-md'>
                 Login
             </div>
