@@ -55,7 +55,7 @@ const browseProjects = () => {
                 <div className='col-span-2'>
                     {projects.map((project) => {
                         return (
-                            <div className='p-2'>
+                            <div key={project.id} className='p-2'>
                                 <ProjectCard project={project} />
                             </div>
                         )
