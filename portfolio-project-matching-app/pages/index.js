@@ -10,8 +10,8 @@ export default function Home({ projectList }) {
       <Head>
         <title>CS467 Portfolio Project</title>
       </Head>
-      <DBList docList={projectList} />
-      <DBForm />
+      {/* <DBList docList={projectList} />
+      <DBForm /> */}
     </div>
   )
 }
