@@ -41,12 +41,12 @@ const browseProjects = () => {
 
     return (
         <div>
-            <div className='p-2 bg-custom-warm-light'>
+            <div className='px-2 pb-1 pt-2'>
                 <div className='w-full flex'>
-                    <div className='flex justify-start'>
+                    <div className='flex flex-grow justify-center'>
                         <Search />
                     </div>
-                    <div className='flex flex-grow justify-end'>
+                    <div className='flex justify-end'>
                         <Button text='New Project' />
                     </div>
                 </div>
