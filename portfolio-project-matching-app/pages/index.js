@@ -10,20 +10,20 @@ export default function Home({ projectList }) {
       <Head>
         <title>CS467 Portfolio Project</title>
       </Head>
-      <DBList docList={projectList} />
-      <DBForm />
+      {/* <DBList docList={projectList} />
+      <DBForm /> */}
     </div>
   )
 }
 
 // yanked from https://nextjs.org/docs/basic-features/data-fetching#getserversideprops-server-side-rendering
-export async function getServerSideProps(context) {
-  const projectList = await getAllDocs('projects')
-  return {
+// export async function getServerSideProps(context) {
+//   const projectList = await getAllDocs('projects')
+//   return {
     
-    // will be passed to the page component as props
-    props: {
-      projectList,
-    },
-  }
-}
+//     // will be passed to the page component as props
+//     props: {
+//       projectList,
+//     },
+//   }
+// }
