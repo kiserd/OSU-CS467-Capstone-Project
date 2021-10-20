@@ -33,11 +33,12 @@ const browseProjects = () => {
                         return <ProjectCard project={project} />
                     })}
                 </div>
-                <div className='p-2 col-span-1 border-2 border-gray-400 rounded-md'>
-                    <div>
-                        FILTERS
+                <div className='m-2 p-2 col-span-1 border-2 border-gray-400 rounded-md'>
+                    <div className='text-xl font-medium text-center'>
+                        Filters
                     </div>
-                    <FilterButtons category='technologies' choices={technologies} />
+                    <hr className='w-full border-b-2 border-gray-400'/>
+                    <FilterButtons category='Technologies' choices={technologies} />
                 </div>
             </div>
         </div>
