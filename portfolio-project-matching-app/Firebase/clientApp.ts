@@ -1,7 +1,7 @@
 // Import the functions you need from the SDKs you need
 import { initializeApp } from "firebase/app";
 // TODO: Add SDKs for Firebase products that you want to use
-import { getFirestore, collection, getDocs, addDoc, setDoc } from 'firebase/firestore';
+import { getFirestore, collection, doc, getDoc, getDocs, addDoc, setDoc } from 'firebase/firestore';
 // import { getAnalytics } from "firebase/analytics";
 // https://firebase.google.com/docs/web/setup#available-libraries
 
@@ -19,24 +19,38 @@ const firebaseApp = initializeApp(firebaseConfig);
 const db = getFirestore();
 // const analytics = getAnalytics(firebaseApp);
 
+const getDocumentById = async(collectionName, docId) => {
+  /*
+  DESCRIPTION:  gets snapshot of document from provided collection name with
+                provided document ID
+
+  INPUT:        string indicating desired collection name and string indicating
+                desired document ID
+
+  RETURN:       snapshot of document with provided document ID
+  */
+  const docRef = doc(db, collectionName, docId);
+  const querySnapshot = await getDoc(docRef);
+  return querySnapshot;
+}
 
 const getAllDocs = async (collectionName) => {
   /*
-    DESCRIPTION:  gets all documents from provided collection
+    DESCRIPTION:  gets snapshot of documents from provided collection name
 
     INPUT:        string indicating desired collection name. E.g.,
                   getAllDocuments('technologies')
 
-    RETURN:       a list of all documents in collection indicated
+    RETURN:       snapshot of documents from specified collection
   */
-  const coll = collection(db, collectionName);
-  const docSnapshot = await getDocs(coll);
-  const docSnapshotList = docSnapshot.docs.map((doc) => {
-    var arr = doc.data()
-    arr.id = doc.id
-    return arr
-  });
-  return docSnapshotList;
+  const collectionRef = collection(db, collectionName);
+  const querySnapshot = await getDocs(collectionRef);
+  // const docSnapshotList = querySnapshot.docs.map((doc) => {
+  //   var arr = doc.data()
+  //   arr.id = doc.id
+  //   return arr
+  // });
+  return querySnapshot;
 }
 
 const addNewDoc = async (collectionName, data) => {
@@ -57,4 +71,4 @@ const addNewDoc = async (collectionName, data) => {
 }
 
 // export
-export { db, firebaseApp, getAllDocs, addNewDoc };
+export { db, firebaseApp, getAllDocs, addNewDoc, getDocumentById };
