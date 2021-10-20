@@ -29,9 +29,15 @@ const ProjectCard = ({ project }) => {
             </div>
             <div className='flex flex-wrap'>
                 {project.users.map((user) => {
-                    return <UserIcon key={user.id} imgPath='/../public/user.ico' username={user.username} />
+                    return (
+                    <div key={user.id} className='p-1'>
+                        <UserIcon imgPath='/../public/user.ico' username={user.username} />
+                    </div>
+                    )
                 })}
-                <Button text='join' type='btnGeneral' />
+                <div className='p-1'>
+                    <Button text='join' type='btnGeneral' />
+                </div>
             </div>
             <div className='inline ml-2'>
                 <h3 className='inline'>{project.likes} Likes</h3>

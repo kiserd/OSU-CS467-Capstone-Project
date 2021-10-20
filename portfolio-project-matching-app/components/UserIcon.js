@@ -2,7 +2,7 @@ import Image from 'next/image'
 
 const UserIcon = ({ username, imgPath }) => {
     return (
-        <div className='m-2 inline-block p-1 box-border border-2 border-solid border-gray-400 rounded-lg'>
+        <div className='inline-block p-1 box-border border-2 border-solid border-gray-400 rounded-lg'>
             <span className='align-middle'>
                 <span className=''>
                     <Image src={imgPath} width='30' height='30' />
