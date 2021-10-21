@@ -1,5 +1,3 @@
-
-
 class Project {
 
     constructor(docSnapshot) {
@@ -12,8 +10,8 @@ class Project {
         this.likes = docSnapshot.data().likes;
         this.ownerId = docSnapshot.data().owner.id;
         this.owner = null;
-        this.technologies = [];
-        this.users = [];
+        this.technologies = null;
+        this.users = null;
     }
 
     
