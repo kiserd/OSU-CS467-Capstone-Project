@@ -22,26 +22,55 @@ const getProjectById = async (projectId) => {
     project.owner = owner;
 
     // get associated technologies to populate project object's technologies
-    const projectsTechnologiesSnap = await getCollectionSnapshotByCriteria('projects_technologies', 'project_id', '==', project.id);
-    const technologiesArray = [];
+    project.technologies = await getTechnologiesByProjectId(project.id);
+
+    // get associated users and populate project object's users property
+    // const projectsUsersSnap = await getCollectionSnapshotByCriteria('projects_users', 'project_id', '==', project.id);
+    // const usersArray = [];
+    // for (const doc of projectsUsersSnap.docs) {
+    //     const userRef = await getDocSnapshotById('users', doc.data().user_id);
+    //     const user = new User(userRef);
+    //     usersArray.push(user);
+    // }
+    project.users = await getUsersByProjectId(project.id);
+
+    return project;
+}
+
+const getTechnologiesByProjectId = async (projectId) => {
+    /*
+    DESCRIPTION:    retrieves technologies associated with specified project ID
+
+    INPUT:          desired project document ID in string format
+
+    RETURN:         array of Technology objects associated with project
+    */
+    const projectsTechnologiesSnap = await getCollectionSnapshotByCriteria('projects_technologies', 'project_id', '==', projectId);
+    const technologies = [];
     for (const doc of projectsTechnologiesSnap.docs) {
         const technologyRef = await getDocSnapshotById('technologies', doc.data().technology_id);
         const technology = new Technology(technologyRef);
-        technologiesArray.push(technology);
+        technologies.push(technology);
     }
-    project.technologies = technologiesArray;
+    return technologies;
+}
 
-    // get associated users and populate project object's users property
-    const projectsUsersSnap = await getCollectionSnapshotByCriteria('projects_users', 'project_id', '==', project.id);
-    const usersArray = [];
+const getUsersByProjectId = async (projectId) => {
+    /*
+    DESCRIPTION:    retrieves users associated with specified project ID
+
+    INPUT:          desired project document ID in string format
+
+    RETURN:         array of User objects associated with project
+    */
+    const projectsUsersSnap = await getCollectionSnapshotByCriteria('projects_users', 'project_id', '==', projectId);
+    const users = [];
     for (const doc of projectsUsersSnap.docs) {
         const userRef = await getDocSnapshotById('users', doc.data().user_id);
         const user = new User(userRef);
-        usersArray.push(user);
+        users.push(user);
     }
-    project.users = usersArray;
-
-    return project;
+    return users;
 }
 
 
