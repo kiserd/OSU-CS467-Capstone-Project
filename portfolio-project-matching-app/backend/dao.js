@@ -3,6 +3,10 @@ import { User } from '../models/User'
 import { Project } from '../models/Project'
 import { Technology } from '../models/Technology'
 
+/*
+    PROJECT LEVEL QUERIES
+*/
+
 const getAllProjects = async () => {
     /*
     DESCRIPTION:    retrieves all projects in the 'projects' collection and
@@ -17,27 +21,13 @@ const getAllProjects = async () => {
     // get snapshot of projects collection
     const collectionSnap = await getCollectionSnapshot('projects');
 
-    // initialize each project object and add to array
+    // loop through documents in the snapshot, adding Project objects to array
     const projects = [];
-    collectionSnap.docs.forEach((doc) => {
-        const project = new Project(doc);
+    for (const doc of collectionSnap.docs) {
+        // leverage getProjectById() in creating Project objects
+        const project = await getProjectById(doc.id);
         projects.push(project);
-    })
-
-    // populate owner, technologies, and users for each project object
-    for (const project of projects) {
-        // set owner
-        const ownerSnap = await getDocSnapshotById('users', project.ownerId);
-        const owner = new User(ownerSnap);
-        project.owner = owner;
-
-        // set technologies
-        project.technologies = await getTechnologiesByProjectId(project.id);
-
-        // set users
-        project.users = await getUsersByProjectId(project.id);
     }
-
     return projects;
 }
 
@@ -80,7 +70,10 @@ const getTechnologiesByProjectId = async (projectId) => {
 
     RETURN:         array of Technology objects associated with project
     */
+    // get filtered collection snapshot
     const projectsTechnologiesSnap = await getCollectionSnapshotByCriteria('projects_technologies', 'project_id', '==', projectId);
+
+    // loop through associated documents, adding Technology objects to array
     const technologies = [];
     for (const doc of projectsTechnologiesSnap.docs) {
         const technologyRef = await getDocSnapshotById('technologies', doc.data().technology_id);
@@ -98,7 +91,10 @@ const getUsersByProjectId = async (projectId) => {
 
     RETURN:         array of User objects associated with project
     */
+    // get filtered collection snapshot
     const projectsUsersSnap = await getCollectionSnapshotByCriteria('projects_users', 'project_id', '==', projectId);
+    
+    // loop through associated documents, adding User objects to array
     const users = [];
     for (const doc of projectsUsersSnap.docs) {
         const userRef = await getDocSnapshotById('users', doc.data().user_id);
@@ -108,5 +104,101 @@ const getUsersByProjectId = async (projectId) => {
     return users;
 }
 
+/*
+    USER LEVEL QUERIES
+*/
 
-export { getDocSnapshotById, getProjectById, getAllProjects }
+const getAllUsers = async () => {
+    /*
+    DESCRIPTION:    retrieves all users in the 'users' collection and
+                    returns an array of User objects. Note, the projects &
+                    technologies associated with the users will contain
+                    references to their associated objects.
+
+    INPUT:          NA
+
+    RETURN:         array of User objects
+    */
+    // get snapshot of users collection
+    const collectionSnap = await getCollectionSnapshot('users');
+
+    // loop through documents in the snapshot, adding User objects to array
+    const users = [];
+    for (const doc of collectionSnap.docs) {
+        // leverage getUserById() in creating User objects
+        const project = await getUserById(doc.id);
+        users.push(project);
+    }
+    return users;
+}
+
+const getUserById = async (userId) => {
+    /*
+    DESCRIPTION:    retrieves user data for specified user document ID.
+                    It is worth noting that the User object will only
+                    contain data associated at the User level. The objects
+                    describing associated projects & technologies will contain
+                    references.
+
+    INPUT:          desired user document ID in string format
+
+    RETURN:         user object containing data associated with user
+                    document ID passed as argument
+    */
+    // get user doc snapshot and use to initialize user object
+    const userSnap = await getDocSnapshotById('users', userId);
+    const user = new User(userSnap);
+
+    // get associated projects to populate user object's projects
+    user.projects = await getProjectsByUserId(user.id);
+
+    // get associated technologies to populate user object's technologies
+    user.technologies = await getTechnologiesByUserId(user.id);
+
+    return user;
+}
+
+const getProjectsByUserId = async (userId) => {
+    /*
+    DESCRIPTION:    retrieves projects associated with specified user ID
+
+    INPUT:          desired user document ID in string format
+
+    RETURN:         array of Project objects associated with user
+    */
+    // get filtered collection snapshot
+    const projectsUsersSnap = await getCollectionSnapshotByCriteria('projects_users', 'user_id', '==', userId);
+    
+    // loop through associated documents, adding Project objects to array
+    const projects = [];
+    for (const doc of projectsUsersSnap.docs) {
+        const projectRef = await getDocSnapshotById('projects', doc.data().project_id);
+        const project = new Project(projectRef);
+        projects.push(project);
+    }
+    return projects;
+}
+
+const getTechnologiesByUserId = async (userId) => {
+    /*
+    DESCRIPTION:    retrieves technologies associated with specified user ID
+
+    INPUT:          desired user document ID in string format
+
+    RETURN:         array of Technology objects associated with user
+    */
+    // get filtered collection snapshot
+    const projectsTechnologiesSnap = await getCollectionSnapshotByCriteria('users_technologies', 'user_id', '==', userId);
+
+    // loop through associated documents, adding Technology objects to array
+    const technologies = [];
+    for (const doc of projectsTechnologiesSnap.docs) {
+        const technologyRef = await getDocSnapshotById('technologies', doc.data().technology_id);
+        const technology = new Technology(technologyRef);
+        technologies.push(technology);
+    }
+    return technologies;
+}
+
+
+export { getProjectById, getAllProjects, getUserById, getAllUsers }

@@ -5,7 +5,8 @@ class User {
         this.email = docSnapshot.data().email;
         this.username = docSnapshot.data().username;
         this.introduction = docSnapshot.data().introduction;
-        this.technologies = docSnapshot.data().technologies;
+        this.projects = null;
+        this.technologies = null;
     }
 
     
