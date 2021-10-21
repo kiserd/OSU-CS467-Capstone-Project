@@ -1,17 +1,10 @@
 import { getAllDocs, getDocSnapshotById, getProjectById } from '../backend/dao'
-import { Project } from '../backend/Project'
+import { Project } from '../models/Project'
 
 const test_daoPage = () => {
     const getStuff = async () => {
         var project = await getProjectById('lvaaHKqTrt4QWr3rbEXI');
         console.log(project);
-        // projectSnap.docs.map((doc) => {
-        //     console.log(doc.data())
-        // })
-        // console.log(project)
-        // console.log(project.name)
-        // console.log(projectSnap.data())
-        // console.log(projectSnap.id)
     }
 
     getStuff();
