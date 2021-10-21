@@ -1,7 +1,7 @@
 // Import the functions you need from the SDKs you need
 import { initializeApp } from "firebase/app";
 // TODO: Add SDKs for Firebase products that you want to use
-import { getFirestore, collection, doc, getDoc, getDocs, addDoc, setDoc } from 'firebase/firestore';
+import { getFirestore, collection, query, where, doc, getDoc, getDocs, addDoc, setDoc } from 'firebase/firestore';
 // import { getAnalytics } from "firebase/analytics";
 // https://firebase.google.com/docs/web/setup#available-libraries
 
@@ -45,12 +45,26 @@ const getCollectionSnapshot = async (collectionName) => {
   */
   const collectionRef = collection(db, collectionName);
   const querySnapshot = await getDocs(collectionRef);
-  // const docSnapshotList = querySnapshot.docs.map((doc) => {
-  //   var arr = doc.data()
-  //   arr.id = doc.id
-  //   return arr
-  // });
   return querySnapshot;
+}
+
+const getCollectionSnapshotByCriteria = async (collectionName, field, operator, condition) => {
+  /*
+  DESCRIPTION:  gets snapshot of documents from provided collection name based
+                on criteria passed
+
+  INPUT:        collectionName: string indicating name of collection
+                field: field being compared to criteria
+                operator: operator used to compare against condition e.g., '=='
+                condition: value given field is being compared against
+                Example: getColl...Criteria('projects', 'open', '==', true)
+
+  RETURN:       snapshot of documents from specified collection
+  */
+  const collectionRef = collection(db, collectionName);
+  const q = query(collectionRef, where(field, operator, condition));
+  const querySnapshot = await getDocs(q);
+  return querySnapshot
 }
 
 const addNewDoc = async (collectionName, data) => {
@@ -71,4 +85,4 @@ const addNewDoc = async (collectionName, data) => {
 }
 
 // export
-export { db, firebaseApp, getCollectionSnapshot, addNewDoc, getDocSnapshotById };
+export { db, firebaseApp, getCollectionSnapshot, addNewDoc, getDocSnapshotById, getCollectionSnapshotByCriteria };
