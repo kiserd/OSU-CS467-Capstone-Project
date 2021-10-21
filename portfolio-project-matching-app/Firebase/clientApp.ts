@@ -19,7 +19,7 @@ const firebaseApp = initializeApp(firebaseConfig);
 const db = getFirestore();
 // const analytics = getAnalytics(firebaseApp);
 
-const getDocumentById = async(collectionName, docId) => {
+const getDocSnapshotById = async(collectionName, docId) => {
   /*
   DESCRIPTION:  gets snapshot of document from provided collection name with
                 provided document ID
@@ -34,7 +34,7 @@ const getDocumentById = async(collectionName, docId) => {
   return querySnapshot;
 }
 
-const getAllDocs = async (collectionName) => {
+const getCollectionSnapshot = async (collectionName) => {
   /*
     DESCRIPTION:  gets snapshot of documents from provided collection name
 
@@ -71,4 +71,4 @@ const addNewDoc = async (collectionName, data) => {
 }
 
 // export
-export { db, firebaseApp, getAllDocs, addNewDoc, getDocumentById };
+export { db, firebaseApp, getCollectionSnapshot, addNewDoc, getDocSnapshotById };
