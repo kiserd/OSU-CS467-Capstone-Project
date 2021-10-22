@@ -26,13 +26,13 @@ const Nav = () => {
                         <Link href="/" passHref>
                             {/* Link's child must take an href, so Button must be wrapped with <a> tags */}
                             <a>
-                            <Button text="Browse" isLink={true} addClassName="bg-white"/>
+                            <Button text="Browse" isLink={true} addClassName="bg-white m-2"/>
                             </a>
                         </Link>
                         :
                         <Link href="/myProfile" passHref>
                             <a>
-                            <Button text="Profile" isLink={true} addClassName="bg-white"/>
+                            <Button text="Profile" isLink={true} addClassName="bg-white m-2"/>
                             </a>
                         </Link>
 
