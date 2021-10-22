@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import Button from '../components/Button'
 import Input from '../components/Input'
+import InputDropdown from '../components/InputDropdown'
 import Textarea from '../components/Textarea'
 
 
@@ -23,7 +24,7 @@ const myProfile = () => {
             const values = {
                 username: "joshk",
                 email: "a@b.com",
-                timezone: "ET",
+                timezone: "Mountain",
                 introduction: "Hi I'm Josh and I like to party",
                 technologies: ['JavaScript', 'Python', 'Blockchain']
             }
@@ -45,16 +46,33 @@ const myProfile = () => {
             // api.setUserInfo(userProfileValues);
             console.log("Form submitted");
         }
+        
+        const timezones = [
+            {id: 1, name:'Pacific'},
+            {id: 2, name:'Mountain'},
+            {id: 3, name:'Central'},
+            {id: 4, name:'Eastern'}
+        ]
     
         return (
             <div>
                 <form onSubmit={handleSubmit}>
                     
 
+                    <label>Username:</label>
+                    <Input value={userProfileValues.username} name="username" onChange={handleInputChange}/>
+
+                    <label>Email:</label>
+                    <Input value={userProfileValues.email} name="email" onChange={handleInputChange}/>
+
+                    <label>Timezone:</label>
+                    <InputDropdown choices={timezones} value={userProfileValues.timezone} name="timezone" onChange={handleInputChange}/>
+
                     <label>Introduction:</label>
                     <Textarea value={userProfileValues.introduction} name="introduction" onChange={handleInputChange}/>
 
-                    
+                    <label>Technologies:</label>
+                    <Textarea value={userProfileValues.technologies} name="technologies" onChange={handleInputChange}/>
 
                     <Button text="Submit"/>
                 </form>
