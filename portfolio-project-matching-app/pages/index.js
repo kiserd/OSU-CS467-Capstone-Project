@@ -17,13 +17,13 @@ export default function Home({ projectList }) {
 }
 
 // yanked from https://nextjs.org/docs/basic-features/data-fetching#getserversideprops-server-side-rendering
-export async function getServerSideProps(context) {
-  const projectList = await getAllDocs('projects')
-  return {
+// export async function getServerSideProps(context) {
+//   const projectList = await getAllDocs('projects')
+//   return {
     
-    // will be passed to the page component as props
-    props: {
-      projectList,
-    },
-  }
-}
+//     // will be passed to the page component as props
+//     props: {
+//       projectList,
+//     },
+//   }
+// }

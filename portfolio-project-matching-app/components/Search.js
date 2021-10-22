@@ -22,7 +22,7 @@ const Search = ({ onSearch }) => {
             <span className='flex-shrink self-center'>
                 <Input type='text' value={searchValue} onChange={(e) => setSearchValue(e.target.value)}/>
             </span>
-            <span className='flex-shrink-0'>
+            <span className='pl-2 flex-shrink-0'>
                 <Button text='Search' type='btnGeneral' onClick={sendSearch} />
             </span>
         </div>

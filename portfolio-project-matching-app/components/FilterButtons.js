@@ -29,7 +29,7 @@ const FilterButtons = ({ category, choices, onClick }) => {
     }
 
     return (
-        <div>
+        <div className=''>
             <div className='text-lg'>
                 {category}
             </div>
@@ -38,7 +38,11 @@ const FilterButtons = ({ category, choices, onClick }) => {
             </div>
             <div>
                 {selectedChoices.map((choice) => {
-                    return <Button key={choice.id} type='btnWarning' text={choice.name} onClick={() => removeFilter(choice)} />
+                    return (
+                        <div className='py-1 pr-2'>
+                            <Button key={choice.id} type='btnWarning' text={choice.name} onClick={() => removeFilter(choice)} />
+                        </div>
+                    )
                 })}
             </div>
             <div className='text-sm text-gray-400'>
@@ -46,7 +50,11 @@ const FilterButtons = ({ category, choices, onClick }) => {
             </div>
             <div className='flex flex-wrap'>
                 {availableChoices.map((choice) => {
-                    return <Button key={choice.id} type='btnGeneral' text={choice.name} onClick={() => addFilter(choice)} />
+                    return (
+                        <div className='py-1 pr-2'>
+                            <Button key={choice.id} type='btnGeneral' text={choice.name} onClick={() => addFilter(choice)} />
+                        </div>
+                    )
                 })}
             </div>
         </div>
