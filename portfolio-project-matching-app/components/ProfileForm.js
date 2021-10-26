@@ -3,7 +3,7 @@ import Button from '../components/Button'
 import Input from '../components/Input'
 import InputDropdown from '../components/InputDropdown'
 import Textarea from '../components/Textarea'
-
+import styles from './ProfileForm.module.css'
 
 const myProfile = () => {
         const initialUserProfileState = {
@@ -58,19 +58,19 @@ const myProfile = () => {
             <div>
                 <form onSubmit={handleSubmit} className="mx-10">
 
-                    <label>Username:</label>
+                    <label className={styles.formLabel}>Username:</label>
                     <Input value={userProfileValues.username} name="username" onChange={handleInputChange}/>
 
-                    <label>Email:</label>
+                    <label className={styles.formLabel}>Email:</label>
                     <Input value={userProfileValues.email} name="email" onChange={handleInputChange}/>
 
-                    <label>Timezone:</label>
+                    <label className={styles.formLabel}>Timezone:</label>
                     <InputDropdown choices={timezones} name="timezone" onChange={handleInputChange}/>
 
-                    <label>Introduction:</label>
+                    <label className={styles.formLabel}>Introduction:</label>
                     <Textarea value={userProfileValues.introduction} name="introduction" onChange={handleInputChange}/>
 
-                    <label>Technologies:</label>
+                    <label className={styles.formLabel}>Technologies:</label>
                     <Textarea value={userProfileValues.technologies} name="technologies" onChange={handleInputChange}/>
 
                     <Button text="Submit"/>
