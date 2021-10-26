@@ -27,7 +27,7 @@ const newProject = () => {
     updateSelectedTechnologies([]);
     }
 
-    const update = (a) => {
+    const addTechnology = (a) => {
         if (selectedTechnologies.includes(a.name) === false) {
             updateSelectedTechnologies([...selectedTechnologies, a.name])
         }
@@ -45,7 +45,7 @@ const newProject = () => {
                         <div className='mb-4'>
                             <label for='technologies' className='block mb-2'>Technologies:</label>
                             {/* FIX THIS: Temporary Solution. Need more robust way of selecting technologies*/}
-                            <FilterButtons choices={technologies} onClick={update}/>
+                            <FilterButtons choices={technologies} onClick={addTechnology}/>
                         </div>
                         <div className='mb-4'>
                             <label for='description' className='block mb-2'>Description:</label>
