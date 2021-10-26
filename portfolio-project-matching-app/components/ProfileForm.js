@@ -25,7 +25,7 @@ const myProfile = () => {
                 username: "joshk",
                 email: "a@b.com",
                 timezone: "Mountain",
-                introduction: "Hi I'm Josh and I like to party",
+                introduction: "Hi I'm Josh and I like to code",
                 technologies: ['JavaScript', 'Python', 'Blockchain']
             }
             // const values =  api.getUserInfo(user)
@@ -65,13 +65,10 @@ const myProfile = () => {
                     <Input value={userProfileValues.email} name="email" onChange={handleInputChange}/>
 
                     <label className={styles.formLabel}>Timezone:</label>
-                    <InputDropdown choices={timezones} name="timezone" onChange={handleInputChange}/>
+                    <InputDropdown choices={timezones} value={userProfileValues.timezone} name="timezone" onChange={handleInputChange}/>
 
                     <label className={styles.formLabel}>Introduction:</label>
                     <Textarea value={userProfileValues.introduction} name="introduction" onChange={handleInputChange}/>
-
-                    <label className={styles.formLabel}>Technologies:</label>
-                    <Textarea value={userProfileValues.technologies} name="technologies" onChange={handleInputChange}/>
 
                     <Button text="Submit"/>
                 </form>
