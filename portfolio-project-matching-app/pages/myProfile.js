@@ -1,8 +1,9 @@
-const myProfile = () => {
-    return(
-        <div>
+import ProfileForm from '../components/ProfileForm'
 
-        </div>
+const myProfile = () => {
+        
+        return (
+            <ProfileForm />
     )
 }
 
