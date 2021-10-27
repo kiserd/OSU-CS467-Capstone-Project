@@ -1,0 +1,3 @@
+.formLabel {
+    @apply text-lg block;
+}
