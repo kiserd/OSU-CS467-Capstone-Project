@@ -4,8 +4,12 @@ import Button from '../components/Button'
 import Textarea from '../components/Textarea'
 import FilterButtons from '../components/FilterButtons'
 import { addNewDoc } from '../Firebase/clientApp.ts'
+import MultipleInputDropdown from '../components/MultipleInputDropdown'
 
-const technologies = [{id: 1, name: 'Javascript'}, {id: 2, name: 'C++'}, {id: 3, name: 'React'}, {id: 4, name: 'Flutter'}]
+let technologies = [{id: 1, name: 'Javascript'}, {id: 2, name: 'C++'}, {id: 3, name: 'React'}, {id: 4, name: 'Flutter'}]
+technologies = technologies.map((technology) => {
+    return {value: technology.name, label: technology.name}
+})
 
 const newProject = () => {
     const [selectedTechnologies, updateSelectedTechnologies] = useState([]);
@@ -27,10 +31,9 @@ const newProject = () => {
     updateSelectedTechnologies([]);
     }
 
-    const addTechnology = (a) => {
-        if (selectedTechnologies.includes(a.name) === false) {
-            updateSelectedTechnologies([...selectedTechnologies, a.name])
-        }
+    const addTechnology = (e) => {
+        console.log(selectedTechnologies);
+        updateSelectedTechnologies(e.map(a => a.value))
     }
 
     return (
@@ -45,7 +48,8 @@ const newProject = () => {
                         <div className='mb-4'>
                             <label for='technologies' className='block mb-2'>Technologies:</label>
                             {/* FIX THIS: Temporary Solution. Need more robust way of selecting technologies*/}
-                            <FilterButtons choices={technologies} onClick={addTechnology}/>
+                            <MultipleInputDropdown options={technologies} onChange={addTechnology} />
+                            {/* <FilterButtons choices={technologies} onClick={addTechnology}/> */}
                         </div>
                         <div className='mb-4'>
                             <label for='description' className='block mb-2'>Description:</label>
