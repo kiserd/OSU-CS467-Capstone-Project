@@ -5,7 +5,7 @@ class Project {
         this.name = docSnapshot.data().name;
         this.description = docSnapshot.data().description;
         this.capacity = docSnapshot.data().capacity;
-        this.census = docSnapshot.data().cencus;
+        this.census = docSnapshot.data().census;
         this.open = docSnapshot.data().open;
         this.likes = docSnapshot.data().likes;
         this.ownerId = docSnapshot.data().owner.id;
