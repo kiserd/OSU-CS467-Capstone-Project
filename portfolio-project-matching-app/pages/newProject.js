@@ -39,16 +39,16 @@ const newProject = () => {
 
     return (
         <div className='bg-gray-200 p-2 w-full h-full'>
-            <div className='w-full mx-auto max-w-xs border-2 border-gray-400 rounded-md shadow-md'>
+            <div className='w-full mx-auto max-w-md border-2 border-gray-400 rounded-md shadow-md'>
                 <div className='p-2 divide-y divide-gray-400'>
-                    <form onSubmit={addProject}>
+                    <form onSubmit={addProject} className='mx-10'>
                         <div className='mb-4 mt-4'>
                             <label for='name' className='block mb-2'>Project Name:</label>
                             <Input type='text' name='name' placeholder='Project Name'/>
                         </div>
                         <div className='mb-4'>
                             <label for='technologies' className='block mb-2'>Technologies:</label>
-                            <MultipleInputDropdown options={technologies} onChange={addTechnology} />
+                            <MultipleInputDropdown options={technologies} onChange={addTechnology} name='technologies'/>
                         </div>
                         <div className='mb-4'>
                             <label for='description' className='block mb-2'>Description:</label>
