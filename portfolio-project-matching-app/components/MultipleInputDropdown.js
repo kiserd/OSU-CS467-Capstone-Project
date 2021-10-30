@@ -1,8 +1,7 @@
 import React from 'react'
 import Select from 'react-select'
-import styles from './MultipleInputDropdown.module.css'
 
-const MultipleInputDropdown = ({options, onChange}) => {
+const MultipleInputDropdown = ({options, onChange, name}) => {
     const theme = (theme) => ({
       ...theme,
       borderRadius: '0.375rem',
@@ -28,7 +27,16 @@ const MultipleInputDropdown = ({options, onChange}) => {
     }
 
     return (
-        <Select options={options} onChange={onChange} isMulti isClearable isSearchable styles={customStyles} theme={theme}/>
+        <Select 
+          name={name} 
+          options={options} 
+          onChange={onChange} 
+          isMulti 
+          isClearable 
+          isSearchable 
+          styles={customStyles} 
+          theme={theme}
+        />
     )
 }
 
