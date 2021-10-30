@@ -2,11 +2,12 @@ import React, { useState } from 'react'
 import Input from '../components/Input'
 import Button from '../components/Button'
 import Textarea from '../components/Textarea'
-import FilterButtons from '../components/FilterButtons'
 import { addNewDoc } from '../Firebase/clientApp.ts'
 import MultipleInputDropdown from '../components/MultipleInputDropdown'
 
 let technologies = [{id: 1, name: 'Javascript'}, {id: 2, name: 'C++'}, {id: 3, name: 'React'}, {id: 4, name: 'Flutter'}]
+
+// The Select component from react-select expects the 'options' prop to be an object with keys 'value' and 'label'
 technologies = technologies.map((technology) => {
     return {value: technology.name, label: technology.name}
 })
@@ -15,20 +16,20 @@ const newProject = () => {
     const [selectedTechnologies, updateSelectedTechnologies] = useState([]);
 
     const addProject = async (e) => {
-    e.preventDefault();
-    console.log(e.target.technologies);
-    let payload = {
-        name: e.target.name.value,
-        description: e.target.description.value,
-        capacity: e.target.capacity.value,
-        technologies: selectedTechnologies,
-        cencus: 1,
-        open: true,
-        likes: 0
-    }
-    console.log(payload)
-    // await addNewDoc('projects', payload);
-    updateSelectedTechnologies([]);
+        e.preventDefault();
+        console.log(e.target.technologies);
+        let payload = {
+            name: e.target.name.value,
+            description: e.target.description.value,
+            capacity: e.target.capacity.value,
+            technologies: selectedTechnologies,
+            cencus: 1,
+            open: true,
+            likes: 0
+        }
+        console.log(payload)
+        // await addNewDoc('projects', payload);
+        updateSelectedTechnologies([]);
     }
 
     const addTechnology = (e) => {
@@ -47,9 +48,7 @@ const newProject = () => {
                         </div>
                         <div className='mb-4'>
                             <label for='technologies' className='block mb-2'>Technologies:</label>
-                            {/* FIX THIS: Temporary Solution. Need more robust way of selecting technologies*/}
                             <MultipleInputDropdown options={technologies} onChange={addTechnology} />
-                            {/* <FilterButtons choices={technologies} onClick={addTechnology}/> */}
                         </div>
                         <div className='mb-4'>
                             <label for='description' className='block mb-2'>Description:</label>
