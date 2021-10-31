@@ -39,8 +39,8 @@ const FilterButtons = ({ category, choices, onClick }) => {
             <div>
                 {selectedChoices.map((choice) => {
                     return (
-                        <div className='py-1 pr-2'>
-                            <Button key={choice.id} type='btnWarning' text={choice.name} onClick={() => removeFilter(choice)} />
+                        <div key={choice.id} className='py-1 pr-2'>
+                            <Button type='btnWarning' text={choice.name} onClick={() => removeFilter(choice)} />
                         </div>
                     )
                 })}
@@ -51,8 +51,8 @@ const FilterButtons = ({ category, choices, onClick }) => {
             <div className='flex flex-wrap'>
                 {availableChoices.map((choice) => {
                     return (
-                        <div className='py-1 pr-2'>
-                            <Button key={choice.id} type='btnGeneral' text={choice.name} onClick={() => addFilter(choice)} />
+                        <div key={choice.id} className='py-1 pr-2'>
+                            <Button type='btnGeneral' text={choice.name} onClick={() => addFilter(choice)} />
                         </div>
                     )
                 })}

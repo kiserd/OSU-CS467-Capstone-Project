@@ -19,8 +19,8 @@ const ProjectCard = ({ project }) => {
             <div className='flex flex-wrap'>
                 {project.technologies.map((technology) => {
                     return (
-                        <div className='py-1 pr-2'>
-                            <Button key={technology.id} text={technology.name}/>
+                        <div key={technology.id} className='py-1 pr-2'>
+                            <Button text={technology.name}/>
                         </div>
                 )
                 })}
