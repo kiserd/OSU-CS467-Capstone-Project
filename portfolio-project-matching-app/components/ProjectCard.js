@@ -1,6 +1,7 @@
 import Button from '../components/Button'
 import UserIcon from '../components/UserIcon'
 import { doc } from '@firebase/firestore'
+import Link from 'next/link'
 
 const ProjectCard = ({ project }) => {
     const applyToProject = async (e) => {
@@ -19,8 +20,8 @@ const ProjectCard = ({ project }) => {
             <div className='flex flex-wrap'>
                 {project.technologies.map((technology) => {
                     return (
-                        <div className='py-1 pr-2'>
-                            <Button key={technology.id} text={technology.name}/>
+                        <div key={technology.id} className='py-1 pr-2'>
+                            <Button text={technology.name}/>
                         </div>
                 )
                 })}
@@ -49,6 +50,11 @@ const ProjectCard = ({ project }) => {
                     <Button text='Like' onClick={likeProject} type='btnGeneral' />
                 </div>
             </div>
+            <Link href={`/project?id=${project.id}`} passHref>
+                <a>
+                    <Button text="View More Info" addClassName='block mt-2'/>
+                </a>
+            </Link>
         </div>
     )
 }

@@ -33,11 +33,8 @@ const browseProjects = () => {
     }
 
     useEffect(() => {
-        initializeProjects();
-    }, [])
-
-    useEffect(() => {
-        initializeTechnologies();
+        initializeProjects()
+        initializeTechnologies()
     }, [])
 
     // const technologies = [{id: 1, name: 'Javascript'}, {id: 2, name: 'C++'}, {id: 3, name: 'React'}, {id: 4, name: 'Flutter'}]
