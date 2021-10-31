@@ -18,8 +18,10 @@ const browseProjects = () => {
     // array of projects being hidden by filters
     const [hiddenProjects, setHiddenProjects] = useState([])
 
-    // array of technology filter maps
-    const [technologyFilters, setTechnologyFilters] = useState([])
+    // array of visible technology
+    const [visibleTechnologies, setVisibleTechnolgies] = useState([])
+
+    // array of hidden technology objects
 
     const initializeProjects = async () => {
         const projects = await getAllProjects()
@@ -28,12 +30,11 @@ const browseProjects = () => {
 
     const initializeTechnologies = async () => {
         const technologies = await getAllTechnologies()
-        // console.log(technologies)
-        setTechnologyFilters(technologies)
+        setVisibleTechnolgies(technologies)
     }
 
     const onFilterClick = async (choice) => {
-        console.log(choice)
+        console.log('choice:', choice)
     }
 
     useEffect(() => {
@@ -58,7 +59,6 @@ const browseProjects = () => {
             </div>
             <div className='grid grid-cols-3'>
                 <div className='col-span-2'>
-                    {console.log(visibleProjects)}
                     {visibleProjects.map((project) => {
                         return (
                             <div key={project.id} className='p-2'>
@@ -72,8 +72,7 @@ const browseProjects = () => {
                         Filters
                     </div>
                     <hr className='w-full border-b-2 border-gray-400'/>
-                    {console.log(technologyFilters)}
-                    <FilterButtons category='Technologies' choices={technologyFilters} onClick={onFilterClick}/>
+                    <FilterButtons category='Technologies' choices={visibleTechnologies} onClick={onFilterClick}/>
                 </div>
             </div>
         </div>

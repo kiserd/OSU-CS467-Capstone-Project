@@ -14,6 +14,22 @@ class Project {
         this.users = null;
     }
 
+    hasTechnology(technologyId) {
+        // return false for null technologies property
+        if (!this.technologies) {
+            return false;
+        }
+
+        // loop through technologies in search of technologyId
+        for (const technology of technologies) {
+            if (technology.id === technologyId) {
+                return true
+            }
+        }
+
+        // search failed, return false
+        return false
+    }
     
 }
 
