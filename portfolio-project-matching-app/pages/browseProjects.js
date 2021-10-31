@@ -17,39 +17,32 @@ const browseProjects = () => {
     // array of projects being hidden by filters
     const [hiddenProjects, setHiddenProjects] = useState([])
 
-    const getProjects = async () => {
+    // array of technology filter maps
+    const [technologyFilters, setTechnologyFilters] = useState([])
+
+    const initializeState = async () => {
         const projects = await getAllProjects()
         setVisibleProjects(projects)
+        // loop through projects, adding distinct technologies to state
+        for (const project of projects) {
+            for (const technology of project.technologies) {
+                console.log(technology.id)
+                const techFiltersArr = technologyFilters.map((elt) => elt.id)
+                console.log(techFiltersArr)
+                console.log(!techFiltersArr.includes(technology.id))
+                if (!techFiltersArr.includes(technology.id)) {
+                    technology.visible = true
+                    console.log(technology)
+                    setTechnologyFilters([...technologyFilters, technology])
+                    console.log(technologyFilters)
+                }
+            }
+        }
     }
 
     useEffect(() => {
-        getProjects();
+        initializeState();
     }, [])
-
-    // const projects = [
-    //     {
-    //         name: 'Wastegram',
-    //         description: 'Tracks amount of food wasted by local businesses at the end of each day. Allows user to post photos, geoLocation, quantity describing the waste',
-    //         capacity: 4,
-    //         census: 3,
-    //         open: true,
-    //         likes: 22,
-    //         owner: {username: 'ylijokic'},
-    //         technologies: [{id: 1, name: 'Javascript'}, {id: 2, name: 'C++'}, {id: 3, name: 'React'}, {id: 4, name: 'Flutter'}],
-    //         users: [{id: 1, username: 'kiserlams'}, {id: 2, username: 'ylijokic'}, {id: 3, username: 'kaiserjo'}]
-    //     },
-    //     {
-    //         name: 'Bet With Friends',
-    //         description: 'Allows users to place friendly wagers against each other. The application does the heavy lifting in calculating payouts, binding users to terms of agreement, and providing updates on the state of the wager. Users can choose from a complex catalog of wager and event types. In the event of a user failing to settle a loss (or roll loss into new wager), the local authorities are automatically contacted.',
-    //         capacity: 3,
-    //         census: 2,
-    //         open: true,
-    //         likes: 144,
-    //         owner: {username: 'ylijokic'},
-    //         technologies: [{id: 1, name: 'C'}, {id: 2, name: 'Python'}, {id: 3, name: 'CSS'}, {id: 4, name: 'Golang'}],
-    //         users: [{id: 1, username: 'kiserlams'}, {id: 2, username: 'ylijokic'}, {id: 3, username: 'kaiserjo'}]
-    //     },
-    // ]
 
     const technologies = [{id: 1, name: 'Javascript'}, {id: 2, name: 'C++'}, {id: 3, name: 'React'}, {id: 4, name: 'Flutter'}]
 
