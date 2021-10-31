@@ -28,6 +28,7 @@ const MultipleInputDropdown = ({options, onChange, name}) => {
 
     return (
         <Select 
+          instanceId='selected-value'
           name={name} 
           options={options} 
           onChange={onChange} 
