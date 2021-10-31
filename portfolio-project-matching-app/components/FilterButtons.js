@@ -1,9 +1,9 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Button from './Button'
 
 const FilterButtons = ({ category, choices, onClick }) => {
     // declare new state variable indicating available filter choices
-    const [availableChoices, setAvailableChoices] = useState(choices)
+    const [availableChoices, setAvailableChoices] = useState([])
 
     // declare new state variable indicating selected filter choices
     const [selectedChoices, setSelectedChoices] = useState([])
@@ -27,6 +27,10 @@ const FilterButtons = ({ category, choices, onClick }) => {
         console.log(selectedChoices)
         console.log(availableChoices)
     }
+
+    useEffect(() => {
+        setAvailableChoices(choices)
+    }, [choices])
 
     return (
         <div className=''>

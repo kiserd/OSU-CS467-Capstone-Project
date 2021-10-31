@@ -32,6 +32,10 @@ const browseProjects = () => {
         setTechnologyFilters(technologies)
     }
 
+    const onFilterClick = async (choice) => {
+        console.log(choice)
+    }
+
     useEffect(() => {
         initializeProjects()
         initializeTechnologies()
@@ -69,7 +73,7 @@ const browseProjects = () => {
                     </div>
                     <hr className='w-full border-b-2 border-gray-400'/>
                     {console.log(technologyFilters)}
-                    <FilterButtons category='Technologies' choices={technologyFilters} onClick={() => {}}/>
+                    <FilterButtons category='Technologies' choices={technologyFilters} onClick={onFilterClick}/>
                 </div>
             </div>
         </div>
