@@ -200,5 +200,47 @@ const getTechnologiesByUserId = async (userId) => {
     return technologies;
 }
 
+/*
+    TECHNOLOGY LEVEL QUERIES
+*/
 
-export { getProjectById, getAllProjects, getUserById, getAllUsers }
+const getAllTechnologies = async () => {
+    /*
+    DESCRIPTION:    retrieves all technologies in the 'technologies' collection
+                    and returns an array of Technology objects.
+
+    INPUT:          NA
+
+    RETURN:         array of Technology objects
+    */
+    // get snapshot of technologies collection
+    const collectionSnap = await getCollectionSnapshot('technologies');
+
+    // loop through documents in the snapshot, adding Technology objects to array
+    const technologies = [];
+    for (const doc of collectionSnap.docs) {
+        // leverage getTechnologyById() in creating Technology objects
+        const technology = await getTechnologyById(doc.id);
+        technologies.push(technology);
+    }
+    return technologies;
+}
+
+const getTechnologyById = async (technologyId) => {
+    /*
+    DESCRIPTION:    retrieves technology data for specified technology document
+                    ID.
+
+    INPUT:          desired technology document ID in string format
+
+    RETURN:         technology object containing data associated with
+                    technology document ID passed as argument
+    */
+    // get technology doc snapshot and use to initialize technology object
+    const technologySnap = await getDocSnapshotById('technologies', technologyId);
+    const technology = new Technology(technologySnap);
+
+    return technology;
+}
+
+export { getProjectById, getAllProjects, getUserById, getAllUsers, getTechnologyById, getAllTechnologies }

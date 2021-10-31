@@ -1,7 +1,7 @@
 // library
 import { useState, useEffect } from 'react'
 // backend
-import { getAllProjects } from '../backend/dao'
+import { getAllProjects, getAllTechnologies } from '../backend/dao'
 // component
 import Button from '../components/Button'
 import FilterButtons from '../components/FilterButtons'
@@ -9,6 +9,7 @@ import ProjectCard from '../components/ProjectCard'
 import Search from '../components/Search'
 // model
 import { Project } from '../models/Project'
+import { Technology } from '../models/Technology'
 
 const browseProjects = () => {
     // array of projects that are currently visible to user
@@ -20,31 +21,26 @@ const browseProjects = () => {
     // array of technology filter maps
     const [technologyFilters, setTechnologyFilters] = useState([])
 
-    const initializeState = async () => {
+    const initializeProjects = async () => {
         const projects = await getAllProjects()
         setVisibleProjects(projects)
-        // loop through projects, adding distinct technologies to state
-        for (const project of projects) {
-            for (const technology of project.technologies) {
-                console.log(technology.id)
-                const techFiltersArr = technologyFilters.map((elt) => elt.id)
-                console.log(techFiltersArr)
-                console.log(!techFiltersArr.includes(technology.id))
-                if (!techFiltersArr.includes(technology.id)) {
-                    technology.visible = true
-                    console.log(technology)
-                    setTechnologyFilters([...technologyFilters, technology])
-                    console.log(technologyFilters)
-                }
-            }
-        }
+    }
+
+    const initializeTechnologies = async () => {
+        const technologies = await getAllTechnologies()
+        // console.log(technologies)
+        setTechnologyFilters(technologies)
     }
 
     useEffect(() => {
-        initializeState();
+        initializeProjects();
     }, [])
 
-    const technologies = [{id: 1, name: 'Javascript'}, {id: 2, name: 'C++'}, {id: 3, name: 'React'}, {id: 4, name: 'Flutter'}]
+    useEffect(() => {
+        initializeTechnologies();
+    }, [])
+
+    // const technologies = [{id: 1, name: 'Javascript'}, {id: 2, name: 'C++'}, {id: 3, name: 'React'}, {id: 4, name: 'Flutter'}]
 
 
     return (
@@ -61,6 +57,7 @@ const browseProjects = () => {
             </div>
             <div className='grid grid-cols-3'>
                 <div className='col-span-2'>
+                    {console.log(visibleProjects)}
                     {visibleProjects.map((project) => {
                         return (
                             <div key={project.id} className='p-2'>
@@ -74,7 +71,8 @@ const browseProjects = () => {
                         Filters
                     </div>
                     <hr className='w-full border-b-2 border-gray-400'/>
-                    <FilterButtons category='Technologies' choices={technologies} />
+                    {console.log(technologyFilters)}
+                    <FilterButtons category='Technologies' choices={technologyFilters} onClick={() => {}}/>
                 </div>
             </div>
         </div>
