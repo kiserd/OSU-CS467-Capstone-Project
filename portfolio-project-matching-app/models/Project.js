@@ -16,8 +16,7 @@ class Project {
 
     hasTechnology(technologyId) {
         // return false for null technologies property
-        console.log('technologyId: ', technologyId)
-        if (!this.technologies) {
+        if (this.technologies == null || this.technologies.length === 0) {
             return false;
         }
 
