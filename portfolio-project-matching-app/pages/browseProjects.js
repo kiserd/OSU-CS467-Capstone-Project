@@ -18,10 +18,14 @@ const browseProjects = () => {
     // array of projects being hidden by filters
     const [hiddenProjects, setHiddenProjects] = useState([])
 
+    // array of all technologies
+    const [allTechnologies, setAllTechnologies] = useState([])
+
     // array of visible technology
     const [visibleTechnologies, setVisibleTechnolgies] = useState([])
 
     // array of hidden technology objects
+    const [hiddenTechnologies, setHiddenTechnologies] = useState([])
 
     const initializeProjects = async () => {
         const projects = await getAllProjects()
@@ -30,11 +34,41 @@ const browseProjects = () => {
 
     const initializeTechnologies = async () => {
         const technologies = await getAllTechnologies()
-        setVisibleTechnolgies(technologies)
+        setAllTechnologies(technologies)
     }
 
-    const onFilterClick = async (choice) => {
-        console.log('choice:', choice)
+    const onFilterClick = (choice) => {
+        hiddenTechnologies.includes(choice) ? removeFilter(choice) : addFilter(choice)
+    }
+
+    const addFilter = (choice) => {
+        const newHidden = hiddenProjects
+        let newVisible = []
+        console.log('visibleProjects: ', visibleProjects)
+        for (const project of visibleProjects) {
+            console.log('choice.id: ', choice.id)
+            console.log('project.hasTechnology: ', project.hasTechnology(choice.id))
+            if (project.hasTechnology(choice.id)) {
+                newHidden.push({project: project, filters: [choice]})
+                newVisible = visibleProjects.filter((element) => element.id === project.id)
+                console.log('newVisible: ', newVisible)
+            }
+        }
+        for (const project of hiddenProjects) {
+            if (project.project.hasTechnology(choice.id)) {
+                project.filters.push(choice)
+            }
+        }
+        console.log('newVisible: ', newVisible)
+        console.log('newHidden: ', newHidden)
+        setVisibleProjects(newVisible)
+        setHiddenProjects(newHidden)
+        setVisibleTechnolgies(visibleTechnologies.filter((element) => element.id === choice.id))
+        setHiddenTechnologies([...hiddenTechnologies, choice])
+    }
+
+    const removeFilter = (choice) => {
+
     }
 
     useEffect(() => {
@@ -72,7 +106,7 @@ const browseProjects = () => {
                         Filters
                     </div>
                     <hr className='w-full border-b-2 border-gray-400'/>
-                    <FilterButtons category='Technologies' choices={visibleTechnologies} onClick={onFilterClick}/>
+                    <FilterButtons category='Technologies' choices={allTechnologies} onClick={onFilterClick}/>
                 </div>
             </div>
         </div>

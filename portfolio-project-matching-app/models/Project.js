@@ -16,12 +16,13 @@ class Project {
 
     hasTechnology(technologyId) {
         // return false for null technologies property
+        console.log('technologyId: ', technologyId)
         if (!this.technologies) {
             return false;
         }
 
         // loop through technologies in search of technologyId
-        for (const technology of technologies) {
+        for (const technology of this.technologies) {
             if (technology.id === technologyId) {
                 return true
             }
