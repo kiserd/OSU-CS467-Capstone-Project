@@ -24,8 +24,8 @@ const FilterButtons = ({ category, choices, onClick }) => {
         setAvailableChoices([...availableChoices, choice])
         // pass filter choice to parent
         onClick(choice)
-        console.log('selectedChoices: ', selectedChoices)
-        console.log('availableChoices: ', availableChoices)
+        // console.log('selectedChoices: ', selectedChoices)
+        // console.log('availableChoices: ', availableChoices)
     }
 
     useEffect(() => {

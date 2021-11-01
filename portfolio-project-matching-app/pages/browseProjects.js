@@ -62,26 +62,23 @@ const browseProjects = () => {
     }
 
     const removeFilter = (choice) => {
-        let newHidden = []
+        let newHidden = hiddenProjects
         const newVisible = visibleProjects
         for (const project of hiddenProjects) {
             for (const technology of project.filters) {
                 if (technology.id === choice.id) {
                     project.filters = project.filters.filter((element) => element.id != choice.id)
                 }
-                console.log('project: ', project)
                 if (project.filters.length === 0) {
                     newVisible.push(project.project)
                     newHidden = hiddenProjects.filter((element) => element.id === choice.id)
                 }
             }
         }
-        console.log('newVisible: ', newVisible)
-        console.log('newHidden: ', newHidden)
         setVisibleProjects(newVisible)
         setHiddenProjects(newHidden)
         setVisibleTechnologies([...visibleTechnologies, choice])
-        setHiddenTechnologies(hiddenTechnologies.filter((element) => element.id === choice.id))
+        setHiddenTechnologies(hiddenTechnologies.filter((element) => element.id != choice.id))
     }
 
     useEffect(() => {
