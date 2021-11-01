@@ -10,6 +10,7 @@ import Search from '../components/Search'
 // model
 import { Project } from '../models/Project'
 import { Technology } from '../models/Technology'
+import Link from 'next/link'
 
 const browseProjects = () => {
     // array of projects that are currently visible to user
@@ -112,7 +113,11 @@ const browseProjects = () => {
                         <Search />
                     </div>
                     <div className='flex justify-end'>
-                        <Button text='New Project' />
+                        <Link href={'/newProject'} passHref>
+                            <a>
+                                <Button text='New Project' />
+                            </a>
+                        </Link> 
                     </div>
                 </div>
             </div>
