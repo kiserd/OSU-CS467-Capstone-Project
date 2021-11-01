@@ -1,7 +1,7 @@
 // library
 import { useState, useEffect } from 'react'
 // backend
-import { getAllProjects } from '../backend/dao'
+import { getAllProjects, getAllTechnologies } from '../backend/dao'
 // component
 import Button from '../components/Button'
 import FilterButtons from '../components/FilterButtons'
@@ -9,6 +9,8 @@ import ProjectCard from '../components/ProjectCard'
 import Search from '../components/Search'
 // model
 import { Project } from '../models/Project'
+import { Technology } from '../models/Technology'
+import Link from 'next/link'
 
 const browseProjects = () => {
     // array of projects that are currently visible to user
@@ -17,41 +19,90 @@ const browseProjects = () => {
     // array of projects being hidden by filters
     const [hiddenProjects, setHiddenProjects] = useState([])
 
-    const getProjects = async () => {
+    // array of all technologies
+    const [allTechnologies, setAllTechnologies] = useState([])
+
+    // array of visible technology
+    const [visibleTechnologies, setVisibleTechnologies] = useState([])
+
+    // array of hidden technology objects
+    const [hiddenTechnologies, setHiddenTechnologies] = useState([])
+
+    const initializeProjects = async () => {
         const projects = await getAllProjects()
         setVisibleProjects(projects)
     }
 
+    const initializeTechnologies = async () => {
+        const technologies = await getAllTechnologies()
+        setAllTechnologies(technologies)
+    }
+
+    const onFilterClick = (choice) => {
+        // this should most likely be handled by FilterButtons
+        // hand work off to other functions based on whether add/remove
+        hiddenTechnologies.includes(choice) ? removeFilter(choice) : addFilter(choice)
+    }
+
+    const addFilter = (choice) => {
+        // helper arrays to harbor projects during staging
+        const newHidden = hiddenProjects
+        let newVisible = visibleProjects
+
+        // loop through hidden projects and potentially add additional filter
+        for (const project of hiddenProjects) {
+            if (!project.project.hasTechnology(choice.id)) {
+                project.filters.push(choice)
+            }
+        }
+
+        // loop through visible projects and determine whether they need hidden
+        for (const project of visibleProjects) {
+            if (!project.hasTechnology(choice.id)) {
+                // create map to keep track of filters that are applied
+                newHidden.push({project: project, filters: [choice]})
+                newVisible = newVisible.filter((element) => element.id != project.id)
+            }
+        }
+        // set state based on work done above
+        setVisibleProjects(newVisible)
+        setHiddenProjects(newHidden)
+        setVisibleTechnologies(visibleTechnologies.filter((element) => element.id === choice.id))
+        setHiddenTechnologies([...hiddenTechnologies, choice])
+    }
+
+    const removeFilter = (choice) => {
+        // helper arrays to harbor projects during staging
+        let newHidden = hiddenProjects
+        const newVisible = visibleProjects
+
+        // loop through hidden projects to see if they need moved to visible
+        for (const project of hiddenProjects) {
+            for (const technology of project.filters) {
+                // remove filter choice from filters tracking property if necessary
+                if (technology.id === choice.id) {
+                    project.filters = project.filters.filter((element) => element.id != choice.id)
+                }
+                // if last remaining filter removed, move project to visible
+                if (project.filters.length === 0) {
+                    newVisible.push(project.project)
+                    newHidden = hiddenProjects.filter((element) => element.id === choice.id)
+                }
+            }
+        }
+        // set state based on work done above
+        setVisibleProjects(newVisible)
+        setHiddenProjects(newHidden)
+        setVisibleTechnologies([...visibleTechnologies, choice])
+        setHiddenTechnologies(hiddenTechnologies.filter((element) => element.id != choice.id))
+    }
+
     useEffect(() => {
-        getProjects();
+        initializeProjects()
+        initializeTechnologies()
     }, [])
 
-    // const projects = [
-    //     {
-    //         name: 'Wastegram',
-    //         description: 'Tracks amount of food wasted by local businesses at the end of each day. Allows user to post photos, geoLocation, quantity describing the waste',
-    //         capacity: 4,
-    //         census: 3,
-    //         open: true,
-    //         likes: 22,
-    //         owner: {username: 'ylijokic'},
-    //         technologies: [{id: 1, name: 'Javascript'}, {id: 2, name: 'C++'}, {id: 3, name: 'React'}, {id: 4, name: 'Flutter'}],
-    //         users: [{id: 1, username: 'kiserlams'}, {id: 2, username: 'ylijokic'}, {id: 3, username: 'kaiserjo'}]
-    //     },
-    //     {
-    //         name: 'Bet With Friends',
-    //         description: 'Allows users to place friendly wagers against each other. The application does the heavy lifting in calculating payouts, binding users to terms of agreement, and providing updates on the state of the wager. Users can choose from a complex catalog of wager and event types. In the event of a user failing to settle a loss (or roll loss into new wager), the local authorities are automatically contacted.',
-    //         capacity: 3,
-    //         census: 2,
-    //         open: true,
-    //         likes: 144,
-    //         owner: {username: 'ylijokic'},
-    //         technologies: [{id: 1, name: 'C'}, {id: 2, name: 'Python'}, {id: 3, name: 'CSS'}, {id: 4, name: 'Golang'}],
-    //         users: [{id: 1, username: 'kiserlams'}, {id: 2, username: 'ylijokic'}, {id: 3, username: 'kaiserjo'}]
-    //     },
-    // ]
-
-    const technologies = [{id: 1, name: 'Javascript'}, {id: 2, name: 'C++'}, {id: 3, name: 'React'}, {id: 4, name: 'Flutter'}]
+    // const technologies = [{id: 1, name: 'Javascript'}, {id: 2, name: 'C++'}, {id: 3, name: 'React'}, {id: 4, name: 'Flutter'}]
 
 
     return (
@@ -62,7 +113,11 @@ const browseProjects = () => {
                         <Search />
                     </div>
                     <div className='flex justify-end'>
-                        <Button text='New Project' />
+                        <Link href={'/newProject'} passHref>
+                            <a>
+                                <Button text='New Project' />
+                            </a>
+                        </Link> 
                     </div>
                 </div>
             </div>
@@ -81,7 +136,7 @@ const browseProjects = () => {
                         Filters
                     </div>
                     <hr className='w-full border-b-2 border-gray-400'/>
-                    <FilterButtons category='Technologies' choices={technologies} />
+                    <FilterButtons category='Technologies' choices={allTechnologies} onClick={onFilterClick}/>
                 </div>
             </div>
         </div>
