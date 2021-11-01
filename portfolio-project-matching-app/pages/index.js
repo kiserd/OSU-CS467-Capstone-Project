@@ -7,6 +7,8 @@ import { useEffect } from 'react';
 import { useRouter } from 'next/router'
 
 export default function Home({ projectList }) {
+  
+  // Reroute to /browseProjects
   const router = useRouter();
   useEffect(()=>{
     router.push('/browseProjects');
