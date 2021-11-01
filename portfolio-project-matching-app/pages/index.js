@@ -3,8 +3,17 @@ import Image from 'next/image'
 import DBList from '../components/DBList'
 import DBForm from '../components/DBForm'
 import { getAllDocs } from '../Firebase/clientApp.ts'
+import { useEffect } from 'react';
+import { useRouter } from 'next/router'
 
 export default function Home({ projectList }) {
+  
+  // Reroute to /browseProjects
+  const router = useRouter();
+  useEffect(()=>{
+    router.push('/browseProjects');
+  }, []);
+
   return (
     <div>
       <Head>
