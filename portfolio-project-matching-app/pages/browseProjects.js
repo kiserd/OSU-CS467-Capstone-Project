@@ -136,7 +136,7 @@ const browseProjects = () => {
                         Filters
                     </div>
                     <hr className='w-full border-b-2 border-gray-400'/>
-                    <FilterButtons category='Technologies' choices={allTechnologies} onClick={onFilterClick}/>
+                    <FilterButtons category='Technologies' choices={allTechnologies} onAdd={addFilter} onRemove={removeFilter}/>
                 </div>
             </div>
         </div>
