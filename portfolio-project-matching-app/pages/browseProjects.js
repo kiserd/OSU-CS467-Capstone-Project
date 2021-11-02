@@ -1,5 +1,6 @@
 // library
 import { useState, useEffect } from 'react'
+import Link from 'next/link'
 // backend
 import { getAllProjects, getAllTechnologies } from '../backend/dao'
 // component
@@ -8,9 +9,9 @@ import FilterButtons from '../components/FilterButtons'
 import ProjectCard from '../components/ProjectCard'
 import Search from '../components/Search'
 // model
+import { FilteredProject } from '../models/FilteredProject'
 import { Project } from '../models/Project'
 import { Technology } from '../models/Technology'
-import Link from 'next/link'
 
 const browseProjects = () => {
     // array of projects that are currently visible to user
@@ -22,11 +23,10 @@ const browseProjects = () => {
     // array of all technologies
     const [allTechnologies, setAllTechnologies] = useState([])
 
-    // array of visible technology
-    const [visibleTechnologies, setVisibleTechnologies] = useState([])
-
-    // array of hidden technology objects
-    const [hiddenTechnologies, setHiddenTechnologies] = useState([])
+    useEffect(() => {
+        initializeProjects()
+        initializeTechnologies()
+    }, [])
 
     const initializeProjects = async () => {
         const projects = await getAllProjects()
@@ -38,12 +38,6 @@ const browseProjects = () => {
         setAllTechnologies(technologies)
     }
 
-    const onFilterClick = (choice) => {
-        // this should most likely be handled by FilterButtons
-        // hand work off to other functions based on whether add/remove
-        hiddenTechnologies.includes(choice) ? removeFilter(choice) : addFilter(choice)
-    }
-
     const addFilter = (choice) => {
         // helper arrays to harbor projects during staging
         const newHidden = hiddenProjects
@@ -51,24 +45,21 @@ const browseProjects = () => {
 
         // loop through hidden projects and potentially add additional filter
         for (const project of hiddenProjects) {
-            if (!project.project.hasTechnology(choice.id)) {
-                project.filters.push(choice)
-            }
+            project.addFilter(choice)
         }
 
         // loop through visible projects and determine whether they need hidden
         for (const project of visibleProjects) {
             if (!project.hasTechnology(choice.id)) {
-                // create map to keep track of filters that are applied
-                newHidden.push({project: project, filters: [choice]})
-                newVisible = newVisible.filter((element) => element.id != project.id)
+                // create FilteredProject to add to hiddenProjects list
+                const filteredProject = new FilteredProject(project, choice)
+                newHidden.push(filteredProject)
+                newVisible = newVisible.filter((element) => element.id !== project.id)
             }
         }
         // set state based on work done above
         setVisibleProjects(newVisible)
         setHiddenProjects(newHidden)
-        setVisibleTechnologies(visibleTechnologies.filter((element) => element.id === choice.id))
-        setHiddenTechnologies([...hiddenTechnologies, choice])
     }
 
     const removeFilter = (choice) => {
@@ -78,32 +69,18 @@ const browseProjects = () => {
 
         // loop through hidden projects to see if they need moved to visible
         for (const project of hiddenProjects) {
-            for (const technology of project.filters) {
-                // remove filter choice from filters tracking property if necessary
-                if (technology.id === choice.id) {
-                    project.filters = project.filters.filter((element) => element.id != choice.id)
-                }
-                // if last remaining filter removed, move project to visible
-                if (project.filters.length === 0) {
-                    newVisible.push(project.project)
-                    newHidden = hiddenProjects.filter((element) => element.id === choice.id)
-                }
+            // remove filter if applicable
+            project.removeFilter(choice)
+            // if last remaining filter removed, move project to visible
+            if (project.filtersIsEmpty()) {
+                newVisible.push(project.project)
+                newHidden = newHidden.filter((element) => element.project.id !== project.project.id)
             }
         }
         // set state based on work done above
         setVisibleProjects(newVisible)
         setHiddenProjects(newHidden)
-        setVisibleTechnologies([...visibleTechnologies, choice])
-        setHiddenTechnologies(hiddenTechnologies.filter((element) => element.id != choice.id))
     }
-
-    useEffect(() => {
-        initializeProjects()
-        initializeTechnologies()
-    }, [])
-
-    // const technologies = [{id: 1, name: 'Javascript'}, {id: 2, name: 'C++'}, {id: 3, name: 'React'}, {id: 4, name: 'Flutter'}]
-
 
     return (
         <div>
