@@ -1,9 +1,9 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Button from './Button'
 
 const FilterButtons = ({ category, choices, onClick }) => {
     // declare new state variable indicating available filter choices
-    const [availableChoices, setAvailableChoices] = useState(choices)
+    const [availableChoices, setAvailableChoices] = useState([])
 
     // declare new state variable indicating selected filter choices
     const [selectedChoices, setSelectedChoices] = useState([])
@@ -24,9 +24,13 @@ const FilterButtons = ({ category, choices, onClick }) => {
         setAvailableChoices([...availableChoices, choice])
         // pass filter choice to parent
         onClick(choice)
-        console.log(selectedChoices)
-        console.log(availableChoices)
+        // console.log('selectedChoices: ', selectedChoices)
+        // console.log('availableChoices: ', availableChoices)
     }
+
+    useEffect(() => {
+        setAvailableChoices(choices)
+    }, [choices])
 
     return (
         <div className=''>
@@ -39,8 +43,8 @@ const FilterButtons = ({ category, choices, onClick }) => {
             <div>
                 {selectedChoices.map((choice) => {
                     return (
-                        <div className='py-1 pr-2'>
-                            <Button key={choice.id} type='btnWarning' text={choice.name} onClick={() => removeFilter(choice)} />
+                        <div key={choice.id} className='py-1 pr-2'>
+                            <Button type='btnWarning' text={choice.name} onClick={() => removeFilter(choice)} />
                         </div>
                     )
                 })}
@@ -51,8 +55,8 @@ const FilterButtons = ({ category, choices, onClick }) => {
             <div className='flex flex-wrap'>
                 {availableChoices.map((choice) => {
                     return (
-                        <div className='py-1 pr-2'>
-                            <Button key={choice.id} type='btnGeneral' text={choice.name} onClick={() => addFilter(choice)} />
+                        <div key={choice.id} className='py-1 pr-2'>
+                            <Button type='btnGeneral' text={choice.name} onClick={() => addFilter(choice)} />
                         </div>
                     )
                 })}

@@ -23,7 +23,7 @@ const Nav = () => {
                 </li>
                 <li className="justify-self-end">
                     {   path === "/myProfile" ?
-                        <Link href="/" passHref>
+                        <Link href="/browseProjects" passHref>
                             {/* Link's child must take an href, so Button must be wrapped with <a> tags */}
                             <a>
                             <Button text="Browse" isLink={true} addClassName="bg-white m-2"/>

@@ -5,7 +5,7 @@ class Project {
         this.name = docSnapshot.data().name;
         this.description = docSnapshot.data().description;
         this.capacity = docSnapshot.data().capacity;
-        this.census = docSnapshot.data().cencus;
+        this.census = docSnapshot.data().census;
         this.open = docSnapshot.data().open;
         this.likes = docSnapshot.data().likes;
         this.ownerId = docSnapshot.data().owner.id;
@@ -14,6 +14,22 @@ class Project {
         this.users = null;
     }
 
+    hasTechnology(technologyId) {
+        // return false for null technologies property
+        if (this.technologies == null || this.technologies.length === 0) {
+            return false;
+        }
+
+        // loop through technologies in search of technologyId
+        for (const technology of this.technologies) {
+            if (technology.id === technologyId) {
+                return true
+            }
+        }
+
+        // search failed, return false
+        return false
+    }
     
 }
 
