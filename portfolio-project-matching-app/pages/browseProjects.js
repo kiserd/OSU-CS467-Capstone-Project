@@ -39,6 +39,15 @@ const browseProjects = () => {
     }
 
     const addFilter = (choice) => {
+        /*
+        DESCRIPTION:    moves projects lacking the provided technology from
+                        visibleProjects to hiddenProjects and converts them
+                        from Project objects to FilteredProject objects
+
+        INPUT:          Technology object representing filter being added
+
+        RETURN:         NA
+        */
         // helper arrays to harbor projects during staging
         const newHidden = hiddenProjects
         let newVisible = visibleProjects
@@ -54,7 +63,9 @@ const browseProjects = () => {
                 // create FilteredProject to add to hiddenProjects list
                 const filteredProject = new FilteredProject(project, choice)
                 newHidden.push(filteredProject)
-                newVisible = newVisible.filter((element) => element.id !== project.id)
+                newVisible = newVisible.filter((element) => {
+                    return element.id !== project.id
+                })
             }
         }
         // set state based on work done above
@@ -63,6 +74,15 @@ const browseProjects = () => {
     }
 
     const removeFilter = (choice) => {
+        /*
+        DESCRIPTION:    moves projects lacking the provided technology from
+                        hiddenProjects to visibleProjects and converts them
+                        from FilteredProject objects to Project objects
+
+        INPUT:          Technology object representing filter being removed
+
+        RETURN:         NA
+        */
         // helper arrays to harbor projects during staging
         let newHidden = hiddenProjects
         const newVisible = visibleProjects
@@ -74,7 +94,9 @@ const browseProjects = () => {
             // if last remaining filter removed, move project to visible
             if (project.filtersIsEmpty()) {
                 newVisible.push(project.project)
-                newHidden = newHidden.filter((element) => element.project.id !== project.project.id)
+                newHidden = newHidden.filter((element) => {
+                    return element.project.id !== project.project.id
+                })
             }
         }
         // set state based on work done above
@@ -113,23 +135,16 @@ const browseProjects = () => {
                         Filters
                     </div>
                     <hr className='w-full border-b-2 border-gray-400'/>
-                    <FilterButtons category='Technologies' choices={allTechnologies} onAdd={addFilter} onRemove={removeFilter}/>
+                    <FilterButtons
+                    category='Technologies'
+                    choices={allTechnologies}
+                    onAdd={addFilter}
+                    onRemove={removeFilter}
+                    />
                 </div>
             </div>
         </div>
     )
 }
-
-// yanked from https://nextjs.org/docs/basic-features/data-fetching#getserversideprops-server-side-rendering
-// export async function getServerSideProps(context) {
-//   const projects = await getAllProjects()
-//   return {
-    
-//     // will be passed to the page component as props
-//     props: {
-//       projects,
-//     },
-//   }
-// }
 
 export default browseProjects
