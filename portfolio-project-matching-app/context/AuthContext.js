@@ -1,6 +1,7 @@
 import React, { useContext, useState, useEffect } from 'react';
-import { getAuth } from 'firebase/auth';
+import { getAuth, userInfo } from 'firebase/auth';
 import { firebaseApp } from "../Firebase/clientApp.ts";
+
 
 const AuthContext = React.createContext();
 const AuthUpdateContext = React.createContext();
@@ -16,20 +17,16 @@ export function useAuthUpdate() {
 export function AuthProvider({ children }) {
     const [auth, setAuth] = useState({user: null});
     
+    function updateAuth(value) {
+        setAuth({user: value});
+    }
+
     useEffect(()=>{
-        const authObject = getAuth();
-        authObject.onAuthStateChanged((user)=>{
-            if(user){
-                setAuth({user});
-            } else {
-                console.log(`${user}`)
-            }
-        });
+        
+        //updateAuth(user)
     }, []);
 
-    function updateAuth(value) {
-        setAuth(value);
-    }
+    
 
     return (
         <AuthContext.Provider value={auth}>

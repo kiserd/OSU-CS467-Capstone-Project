@@ -33,12 +33,6 @@ const signout = async () => {
         return error;
     }
 }
-
-// const getUid = () => {
-//     // Returns 0 if user is not signed in, otherwise returns uid
-//     const auth = getAuth();
-//     return auth.currentUser ? auth.currentUser.uid : 0;
-// }
    
 
 export default { signin, signout }

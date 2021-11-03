@@ -1,17 +1,29 @@
 import Button from './Button';
 import auth from '../Firebase/auth';
 import { useEffect, useState } from 'react';
-import { useAuth } from '../context/AuthContext';
+import { useAuth, useAuthUpdate } from '../context/AuthContext';
+
+
 
 const SignInButton = () => {
+    let updateAuth = useAuthUpdate();
+    async function signIn(){
+        let result = await auth.signin();
+        updateAuth(result);
+    }
     return (
-        <Button text="Sign In" onClick={auth.signin}/>
+        <Button text="Sign In" onClick={signIn}/>
     )
 }
 
 const SignOutButton = () => {
+    let updateAuth = useAuthUpdate();
+    async function signOut(){
+        let result = await auth.signout();
+        updateAuth(null);
+    }
     return (
-        <Button text="Sign Out" onClick={auth.signout}/>
+        <Button text="Sign Out" onClick={signOut}/>
     )
 }
 
