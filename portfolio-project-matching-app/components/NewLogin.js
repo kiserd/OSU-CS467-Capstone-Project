@@ -1,6 +1,7 @@
 import Button from './Button';
 import auth from '../Firebase/auth';
 import { useEffect, useState } from 'react';
+import { useAuth } from '../context/AuthContext';
 
 const SignInButton = () => {
     return (
@@ -15,18 +16,11 @@ const SignOutButton = () => {
 }
 
 const NewLogin = () => {
-    let [uid, setuid] = useState();
-
-    useEffect(async()=>{
-        const unsubscribe = auth.listenForAuthChange((user)=>{
-            setuid(user);
-        });
-        return unsubscribe;
-    }, []);
-
+    let uid = useAuth();
+    
     return (
         <div>
-            { uid ?
+            { uid.user ?
                     <SignOutButton />
                 :
                     <SignInButton />
