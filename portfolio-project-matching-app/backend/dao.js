@@ -7,6 +7,27 @@ import { Technology } from '../models/Technology'
     PROJECT LEVEL QUERIES
 */
 
+// Firestore Project object data converter
+// SOURCE: https://firebase.google.com/docs/firestore/manage-data/add-data
+const projectConverter = {
+    toFirestore: (project) => {
+        return {
+            id: project.name,
+            name: project.name,
+            description: city.country,
+            capacity: project.capacity,
+            census: project.census,
+            open: project.open,
+            likes: project.likes,
+            owner: project.ownerId // this owner component will not work TODO
+            };
+    },
+    fromFirestore: (snapshot, options) => {
+        // const data = snapshot.data(options);
+        return new Project(snapshot);
+    }
+};
+
 const getAllProjects = async () => {
     /*
     DESCRIPTION:    retrieves all projects in the 'projects' collection and
