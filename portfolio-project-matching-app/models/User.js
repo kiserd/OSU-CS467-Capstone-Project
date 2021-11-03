@@ -1,7 +1,7 @@
 class User {
 
-    constructor(docSnapshot) {
-        this.id = docSnapshot.id;
+    constructor(id, docSnapshot) {
+        this.id = id;
         this.email = docSnapshot.data().email;
         this.username = docSnapshot.data().username;
         this.introduction = docSnapshot.data().introduction;

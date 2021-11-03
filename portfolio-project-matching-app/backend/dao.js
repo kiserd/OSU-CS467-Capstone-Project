@@ -9,24 +9,62 @@ import { Technology } from '../models/Technology'
 
 // Firestore Project object data converter
 // SOURCE: https://firebase.google.com/docs/firestore/manage-data/add-data
-const projectConverter = {
-    toFirestore: (project) => {
-        return {
-            id: project.name,
-            name: project.name,
-            description: city.country,
-            capacity: project.capacity,
-            census: project.census,
-            open: project.open,
-            likes: project.likes,
-            owner: project.ownerId // this owner component will not work TODO
-            };
-    },
-    fromFirestore: (snapshot, options) => {
-        // const data = snapshot.data(options);
-        return new Project(snapshot);
+// looks like this would need to be implemented at the clientApp.ts level
+// not sure how to get this to work for a full collection, only a single doc
+// const projectConverter = {
+//     toFirestore: (project) => {
+//         return {
+//             id: project.name,
+//             name: project.name,
+//             description: city.country,
+//             capacity: project.capacity,
+//             census: project.census,
+//             open: project.open,
+//             likes: project.likes,
+//             owner: project.ownerId
+//             };
+//     },
+//     fromFirestore: (snapshot, options) => {
+//         // const data = snapshot.data(options);
+//         return new Project(
+//             snapshot.id,
+//             snapshot.data().name,
+//             docSnapshot.data().description,
+//             docSnapshot.data().capacity,
+//             docSnapshot.data().census,
+//             docSnapshot.data().open,
+//             docSnapshot.data().likes,
+//             docSnapshot.data().ownerId
+//         );
+//     }
+// };
+
+const createProject = async (project) => {
+    /*
+    DESCRIPTION:    creates new project document in Firebase Firestore Database
+                    based on project object provided. Similar to
+                    INSERT INTO 'projects'. Note, only project document is
+                    created, not associations.
+
+    INPUT:          Project object populated with data to be added in new
+                    document
+
+    RETURN:         NA
+    */
+    // get snapshot of projects collection
+    const collectionSnap = await getCollectionSnapshot('projects');
+
+    // loop through documents in the snapshot, adding Project objects to array
+    const projects = [];
+    for (const doc of collectionSnap.docs) {
+        // leverage getProjectById() in creating Project objects
+        const project = await getProjectById(doc.id);
+        projects.push(project);
     }
-};
+    return projects;
+}
+
+
 
 const getAllProjects = async () => {
     /*
@@ -45,8 +83,11 @@ const getAllProjects = async () => {
     // loop through documents in the snapshot, adding Project objects to array
     const projects = [];
     for (const doc of collectionSnap.docs) {
-        // leverage getProjectById() in creating Project objects
-        const project = await getProjectById(doc.id);
+        const project = new Project(doc.id, doc);
+        // populate owner, users, and technologies fields
+        project.owner = await getOwnerByUserId(project.ownerId);
+        project.users = await getUsersByProjectId(project.id);
+        project.technologies = await getTechnologiesByProjectId(project.id);
         projects.push(project);
     }
     return projects;
@@ -67,20 +108,30 @@ const getProjectById = async (projectId) => {
     */
     // get project doc snapshot and use to initialize project object
     const projectSnap = await getDocSnapshotById('projects', projectId);
-    const project = new Project(projectSnap);
+    let project = new Project(projectSnap.id, projectSnap);
 
-    // get owner info from users docRef, build User object and add to project
-    const ownerSnap = await getDocSnapshotById('users', project.ownerId);
-    const owner = new User(ownerSnap);
-    project.owner = owner;
-
-    // get associated technologies to populate project object's technologies
+    // populate technologies, users, and owner association fields
+    project.owner = await getOwnerByUserId(project.ownerId);
+    project.users = await getUsersByProjectId(project.id);
     project.technologies = await getTechnologiesByProjectId(project.id);
 
-    // get associated users and populate project object's users property
-    project.users = await getUsersByProjectId(project.id);
-
     return project;
+}
+
+const getOwnerByUserId = async (userId) => {
+    /*
+    DESCRIPTION:    retrieves owner User object associated with specified
+                    project ID
+
+    INPUT:          desired project document ID in string format
+
+    RETURN:         User object associated with owner of indicated project.
+                    Note, User object associations will not be populated
+    */
+    // get owner info from users docRef, build User object and add to project
+    const ownerSnap = await getDocSnapshotById('users', userId);
+    const owner = new User(ownerSnap.id, ownerSnap);
+    return owner;
 }
 
 const getTechnologiesByProjectId = async (projectId) => {
@@ -98,7 +149,7 @@ const getTechnologiesByProjectId = async (projectId) => {
     const technologies = [];
     for (const doc of projectsTechnologiesSnap.docs) {
         const technologyRef = await getDocSnapshotById('technologies', doc.data().technology_id);
-        const technology = new Technology(technologyRef);
+        const technology = new Technology(technologyRef.id, technologyRef);
         technologies.push(technology);
     }
     return technologies;
@@ -119,7 +170,7 @@ const getUsersByProjectId = async (projectId) => {
     const users = [];
     for (const doc of projectsUsersSnap.docs) {
         const userRef = await getDocSnapshotById('users', doc.data().user_id);
-        const user = new User(userRef);
+        const user = new User(userRef.id, userRef);
         users.push(user);
     }
     return users;
@@ -146,9 +197,12 @@ const getAllUsers = async () => {
     // loop through documents in the snapshot, adding User objects to array
     const users = [];
     for (const doc of collectionSnap.docs) {
-        // leverage getUserById() in creating User objects
-        const project = await getUserById(doc.id);
-        users.push(project);
+        // create User object to add to array
+        const user = await getUserById(doc.id, doc);
+        // populate technologies and projects associations in User object
+        user.technologies = await getTechnologiesByUserId(user.id);
+        user.projects = await getProjectsByUserId(user.id);
+        users.push(user);
     }
     return users;
 }
@@ -168,7 +222,7 @@ const getUserById = async (userId) => {
     */
     // get user doc snapshot and use to initialize user object
     const userSnap = await getDocSnapshotById('users', userId);
-    const user = new User(userSnap);
+    const user = new User(userSnap.id, userSnap);
 
     // get associated projects to populate user object's projects
     user.projects = await getProjectsByUserId(user.id);
@@ -194,7 +248,7 @@ const getProjectsByUserId = async (userId) => {
     const projects = [];
     for (const doc of projectsUsersSnap.docs) {
         const projectRef = await getDocSnapshotById('projects', doc.data().project_id);
-        const project = new Project(projectRef);
+        const project = new Project(projectRef.id, projectRef);
         projects.push(project);
     }
     return projects;
@@ -215,7 +269,7 @@ const getTechnologiesByUserId = async (userId) => {
     const technologies = [];
     for (const doc of projectsTechnologiesSnap.docs) {
         const technologyRef = await getDocSnapshotById('technologies', doc.data().technology_id);
-        const technology = new Technology(technologyRef);
+        const technology = new Technology(technologyRef.id, technologyRef);
         technologies.push(technology);
     }
     return technologies;
@@ -240,8 +294,8 @@ const getAllTechnologies = async () => {
     // loop through documents in the snapshot, adding Technology objects to array
     const technologies = [];
     for (const doc of collectionSnap.docs) {
-        // leverage getTechnologyById() in creating Technology objects
-        const technology = await getTechnologyById(doc.id);
+        // create Technology object and push to array
+        const technology = new Technology(doc.id, doc)
         technologies.push(technology);
     }
     return technologies;
@@ -259,7 +313,7 @@ const getTechnologyById = async (technologyId) => {
     */
     // get technology doc snapshot and use to initialize technology object
     const technologySnap = await getDocSnapshotById('technologies', technologyId);
-    const technology = new Technology(technologySnap);
+    const technology = new Technology(technologySnap.id, technologySnap);
 
     return technology;
 }
