@@ -1,7 +1,17 @@
 // Import the functions you need from the SDKs you need
 import { initializeApp } from "firebase/app";
 // TODO: Add SDKs for Firebase products that you want to use
-import { getFirestore, collection, query, where, doc, getDoc, getDocs, addDoc, setDoc } from 'firebase/firestore';
+import {
+  addDoc,
+  collection,
+  deleteDoc,
+  doc,
+  getDoc,
+  getDocs,
+  getFirestore,
+  query,
+  setDoc,
+  where } from 'firebase/firestore';
 // import { getAnalytics } from "firebase/analytics";
 // https://firebase.google.com/docs/web/setup#available-libraries
 
@@ -81,8 +91,53 @@ const addNewDoc = async (collectionName, data) => {
   */
   const coll = collection(db, collectionName);
   const docRef = await addDoc(coll, data);
-  console.log('Document written with ID: ', docRef.id);
+  return docRef;
 }
 
+const addNewDocWithId = async (collectionName, id, data) => {
+  const docRef = setDoc(doc(db, collectionName, id), data);
+  return docRef;
+}
+
+// Firestore Project object data converter
+// SOURCE: https://firebase.google.com/docs/firestore/manage-data/add-data
+// looks like this would need to be implemented at the clientApp.ts level
+// not sure how to get this to work for a full collection, only a single doc
+// const projectConverter = {
+//     toFirestore: (project) => {
+//         return {
+//             id: project.name,
+//             name: project.name,
+//             description: city.country,
+//             capacity: project.capacity,
+//             census: project.census,
+//             open: project.open,
+//             likes: project.likes,
+//             owner: project.ownerId
+//             };
+//     },
+//     fromFirestore: (snapshot, options) => {
+//         // const data = snapshot.data(options);
+//         return new Project(
+//             snapshot.id,
+//             snapshot.data().name,
+//             docSnapshot.data().description,
+//             docSnapshot.data().capacity,
+//             docSnapshot.data().census,
+//             docSnapshot.data().open,
+//             docSnapshot.data().likes,
+//             docSnapshot.data().ownerId
+//         );
+//     }
+// };
+
 // export
-export { db, firebaseApp, getCollectionSnapshot, addNewDoc, getDocSnapshotById, getCollectionSnapshotByCriteria };
+export {
+  db,
+  firebaseApp,
+  getCollectionSnapshot,
+  addNewDoc,
+  addNewDocWithId,
+  getDocSnapshotById,
+  getCollectionSnapshotByCriteria
+};

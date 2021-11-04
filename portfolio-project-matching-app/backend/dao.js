@@ -1,45 +1,18 @@
-import { getDocSnapshotById, addNewDoc, getCollectionSnapshot, getCollectionSnapshotByCriteria } from '../Firebase/clientApp.ts'
+import {
+    getDocSnapshotById,
+    addNewDoc,
+    addNewDocWithId,
+    getCollectionSnapshot,
+    getCollectionSnapshotByCriteria } from '../Firebase/clientApp.ts'
 import { User } from '../models/User'
 import { Project } from '../models/Project'
 import { Technology } from '../models/Technology'
 
 /*
-    PROJECT LEVEL QUERIES
+    CREATE PROJECTS
 */
 
-// Firestore Project object data converter
-// SOURCE: https://firebase.google.com/docs/firestore/manage-data/add-data
-// looks like this would need to be implemented at the clientApp.ts level
-// not sure how to get this to work for a full collection, only a single doc
-// const projectConverter = {
-//     toFirestore: (project) => {
-//         return {
-//             id: project.name,
-//             name: project.name,
-//             description: city.country,
-//             capacity: project.capacity,
-//             census: project.census,
-//             open: project.open,
-//             likes: project.likes,
-//             owner: project.ownerId
-//             };
-//     },
-//     fromFirestore: (snapshot, options) => {
-//         // const data = snapshot.data(options);
-//         return new Project(
-//             snapshot.id,
-//             snapshot.data().name,
-//             docSnapshot.data().description,
-//             docSnapshot.data().capacity,
-//             docSnapshot.data().census,
-//             docSnapshot.data().open,
-//             docSnapshot.data().likes,
-//             docSnapshot.data().ownerId
-//         );
-//     }
-// };
-
-const createNewProject = async (project) => {
+const createNewProjectDoc = async (project) => {
     /*
     DESCRIPTION:    creates new project document in Firebase Firestore Database
                     based on project object provided. Similar to
@@ -51,6 +24,8 @@ const createNewProject = async (project) => {
 
     RETURN:         NA
     */
+    // get reference to owner user document
+    const ownerRef = getOwnerByUserId(project.ownerId);
     // build object to be added to Firebase as a project document
     const projectObj = {
         name: project.name,
@@ -59,13 +34,54 @@ const createNewProject = async (project) => {
         census: project.census.toInt(),
         open: project.open,
         likes: project.likes.toInt(),
-        owner: project.ownerId
+        owner: ownerRef,
+        ownerId: project.ownerId
     };
     // add project document to Firebase
-    await addNewDoc('projects', projectObj);
+    const newDocRef = await addNewDoc('projects', projectObj);
+    console.log(`Created project document with id: ${newDocRef.id}`);
 }
 
+const createNewProjectsUsersDoc = async (projectId, userId) => {
+    /*
+    DESCRIPTION:    creates new projects_users document for provided project id
+                    and user id.
 
+    INPUT:          project id and user id in string format
+
+    RETURN:         NA
+    */
+    // get document snapshots for invalid input handling
+    const projectSnap = await getDocSnapshotById('projects', projectId);
+    const userSnap = await getDocSnapshotById('users', userId);
+    const projectsUsersSnap = await getDocSnapshotById('projects_users', `${projectId}_${userId}`);
+    // handle case where projectId does not exist in Firebase
+    if (!projectSnap.exists()) {
+        console.log(`invalid projectId: '${projectId}' does not exist`);
+    }
+    // handle case where userId does not exist in Firebase
+    else if (!userSnap.exists()) {
+        console.log(`invalid userId: '${userId}' does not exist`);
+    }
+    // handle case where projectId_userId already exists in projects_technologies
+    else if (projectsUsersSnap.exists()) {
+        console.log(`invalid projectId userId combination: '${projectId}_${userId}' already exists`);
+    }
+    // handle case inputs are valid 
+    else {
+        // build object to send to Firebase
+        const projectsUsersObj = {
+            project_id: projectId,
+            user_id: userId
+        }
+        const newDocRef = await addNewDocWithId('projects_users', `${projectId}_${userId}`, projectsUsersObj);
+        console.log(`Created projects_technologies document with id: ${newDocRef.id}`);
+    }
+}
+
+/*
+    READ PROJECTS
+*/
 
 const getAllProjects = async () => {
     /*
@@ -327,4 +343,22 @@ const getTechnologyById = async (technologyId) => {
     return technology;
 }
 
-export { getProjectById, getAllProjects, getUserById, getAllUsers, getTechnologyById, getAllTechnologies }
+/*
+    DELETE PROJECT DOCUMENTS
+*/
+//  todo
+
+/*
+    DELETE PROJECTS_TECHNOLOGIES DOCUMENTS
+*/
+
+export {
+    createNewProjectDoc,
+    createNewProjectsUsersDoc,
+    getAllProjects,
+    getAllTechnologies,
+    getAllUsers,
+    getProjectById,
+    getTechnologyById,
+    getUserById,
+}
