@@ -61,6 +61,8 @@ const createNewProject = async (project) => {
         likes: project.likes.toInt(),
         owner: project.ownerId
     };
+    // add project document to Firebase
+    await addNewDoc('projects', projectObj);
 }
 
 
@@ -107,14 +109,22 @@ const getProjectById = async (projectId) => {
     */
     // get project doc snapshot and use to initialize project object
     const projectSnap = await getDocSnapshotById('projects', projectId);
-    let project = new Project(projectSnap.id, projectSnap);
+    
+    // handle case where projectId is valid
+    if (projectSnap.exists()){
+        let project = new Project(projectSnap.id, projectSnap);
 
-    // populate technologies, users, and owner association fields
-    project.owner = await getOwnerByUserId(project.ownerId);
-    project.users = await getUsersByProjectId(project.id);
-    project.technologies = await getTechnologiesByProjectId(project.id);
+        // populate technologies, users, and owner association fields
+        project.owner = await getOwnerByUserId(project.ownerId);
+        project.users = await getUsersByProjectId(project.id);
+        project.technologies = await getTechnologiesByProjectId(project.id);
 
-    return project;
+        return project;
+    }
+    // handle case where projectId is invalid
+    else {
+        console.log(`invalid projectId: '${projectId}' does not exist`);
+    }
 }
 
 const getOwnerByUserId = async (userId) => {
