@@ -84,7 +84,7 @@ const getAllProjects = async () => {
     // loop through documents in the snapshot, adding Project objects to array
     const projects = [];
     for (const doc of collectionSnap.docs) {
-        const project = new Project(doc.id, doc);
+        const project = Project.fromDocSnapshot(doc.id, doc);
         // populate owner, users, and technologies fields
         project.owner = await getOwnerByUserId(project.ownerId);
         project.users = await getUsersByProjectId(project.id);
@@ -112,7 +112,7 @@ const getProjectById = async (projectId) => {
     
     // handle case where projectId is valid
     if (projectSnap.exists()){
-        let project = new Project(projectSnap.id, projectSnap);
+        const project = Project.fromDocSnapshot(projectSnap.id, projectSnap);
 
         // populate technologies, users, and owner association fields
         project.owner = await getOwnerByUserId(project.ownerId);
@@ -257,7 +257,7 @@ const getProjectsByUserId = async (userId) => {
     const projects = [];
     for (const doc of projectsUsersSnap.docs) {
         const projectRef = await getDocSnapshotById('projects', doc.data().project_id);
-        const project = new Project(projectRef.id, projectRef);
+        const project = Project.fromDocSnapshot(projectRef.id, projectRef);
         projects.push(project);
     }
     return projects;

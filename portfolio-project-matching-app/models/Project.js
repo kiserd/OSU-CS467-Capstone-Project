@@ -1,32 +1,77 @@
 class Project {
+    // fields
+    id;
+    name;
+    description;
+    capacity;
+    census;
+    open;
+    likes;
+    ownerId;
+    owner;
+    technologies;
+    users;
 
-    constructor(id, docSnapshot) {
-        this.id = id;
-        this.name = docSnapshot.data().name;
-        this.description = docSnapshot.data().description;
-        this.capacity = docSnapshot.data().capacity;
-        this.census = docSnapshot.data().census;
-        this.open = docSnapshot.data().open;
-        this.likes = docSnapshot.data().likes;
-        this.ownerId = docSnapshot.data().ownerId;
-        this.owner = null;
-        this.technologies = null;
-        this.users = null;
+    // static factory methods (used like overloaded constructors)
+    static fromDocSnapshot(id, docSnapshot) {
+        /*
+        DESCRIPTION:    takes document ID and document snapshot and creates
+                        corresponding Project object
+
+        INPUT:          document ID in string format and project document
+                        snapshot
+
+        RETURN:         Project object with fields populated. Note,
+                        associations like technologies and users will not be
+                        populated.
+        */
+        // instantiate new Project object
+        const project = new Project();
+        // set fields/properties based on provided id and snapshot
+        project.id = id;
+        project.name = docSnapshot.data().name;
+        project.description = docSnapshot.data().description;
+        project.capacity = docSnapshot.data().capacity;
+        project.census = docSnapshot.data().census;
+        project.open = docSnapshot.data().open;
+        project.likes = docSnapshot.data().likes;
+        project.ownerId = docSnapshot.data().ownerId;
+        project.owner = null;
+        project.technologies = null;
+        project.users = null;
+        // return to user
+        return project;
     }
 
-    // constructor(id, name, description, capacity, census, open, likes, ownerId) {
-    //     this.id = id;
-    //     this.name = name;
-    //     this.description = description;
-    //     this.capacity = capacity;
-    //     this.census = census;
-    //     this.open = open;
-    //     this.likes = likes;
-    //     this.ownerId = ownerId;
-    //     this.owner = null;
-    //     this.technologies = null;
-    //     this.users = null;
-    // }
+    static fromObject(map) {
+        /*
+        DESCRIPTION:    takes map of project related data and creates a Project
+                        object with similar fields
+
+        INPUT:          map of project data with keys mirroring fields in
+                        Firebase project documents
+
+        RETURN:         Project object with fields populated. Note, any keys
+                        that do not exist in the map will be left null in the
+                        returned Project object
+        */
+        // instantiate new Project object
+        const project = new Project();
+        // set fields/properties based on provided id and snapshot
+        if (map.id) project.id = map.id;
+        if (map.name) project.name = map.name;
+        if (map.description) project.description = map.description;
+        if (map.capacity) project.capacity = map.capacity;
+        if (map.census) project.census = map.census;
+        if (map.open) project.open = map.open;
+        if (map.likes) project.likes = map.likes;
+        if (map.ownerId) project.ownerId = map.ownerId;
+        if (map.owner) project.owner = owner;
+        if (map.technologies) project.technologies = technologies;
+        if (map.users) project.users = users;
+        // return to user
+        return project;
+    }
 
     hasTechnology(technologyId) {
         // return false for null technologies property
