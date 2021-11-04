@@ -39,7 +39,7 @@ import { Technology } from '../models/Technology'
 //     }
 // };
 
-const createProject = async (project) => {
+const createNewProject = async (project) => {
     /*
     DESCRIPTION:    creates new project document in Firebase Firestore Database
                     based on project object provided. Similar to
@@ -51,17 +51,16 @@ const createProject = async (project) => {
 
     RETURN:         NA
     */
-    // get snapshot of projects collection
-    const collectionSnap = await getCollectionSnapshot('projects');
-
-    // loop through documents in the snapshot, adding Project objects to array
-    const projects = [];
-    for (const doc of collectionSnap.docs) {
-        // leverage getProjectById() in creating Project objects
-        const project = await getProjectById(doc.id);
-        projects.push(project);
-    }
-    return projects;
+    // build object to be added to Firebase as a project document
+    const projectObj = {
+        name: project.name,
+        description: project.description,
+        capacity: project.capacity.toInt(),
+        census: project.census.toInt(),
+        open: project.open,
+        likes: project.likes.toInt(),
+        owner: project.ownerId
+    };
 }
 
 
