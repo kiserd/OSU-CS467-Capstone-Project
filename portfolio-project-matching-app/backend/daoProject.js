@@ -4,6 +4,7 @@ import {
     deleteDocById,
     getCollectionSnapshot,
     getCollectionSnapshotByCriteria,
+    getDocReferenceById,
     getDocSnapshotById } from '../Firebase/clientApp.ts'
 import { User } from '../models/User'
 import { Project } from '../models/Project'
@@ -26,15 +27,15 @@ const createNewProjectDoc = async (project) => {
     RETURN:         NA
     */
     // get reference to owner user document
-    const ownerRef = getOwnerByUserId(project.ownerId);
+    const ownerRef = await getDocReferenceById('users', project.ownerId);
     // build object to be added to Firebase as a project document
     const projectObj = {
         name: project.name,
         description: project.description,
-        capacity: project.capacity.toInt(),
-        census: project.census.toInt(),
+        capacity: project.capacity,
+        census: project.census,
         open: project.open,
-        likes: project.likes.toInt(),
+        likes: project.likes,
         owner: ownerRef,
         ownerId: project.ownerId
     };
@@ -193,7 +194,7 @@ const getOwnerByUserId = async (userId) => {
     */
     // get owner info from users docRef, build User object and add to project
     const ownerSnap = await getDocSnapshotById('users', userId);
-    const owner = new User(ownerSnap.id, ownerSnap);
+    const owner = User.fromDocSnapshot(ownerSnap.id, ownerSnap);
     return owner;
 }
 
@@ -212,7 +213,7 @@ const getTechnologiesByProjectId = async (projectId) => {
     const technologies = [];
     for (const doc of projectsTechnologiesSnap.docs) {
         const technologyRef = await getDocSnapshotById('technologies', doc.data().technology_id);
-        const technology = new Technology(technologyRef.id, technologyRef);
+        const technology = Technology.fromDocSnapshot(technologyRef.id, technologyRef);
         technologies.push(technology);
     }
     return technologies;
@@ -233,7 +234,7 @@ const getUsersByProjectId = async (projectId) => {
     const users = [];
     for (const doc of projectsUsersSnap.docs) {
         const userRef = await getDocSnapshotById('users', doc.data().user_id);
-        const user = new User(userRef.id, userRef);
+        const user = User.fromDocSnapshot(userRef.id, userRef);
         users.push(user);
     }
     return users;
@@ -248,6 +249,27 @@ const getUsersByProjectId = async (projectId) => {
 /*
     DELETE
 */
+
+const deleteProjectDoc = async (projectId) => {
+    /*
+    DESCRIPTION:    deletes project document associating projectId
+
+    INPUT:          project
+
+    RETURN:         NA
+    */
+    // get document snapshots for invalid input handling
+    const projectSnap = await getDocSnapshotById('projects', projectId);
+    // handle case where projectId does not exist in Firebase
+    if (!projectSnap.exists()) {
+        console.log(`invalid projectId: '${projectId}' does not exist`);
+    }
+    // handle case where inputs are valid
+    else {
+        const deleteRef = await deleteDocById('projects', projectId);
+        console.log(`Deleted projects document with id: ${deleteRef.id}`);
+    }
+}
 
 const deleteProjectsUsersDoc = async (projectId, userId) => {
     /*
@@ -273,7 +295,7 @@ const deleteProjectsUsersDoc = async (projectId, userId) => {
     else if (!projectsUsersSnap.exists()) {
         console.log(`invalid projectId userId combination: '${projectId}_${userId}' does not exist`);
     }
-    // handle case inputs are valid 
+    // handle case where inputs are valid 
     else {
         const deleteRef = await deleteDocById('projects_users', `${projectId}_${userId}`);
         console.log(`Deleted projects_technologies document with id: ${deleteRef.id}`);
@@ -284,6 +306,7 @@ export {
     createNewProjectDoc,
     createNewProjectsUsersDoc,
     createNewProjectsTechnologiesDoc,
+    deleteProjectDoc,
     deleteProjectsUsersDoc,
     getAllProjects,
     getOwnerByUserId,

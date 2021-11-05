@@ -58,6 +58,20 @@ const getCollectionSnapshot = async (collectionName) => {
   return querySnapshot;
 }
 
+const getDocReferenceById = async(collectionName, docId) => {
+  /*
+  DESCRIPTION:  gets document reference from provided collection name with
+                provided document ID
+
+  INPUT:        string indicating desired collection name and string indicating
+                desired document ID
+
+  RETURN:       reference of document with provided document ID
+  */
+  const docRef = doc(db, collectionName, docId);
+  return docRef;
+}
+
 const getCollectionSnapshotByCriteria = async (collectionName, field, operator, condition) => {
   /*
   DESCRIPTION:  gets snapshot of documents from provided collection name based
@@ -168,5 +182,6 @@ export {
   firebaseApp,
   getCollectionSnapshot,
   getCollectionSnapshotByCriteria,
+  getDocReferenceById,
   getDocSnapshotById,
 };

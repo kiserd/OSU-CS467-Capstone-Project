@@ -35,7 +35,7 @@ const getAllTechnologies = async () => {
     const technologies = [];
     for (const doc of collectionSnap.docs) {
         // create Technology object and push to array
-        const technology = new Technology(doc.id, doc)
+        const technology = Technology.fromDocSnapshot(doc.id, doc)
         technologies.push(technology);
     }
     return technologies;
@@ -53,7 +53,7 @@ const getTechnologyById = async (technologyId) => {
     */
     // get technology doc snapshot and use to initialize technology object
     const technologySnap = await getDocSnapshotById('technologies', technologyId);
-    const technology = new Technology(technologySnap.id, technologySnap);
+    const technology = Technology.fromDocSnapshot(technologySnap.id, technologySnap);
 
     return technology;
 }

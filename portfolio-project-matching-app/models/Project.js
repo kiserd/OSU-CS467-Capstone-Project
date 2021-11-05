@@ -66,7 +66,7 @@ class Project {
         if (map.open) project.open = map.open;
         if (map.likes) project.likes = map.likes;
         if (map.ownerId) project.ownerId = map.ownerId;
-        if (map.owner) project.owner = owner;
+        if (map.owner) project.owner = map.owner;
         if (map.technologies) project.technologies = technologies;
         if (map.users) project.users = users;
         // return to user
@@ -74,6 +74,15 @@ class Project {
     }
 
     hasTechnology(technologyId) {
+        /*
+        DESCRIPTION:    indicates whether technology corresponding to provided
+                        technologyId is associated with the project (this)
+
+        INPUT:          technology document ID
+
+        RETURN:         boolean indication as to whether there is an
+                        association between the project and technology
+        */
         // return false for null technologies property
         if (this.technologies == null || this.technologies.length === 0) {
             return false;

@@ -72,7 +72,7 @@ const getAllUsers = async () => {
     const users = [];
     for (const doc of collectionSnap.docs) {
         // create User object to add to array
-        const user = await getUserById(doc.id, doc);
+        const user = User.fromDocSnapshot(doc.id, doc);
         // populate technologies and projects associations in User object
         user.technologies = await getTechnologiesByUserId(user.id);
         user.projects = await getProjectsByUserId(user.id);
@@ -96,7 +96,7 @@ const getUserById = async (userId) => {
     */
     // get user doc snapshot and use to initialize user object
     const userSnap = await getDocSnapshotById('users', userId);
-    const user = new User(userSnap.id, userSnap);
+    const user = User.fromDocSnapshot(userSnap.id, userSnap);
 
     // get associated projects to populate user object's projects
     user.projects = await getProjectsByUserId(user.id);
@@ -143,7 +143,7 @@ const getTechnologiesByUserId = async (userId) => {
     const technologies = [];
     for (const doc of projectsTechnologiesSnap.docs) {
         const technologyRef = await getDocSnapshotById('technologies', doc.data().technology_id);
-        const technology = new Technology(technologyRef.id, technologyRef);
+        const technology = Technology.fromDocSnapshot(technologyRef.id, technologyRef);
         technologies.push(technology);
     }
     return technologies;
