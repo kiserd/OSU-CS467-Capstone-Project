@@ -1,11 +1,11 @@
-import {
-    addNewDoc,
-    addNewDocWithId,
-    deleteDocById,
-    getCollectionSnapshot,
-    getCollectionSnapshotByCriteria,
-    getDocSnapshotById,
-} from '../Firebase/clientApp.ts'
+// import {
+//     addNewDoc,
+//     addNewDocWithId,
+//     deleteDocById,
+//     getCollectionSnapshot,
+//     getCollectionSnapshotByCriteria,
+//     getDocSnapshotById,
+// } from '../Firebase/clientApp.ts'
 
 import {
     createNewProjectDoc,
@@ -26,15 +26,17 @@ import {
 } from '../backend/daoTechnology'
 
 import {
+    createNewUserDoc,
+    deleteUserDoc,
     getAllUsers,
     getProjectsByUserId,
     getTechnologiesByUserId,
     getUserById,
 } from '../backend/daoUser'
 
-import { User } from '../models/User'
-import { Project } from '../models/Project'
-import { Technology } from '../models/Technology'
+// import { User } from '../models/User'
+// import { Project } from '../models/Project'
+// import { Technology } from '../models/Technology'
 
 // /*
 //     CREATE PROJECTS
@@ -414,8 +416,10 @@ export {
     createNewProjectDoc,
     createNewProjectsUsersDoc,
     createNewProjectsTechnologiesDoc,
+    createNewUserDoc,
     deleteProjectDoc,
     deleteProjectsUsersDoc,
+    deleteUserDoc,
     getAllProjects,
     getAllTechnologies,
     getAllUsers,

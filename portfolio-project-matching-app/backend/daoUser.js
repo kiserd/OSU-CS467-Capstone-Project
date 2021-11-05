@@ -13,41 +13,27 @@ import { Technology } from '../models/Technology'
     CREATE
 */
 
-const createNewProjectsUsersDoc = async (projectId, userId) => {
+const createNewUserDoc = async (user) => {
     /*
-    DESCRIPTION:    creates new projects_users document for provided project id
-                    and user id.
+    DESCRIPTION:    creates new user document in Firebase Firestore Database
+                    based on user object provided. Similar to
+                    INSERT INTO 'users'. Note, only user document is
+                    created, not associations.
 
-    INPUT:          project id and user id in string format
+    INPUT:          User object populated with data to be added in new
+                    document
 
     RETURN:         NA
     */
-    // get document snapshots for invalid input handling
-    const projectSnap = await getDocSnapshotById('projects', projectId);
-    const userSnap = await getDocSnapshotById('users', userId);
-    const projectsUsersSnap = await getDocSnapshotById('projects_users', `${projectId}_${userId}`);
-    // handle case where projectId does not exist in Firebase
-    if (!projectSnap.exists()) {
-        console.log(`invalid projectId: '${projectId}' does not exist`);
-    }
-    // handle case where userId does not exist in Firebase
-    else if (!userSnap.exists()) {
-        console.log(`invalid userId: '${userId}' does not exist`);
-    }
-    // handle case where projectId_userId already exists in projects_technologies
-    else if (projectsUsersSnap.exists()) {
-        console.log(`invalid projectId userId combination: '${projectId}_${userId}' already exists`);
-    }
-    // handle case inputs are valid 
-    else {
-        // build object to send to Firebase
-        const projectsUsersObj = {
-            project_id: projectId,
-            user_id: userId
-        }
-        const newDocRef = await addNewDocWithId('projects_users', `${projectId}_${userId}`, projectsUsersObj);
-        console.log(`Created projects_technologies document with id: ${newDocRef.id}`);
-    }
+    // build object to be added to Firebase as a user document
+    const userObj = {
+        email: user.email,
+        username: user.username,
+        introduction: user.introduction,
+    };
+    // add user document to Firebase
+    const newDocRef = await addNewDoc('users', userObj);
+    console.log(`Created user document with id: ${newDocRef.id}`);
 }
 
 /*
@@ -159,40 +145,30 @@ const getTechnologiesByUserId = async (userId) => {
     DELETE
 */
 
-const deleteProjectsUsersDoc = async (projectId, userId) => {
+const deleteUserDoc = async (userId) => {
     /*
-    DESCRIPTION:    deletes document associating provided projectId and userId
+    DESCRIPTION:    deletes user document associating userId
 
-    INPUT:          project id and user id in string format
+    INPUT:          user document id
 
     RETURN:         NA
     */
     // get document snapshots for invalid input handling
-    const projectSnap = await getDocSnapshotById('projects', projectId);
     const userSnap = await getDocSnapshotById('users', userId);
-    const projectsUsersSnap = await getDocSnapshotById('projects_users', `${projectId}_${userId}`);
-    // handle case where projectId does not exist in Firebase
-    if (!projectSnap.exists()) {
-        console.log(`invalid projectId: '${projectId}' does not exist`);
-    }
     // handle case where userId does not exist in Firebase
-    else if (!userSnap.exists()) {
+    if (!userSnap.exists()) {
         console.log(`invalid userId: '${userId}' does not exist`);
     }
-    // handle case where projectId_userId already exists in projects_technologies
-    else if (!projectsUsersSnap.exists()) {
-        console.log(`invalid projectId userId combination: '${projectId}_${userId}' does not exist`);
-    }
-    // handle case inputs are valid 
+    // handle case where inputs are valid
     else {
-        const deleteRef = await deleteDocById('projects_users', `${projectId}_${userId}`);
-        console.log(`Deleted projects_technologies document with id: ${deleteRef.id}`);
+        const deleteRef = await deleteDocById('users', userId);
+        console.log(`Deleted users document with id: ${deleteRef.id}`);
     }
 }
 
 export {
-    createNewProjectsUsersDoc,
-    deleteProjectsUsersDoc,
+    createNewUserDoc,
+    deleteUserDoc,
     getAllUsers,
     getProjectsByUserId,
     getTechnologiesByUserId,

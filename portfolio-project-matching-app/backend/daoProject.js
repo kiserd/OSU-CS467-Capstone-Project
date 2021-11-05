@@ -254,7 +254,7 @@ const deleteProjectDoc = async (projectId) => {
     /*
     DESCRIPTION:    deletes project document associating projectId
 
-    INPUT:          project
+    INPUT:          project document id
 
     RETURN:         NA
     */

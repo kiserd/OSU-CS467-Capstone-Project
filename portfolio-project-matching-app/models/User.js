@@ -48,7 +48,7 @@ class User {
         if (map.id) user.id = map.id;
         if (map.email) user.email = map.email;
         if (map.username) user.username = map.username;
-        if (map.intoduction) user.introduction = map.introduction;
+        if (map.introduction) user.introduction = map.introduction;
         if (map.projects) user.projects = map.projects;
         if (map.technologies) user.technologies = map.technologies;
         // return to user
