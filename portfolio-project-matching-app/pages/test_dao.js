@@ -1,14 +1,17 @@
 import { useEffect } from 'react'
 import {
-    getProjectById,
+    createAssociation,
+    createDoc,
     createNewLike,
     createNewProjectDoc,
+    createNewProjectsTechnologiesDoc,
     createNewProjectsUsersDoc,
     createNewUserDoc,
+    deleteDoc,
     deleteLike,
     deleteProjectsUsersDoc,
     deleteUserDoc,
-    createNewProjectsTechnologiesDoc,
+    getProjectById,
     updateDoc,
     updateProject,
 } from '../backend/dao'
@@ -17,10 +20,6 @@ import { User } from '../models/User'
 
 const test_createProject = () => {
     const runSomeFunc = async () => {
-        // const myProject = await getProjectById('invalid id');
-        // const project = new Project();
-        // console.log('project: ', project);
-
         // const projectId = 'mfDi4Ijwt9GDUsqAppQc';
         // const userId = 'C7UvzLR6Dj1g45QV6q4B';
         // await createNewProjectsUsersDoc(projectId, userId);
@@ -37,7 +36,12 @@ const test_createProject = () => {
         // const technologyId = 'GjGjYTX2uIRrfKrLpSID';
         // await createNewProjectsTechnologiesDoc(projectId, technologyId);
 
-        // const projectMap = {
+        /* 
+            project CREATE / DELETE
+        */
+
+        // const coll = 'projects'
+        // const payload = {
         //     name: 'Silly Project',
         //     description: 'Helps users carry out all sorts of silly tasks. Tasks can be planned for silly days and silly times',
         //     capacity: 7,
@@ -46,19 +50,11 @@ const test_createProject = () => {
         //     likes: 25,
         //     ownerId: 'Ipru4NtHrmGja7zl26Un',
         // };
-        // const project = Project.fromObject(projectMap);
-        // await createNewProjectDoc(projectMap);
+        // await createDoc(coll, payload);
 
-        // const userMap = {
-        //     email: 'darren.mcfadden@raiders.org',
-        //     username: 'rollTideRB',
-        //     introduction: 'Love running and coding'
-        // };
-        // const user = User.fromObject(userMap);
-        // await createNewUserDoc(user);
-
-        // const userId = 'rDwUUWUW0td9wBbQ0SbB';
-        // await deleteUserDoc(userId);
+        // const coll = 'projects';
+        // const id = '';
+        // await deleteDoc(coll, id);
 
         // const projectId = 'pLBXDJiDoasB3RXaZ70Y';
         // const userId = 'NPpoT9FquOywcmJ5k8m2';
@@ -72,6 +68,35 @@ const test_createProject = () => {
         // const coll = 'users';
         // const payload = {introduction: 'My new silly intro'};
         // await updateDoc(coll, id, payload);
+
+        /*
+            user CREATE / DELETE
+        */
+
+        // const payload = {
+        //     email: 'russ.wilson@seahawks.org',
+        //     username: 'goBadgers',
+        //     introduction: 'Love throwing and coding'
+        // };
+        // const coll = 'users';
+        // await createDoc(coll, payload)
+
+        // const coll = 'users';
+        // const id = '8IrjMsm3hyJycTbLxrUy';
+        // await deleteDoc(coll, id)
+
+        /*
+            association CREATE / DELETE
+        */
+
+        
+        const projectId = 'pLBXDJiDoasB3RXaZ70Y';
+        const userId = 'NPpoT9FquOywcmJ5k8m2';
+        await createAssociation('projects_users', projectId, userId);
+
+        // const projectId = 'mfDi4Ijwt9GDUsqAppQc';
+        // const userId = 'C7UvzLR6Dj1g45QV6q4B';      
+        // await deleteProjectsUsersDoc(projectId, userId); 
 
     }
 
