@@ -1,28 +1,25 @@
 import {
+    // CREATE
     addNewDoc,
     addNewDocWithId,
-    deleteDocById,
+    // READ
     getCollectionReference,
     getCollectionSnapshot,
     getDocSnapshotById,
+    // UPDATE
     updateDocument,
+    // DELETE
+    deleteDocById,
 } from '../Firebase/clientApp.ts'
 
 import {
     createNewLike,
-    createNewProjectDoc,
-    createNewProjectsUsersDoc,
-    createNewProjectsTechnologiesDoc,
     deleteLike,
-    deleteProjectDoc,
-    deleteProjectsTechnologiesDoc,
-    deleteProjectsUsersDoc,
     getAllProjects,
     getOwnerByUserId,
     getProjectById,
     getTechnologiesByProjectId,
     getUsersByProjectId,
-    updateProject,
 } from '../backend/daoProject'
 
 import {
@@ -31,9 +28,6 @@ import {
 } from '../backend/daoTechnology'
 
 import {
-    createNewUserDoc,
-    createNewUsersTechnologiesDoc,
-    deleteUserDoc,
     getAllUsers,
     getProjectsByUserId,
     getTechnologiesByUserId,
@@ -148,6 +142,8 @@ const createAssociation = async (coll, id1, id2) => {
     }
 }
 
+// helper functions, don't export
+
 const getPayload = (coll, id1, id2) => {
     /*
     DESCRIPTION:    builds association document payload based on coll input
@@ -174,6 +170,8 @@ const getPayload = (coll, id1, id2) => {
 /*
     READ
 */
+
+// see daoProject.js, daoUser.js, and daoTechnology.js
 
 /*
     UPDATE
@@ -306,21 +304,11 @@ const deleteAssociation = async (coll, id1, id2) => {
 }
 
 export {
+    // CREATE
     createAssociation,
     createDoc,
     createNewLike,
-    createNewProjectDoc,
-    createNewProjectsUsersDoc,
-    createNewProjectsTechnologiesDoc,
-    createNewUserDoc,
-    createNewUsersTechnologiesDoc,
-    deleteAssociation,
-    deleteDoc,
-    deleteLike,
-    deleteProjectDoc,
-    deleteProjectsTechnologiesDoc,
-    deleteProjectsUsersDoc,
-    deleteUserDoc,
+    // READ
     getAllProjects,
     getAllTechnologies,
     getAllUsers,
@@ -332,6 +320,10 @@ export {
     getTechnologyById,
     getUserById,
     getUsersByProjectId,
+    // UPDATE
     updateDoc,
-    updateProject,
+    // DELETE
+    deleteAssociation,
+    deleteDoc,
+    deleteLike,
 }

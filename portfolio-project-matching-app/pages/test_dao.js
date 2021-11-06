@@ -94,9 +94,9 @@ const test_createProject = () => {
         // const userId = 'PdJa7Nq3LJCbEOFxA2Vj';
         // await createAssociation('projects_users', projectId, userId);
 
-        const projectId = '6AqEuYkqrsArfuUEIOCQ';
-        const userId = 'PdJa7Nq3LJCbEOFxA2Vj';
-        await deleteAssociation('projects_users', projectId, userId); 
+        // const projectId = '6AqEuYkqrsArfuUEIOCQ';
+        // const userId = 'PdJa7Nq3LJCbEOFxA2Vj';
+        // await deleteAssociation('projects_users', projectId, userId); 
 
     }
 

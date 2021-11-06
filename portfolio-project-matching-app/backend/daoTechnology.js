@@ -1,19 +1,8 @@
 import {
-    addNewDoc,
-    addNewDocWithId,
-    deleteDocById,
     getCollectionSnapshot,
-    getCollectionSnapshotByCriteria,
-    getDocSnapshotById } from '../Firebase/clientApp.ts'
-import { User } from '../models/User'
-import { Project } from '../models/Project'
+    getDocSnapshotById,
+} from '../Firebase/clientApp.ts'
 import { Technology } from '../models/Technology'
-
-/*
-    CREATE
-*/
-
-// todo
 
 /*
     READ
@@ -58,19 +47,8 @@ const getTechnologyById = async (technologyId) => {
     return technology;
 }
 
-/*
-    UPDATE
-*/
-
-//  todo
-
-/*
-    DELETE
-*/
-
-// todo
-
 export {
+    // READ
     getAllTechnologies,
     getTechnologyById,
 }

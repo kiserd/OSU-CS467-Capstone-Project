@@ -1,10 +1,15 @@
 import {
+    // CREATE
     addNewDoc,
     addNewDocWithId,
-    deleteDocById,
+    // READ
     getCollectionSnapshot,
     getCollectionSnapshotByCriteria,
-    getDocSnapshotById } from '../Firebase/clientApp.ts'
+    getDocSnapshotById,
+    // DELETE
+    deleteDocById,
+
+} from '../Firebase/clientApp.ts'
 import { User } from '../models/User'
 import { Project } from '../models/Project'
 import { Technology } from '../models/Technology'
@@ -176,8 +181,6 @@ const getTechnologiesByUserId = async (userId) => {
     UPDATE
 */
 
-// todo
-
 /*
     DELETE
 */
@@ -204,11 +207,14 @@ const deleteUserDoc = async (userId) => {
 }
 
 export {
+    // CREATE
     createNewUserDoc,
     createNewUsersTechnologiesDoc,
-    deleteUserDoc,
+    // READ
     getAllUsers,
     getProjectsByUserId,
     getTechnologiesByUserId,
     getUserById,
+    // DELETE
+    deleteUserDoc,
 }
