@@ -9,6 +9,8 @@ import {
     deleteProjectsUsersDoc,
     deleteUserDoc,
     createNewProjectsTechnologiesDoc,
+    updateDoc,
+    updateProject,
 } from '../backend/dao'
 import { Project } from '../models/Project'
 import { User } from '../models/User'
@@ -65,6 +67,12 @@ const test_createProject = () => {
         // const projectId = 'lvaaHKqTrt4QWr3rbEXI';
         // const userId = 'C7UvzLR6Dj1g45QV6q4B';
         // await deleteLike(projectId, userId);
+
+        // const id = 'C7UvzLR6Dj1g45QV6q4B';
+        // const coll = 'users';
+        // const payload = {introduction: 'My new silly intro'};
+        // await updateDoc(coll, id, payload);
+
     }
 
     useEffect(() => {

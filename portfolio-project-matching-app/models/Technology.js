@@ -44,20 +44,11 @@ class Technology {
         // set fields/properties based on provided id and snapshot
         if (map.id) technology.id = map.id;
         if (map.name) technology.name = map.name;
-        if (map.description) technology.language = map.language;
-        if (map.capacity) technology.backend = map.backend;
+        if (map.language) technology.language = map.language;
+        if (map.backend) technology.backend = map.backend;
         // return to user
         return technology;
     }
-
-    // constructor(id, docSnapshot) {
-    //     this.id = id;
-    //     this.name = docSnapshot.data().name;
-    //     this.language = docSnapshot.data().language;
-    //     this.backend = docSnapshot.data().backend;
-    // }
-
-    
 }
 
 

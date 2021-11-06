@@ -145,24 +145,21 @@ const createNewLike = async (projectId, userId) => {
     else if (likesSnap.exists()) {
         console.log(`invalid projectId userId combination: '${userId}' already liked project '${projectId}'`);
     }
-    // handle case inputs are valid 
+    // handle case where inputs are valid 
     else {
-        // build object to send to Firebase
-        const likesObj = {
+        // build likes object to send to Firebase
+        const likesPayload = {
             project_id: projectId,
             user_id: userId
         }
-        const newDocRef = await addNewDocWithId('likes', `${projectId}_${userId}`, likesObj);
+        const newDocRef = await addNewDocWithId('likes', `${projectId}_${userId}`, likesPayload);
         console.log(`Created likes document with id: ${newDocRef.id}`);
         // get new likes total and build update payload
-        const newLikes = projectSnap.data().likes + 1;
-        console.log('oldLikes: ', projectSnap.data().likes);
-        console.log('newLikes: ', newLikes);
-        const payload = {
-            likes: newLikes
+        const likesTotalPayload = {
+            likes: projectSnap.data().likes + 1,
         }
         // update likes total and indicate success to user
-        const docSnapshot = await updateDocument('projects', projectId, payload);
+        const docSnapshot = await updateDocument('projects', projectId, likesTotalPayload);
         console.log(`Updated project '${docSnapshot.id}' with ${docSnapshot.data().likes} total likes`);
 
     }
@@ -294,7 +291,59 @@ const getUsersByProjectId = async (projectId) => {
     UPDATE
 */
 
-//  todo
+const updateProject = async (projectId, payload) => {
+    /*
+    DESCRIPTION:    updates Firebase project document with provided projectId.
+
+    INPUT:          object with keys corresponding to Firebase project document
+                    fields. Any omitted fields will remain unchanged in the
+                    document.
+
+    RETURN:         NA
+    */
+    // get document snapshot for invalid input handling
+    const projectSnap = await getDocSnapshotById('projects', projectId);
+    // handle case where projectId does not exist in Firebase
+    if (!projectSnap.exists()) {
+        console.log(`invalid projectId: '${projectId}' does not exist`);
+    }
+    // handle case where input is valid
+    else {
+        // update project document and indicate success to user
+        const docSnapshot = await updateDocument('projects', projectId, payload);
+        console.log(`Updated project '${docSnapshot.id}'`);
+    }
+}
+
+const updateDoc = async (coll, id, payload) => {
+    /*
+    DESCRIPTION:    updates Firebase document from provided collection, with
+                    provided document id, with data provided in payload
+
+    INPUT:          coll (string) : name of Firebase collection where the
+                    document being updated is located
+
+                    id (string) : document ID of document being updated
+
+                    payload (object): keys correspond to document field names
+                    and values are the new values being inserted into document.
+                    Note, any omitted keys/values will be left unchanged.
+
+    RETURN:         NA
+    */
+    // get document snapshot for invalid input handling
+    const snap = await getDocSnapshotById(coll, id);
+    // handle case where id does not exist in provided Firebase collection
+    if (!snap.exists()) {
+        console.log(`invalid ${coll} document: '${id}' does not exist`);
+    }
+    // handle case where input is valid
+    else {
+        // update document and indicate success to user
+        const snapNew = await updateDocument(coll, id, payload);
+        console.log(`Updated project '${snapNew.id}'`);
+    }
+}
 
 /*
     DELETE
@@ -442,4 +491,6 @@ export {
     getProjectById,
     getTechnologiesByProjectId,
     getUsersByProjectId,
+    updateDoc,
+    updateProject,
 }
