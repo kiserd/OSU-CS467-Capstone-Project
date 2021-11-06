@@ -51,7 +51,7 @@ const createDoc = async (coll, payload) => {
                     'collection'. Note, only document is created, not 
                     associations.
 
-    INPUT:          coll (string) : name of Firebase collection where the
+    INPUT:          coll (string): name of Firebase collection where the
                     document being updated is located
 
                     payload (object): keys correspond to document field names
@@ -82,12 +82,18 @@ const createDoc = async (coll, payload) => {
 
 const createAssociation = async (coll, id1, id2) => {
     /*
-    DESCRIPTION:    creates new projects_users document for provided project id
-                    and user id.
+    DESCRIPTION:    creates new association document for provided collection.
+                    Also, updates project document if adding user to project.
 
-    INPUT:          project id and user id in string format
+    INPUT:          coll (string): name of Firebase collection where the
+                    document being updated is located
 
-    RETURN:         NA
+                    id1 (string): document ID from first table being associated
+
+                    id2 (string): document ID from second table being
+                    associated
+
+    RETURN:         new coll document snapshot
     */
     // parse association collection name to get individual collection names
     const [coll1, coll2] = coll.split('_');
@@ -119,8 +125,8 @@ const createAssociation = async (coll, id1, id2) => {
     else {
         // build association document to send to Firebase
         const payload = getPayload(coll, id1, id2);
-        const newDocRef = await addNewDocWithId(coll, `${id1}_${id2}`, payload);
-        console.log(`Created '${coll}' document with id: ${newDocRef.id}`);
+        const collSnapNew = await addNewDocWithId(coll, `${id1}_${id2}`, payload);
+        console.log(`Created '${coll}' document with id: ${collSnapNew.id}`);
         // handle case of projects_users
         if (coll === 'projects_users') {
             // create update payload for incremented census
@@ -132,12 +138,13 @@ const createAssociation = async (coll, id1, id2) => {
             if (payloadNeedsUpdated){
                 payload.open = false;
             }
-            const collSnapNew = await updateDoc(coll1, id1, payload);
-            console.log(`Updated '${coll1}' document id '${id1}' census to ${collSnapNew.data().census}`);
+            const projectSnapNew = await updateDoc(coll1, id1, payload);
+            console.log(`Updated '${coll1}' document id '${id1}' census to ${projectSnapNew.data().census}`);
             if (payloadNeedsUpdated) {
                 console.log(`Closed '${coll1}' document id '${id1}'`);
             }
         }
+        return collSnapNew;
     }
 }
 
@@ -186,7 +193,7 @@ const updateDoc = async (coll, id, payload) => {
                     and values are the new values being inserted into document.
                     Note, any omitted keys/values will be left unchanged.
 
-    RETURN:         NA
+    RETURN:         document snapshot after updates
     */
     // get document snapshot for invalid input handling
     const snap = await getDocSnapshotById(coll, id);
@@ -228,7 +235,73 @@ const deleteDoc = async (coll, id) => {
     // handle case where inputs are valid
     else {
         const ref = await deleteDocById(coll, id);
-        console.log(`Deleted ${coll} document with id: ${ref.id}`);
+        console.log(`Deleted ${coll} document with id: '${ref.id}'`);
+    }
+}
+
+const deleteAssociation = async (coll, id1, id2) => {
+    /*
+    DESCRIPTION:    deletes association document for provided collection. Also,
+                    updates project document if removing user from project
+
+    INPUT:          coll (string): name of Firebase collection where the
+                    document being updated is located
+
+                    id1 (string): document ID from first table being associated
+
+                    id2 (string): document ID from second table being
+                    associated
+
+    RETURN:         NA
+    */
+    // parse association collection name to get individual collection names
+    const [coll1, coll2] = coll.split('_');
+    // get document snapshots for invalid input handling
+    const id1Snap = await getDocSnapshotById(coll1, id1);
+    const id2Snap = await getDocSnapshotById(coll2, id2);
+    const collSnap = await getDocSnapshotById(coll, `${id1}_${id2}`);
+    // handle case where coll does not exist in database
+    if (collSnap.empty) {
+        console.log(`Collection '${coll}' does not exist`);
+    }
+    // handle case where id1 does not exist in coll1
+    else if (!id1Snap.exists()) {
+        console.log(`Invalid '${coll1}' id: '${id1}' does not exist`);
+    }
+    // handle case of projects_users where id2 is the project owner
+    else if (coll === 'projects_users' && !id1Snap.data().owner === id2) {
+        console.log(`Invalid '${coll2}' id: ${id2} is the project owner`);
+    }
+    // handle case where id2 does not exist in coll2
+    else if (!id2Snap.exists()) {
+        console.log(`Invalid '${coll2}' id: '${id2}' does not exist`);
+    }
+    // handle case where id1_id2 does not exist in coll
+    else if (!collSnap.exists()) {
+        console.log(`Invalid id1 id2 combo: '${id1}_${id2}' does not exist in '${coll}'`);
+    }
+    // handle case inputs are valid 
+    else {
+        // delete association document from Firebase
+        const ref = await deleteDocById(coll, `${id1}_${id2}`);
+        console.log(`Deleted '${coll}' document with id: ${ref.id}`);
+        // handle case of projects_users
+        if (coll === 'projects_users') {
+            // create update payload for decremented census
+            const payload = {
+                census: id1Snap.data().census - 1,
+            }
+            // handle case where project needs opened
+            const payloadNeedsUpdated = id1Snap.data().census === id1Snap.data().capacity;
+            if (payloadNeedsUpdated){
+                payload.open = true;
+            }
+            const collSnapNew = await updateDoc(coll1, id1, payload);
+            console.log(`Updated '${coll1}' document id '${id1}' census to ${collSnapNew.data().census}`);
+            if (payloadNeedsUpdated) {
+                console.log(`Opened '${coll1}' document id '${id1}'`);
+            }
+        }
     }
 }
 
@@ -241,6 +314,7 @@ export {
     createNewProjectsTechnologiesDoc,
     createNewUserDoc,
     createNewUsersTechnologiesDoc,
+    deleteAssociation,
     deleteDoc,
     deleteLike,
     deleteProjectDoc,

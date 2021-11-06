@@ -64,11 +64,11 @@ const addNewDocWithId = async (coll, id, payload) => {
     INPUT:        string indicating desired collection name, id of new
                   document, and payload to be added.
 
-    RETURN:       reference to new document
+    RETURN:       snapshot of new document
   */
   const docRef = doc(db, coll, id);
   await setDoc(docRef, payload);
-  return docRef;
+  return await getDoc(docRef);
 }
 
 /*

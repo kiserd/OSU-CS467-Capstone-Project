@@ -7,6 +7,7 @@ import {
     createNewProjectsTechnologiesDoc,
     createNewProjectsUsersDoc,
     createNewUserDoc,
+    deleteAssociation,
     deleteDoc,
     deleteLike,
     deleteProjectsUsersDoc,
@@ -88,15 +89,14 @@ const test_createProject = () => {
         /*
             association CREATE / DELETE
         */
-
         
-        const projectId = 'pLBXDJiDoasB3RXaZ70Y';
-        const userId = 'NPpoT9FquOywcmJ5k8m2';
-        await createAssociation('projects_users', projectId, userId);
+        // const projectId = '6AqEuYkqrsArfuUEIOCQ';
+        // const userId = 'PdJa7Nq3LJCbEOFxA2Vj';
+        // await createAssociation('projects_users', projectId, userId);
 
-        // const projectId = 'mfDi4Ijwt9GDUsqAppQc';
-        // const userId = 'C7UvzLR6Dj1g45QV6q4B';      
-        // await deleteProjectsUsersDoc(projectId, userId); 
+        const projectId = '6AqEuYkqrsArfuUEIOCQ';
+        const userId = 'PdJa7Nq3LJCbEOFxA2Vj';
+        await deleteAssociation('projects_users', projectId, userId); 
 
     }
 
