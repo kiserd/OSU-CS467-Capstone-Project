@@ -13,26 +13,32 @@ import {
 } from '../Firebase/clientApp.ts'
 
 import {
+    // CREATE
     createNewLike,
-    deleteLike,
+    // READ
     getAllProjects,
     getOwnerByUserId,
     getProjectById,
     getTechnologiesByProjectId,
     getUsersByProjectId,
+    // DELETE
+    deleteLike,
 } from '../backend/daoProject'
 
 import {
+    // READ
     getAllTechnologies,
     getTechnologyById,
 } from '../backend/daoTechnology'
 
 import {
+    // READ
     getAllUsers,
     getProjectsByUserId,
     getTechnologiesByUserId,
     getUserById,
 } from '../backend/daoUser'
+import { DocumentReference } from '@firebase/firestore'
 
 /*
     CREATE
@@ -60,6 +66,7 @@ const createDoc = async (coll, payload) => {
     // handle case of invalid collection name
     if (collSnap.empty) {
         console.log(`Collection '${coll}' does not exist.`);
+        return -1;
     }
     // handle case where collection name is valid
     else {
@@ -69,8 +76,9 @@ const createDoc = async (coll, payload) => {
             ownerRef = await getDocReferenceById('users', payload.ownerId);
         }
         // add document to Firebase
-        const newDocRef = await addNewDoc(coll, payload);
+        const newDocSnap = await addNewDoc(coll, payload);
         console.log(`Created '${coll}' document with id: ${newDocRef.id}`);
+        return newDocSnap;
     }
 }
 
@@ -98,29 +106,34 @@ const createAssociation = async (coll, id1, id2) => {
     // handle case where coll does not exist in database
     if (collSnap.empty) {
         console.log(`Collection '${coll}' does not exist`);
+        return -1;
     }
     // handle case where id1 does not exist in coll1
     else if (!id1Snap.exists()) {
         console.log(`Invalid '${coll1}' id: '${id1}' does not exist`);
+        return -1;
     }
     // handle case of projects_users where project is not open
     else if (coll === 'projects_users' && !id1Snap.data().open) {
         console.log(`Invalid '${coll1}' id: ${id1} is at capacity`);
+        return -1;
     }
     // handle case where id2 does not exist in coll2
     else if (!id2Snap.exists()) {
         console.log(`Invalid '${coll2}' id: '${id2}' does not exist`);
+        return -1;
     }
     // handle case where id1_id2 already exists in coll
     else if (collSnap.exists()) {
         console.log(`Invalid id1 id2 combo: '${id1}_${id2}' already exists in '${coll}'`);
+        return -1;
     }
     // handle case inputs are valid 
     else {
         // build association document to send to Firebase
         const payload = getPayload(coll, id1, id2);
-        const collSnapNew = await addNewDocWithId(coll, `${id1}_${id2}`, payload);
-        console.log(`Created '${coll}' document with id: ${collSnapNew.id}`);
+        const newDocSnap = await addNewDocWithId(coll, `${id1}_${id2}`, payload);
+        console.log(`Created '${coll}' document with id: ${newDocSnap.id}`);
         // handle case of projects_users
         if (coll === 'projects_users') {
             // create update payload for incremented census
@@ -138,7 +151,7 @@ const createAssociation = async (coll, id1, id2) => {
                 console.log(`Closed '${coll1}' document id '${id1}'`);
             }
         }
-        return collSnapNew;
+        return newDocSnap;
     }
 }
 
@@ -198,13 +211,14 @@ const updateDoc = async (coll, id, payload) => {
     // handle case where id does not exist in provided Firebase collection
     if (!snap.exists()) {
         console.log(`invalid ${coll} document: '${id}' does not exist`);
+        return -1;
     }
     // handle case where input is valid
     else {
         // update document and indicate success to user
-        const snapNew = await updateDocument(coll, id, payload);
-        console.log(`Updated project '${snapNew.id}'`);
-        return snapNew;
+        const newDocSnap = await updateDocument(coll, id, payload);
+        console.log(`Updated project '${newDocSnap.id}'`);
+        return newDocSnap;
     }
 }
 
@@ -229,11 +243,13 @@ const deleteDoc = async (coll, id) => {
     // handle case where id does not exist in provided Firebase collection
     if (!snap.exists()) {
         console.log(`invalid ${coll} document: '${id}' does not exist`);
+        return -1;
     }
     // handle case where inputs are valid
     else {
-        const ref = await deleteDocById(coll, id);
-        console.log(`Deleted ${coll} document with id: '${ref.id}'`);
+        const docRef = await deleteDocById(coll, id);
+        console.log(`Deleted ${coll} document with id: '${docRef.id}'`);
+        return docRef;
     }
 }
 
@@ -261,22 +277,27 @@ const deleteAssociation = async (coll, id1, id2) => {
     // handle case where coll does not exist in database
     if (collSnap.empty) {
         console.log(`Collection '${coll}' does not exist`);
+        return -1;
     }
     // handle case where id1 does not exist in coll1
     else if (!id1Snap.exists()) {
         console.log(`Invalid '${coll1}' id: '${id1}' does not exist`);
+        return -1;
     }
     // handle case of projects_users where id2 is the project owner
     else if (coll === 'projects_users' && !id1Snap.data().owner === id2) {
         console.log(`Invalid '${coll2}' id: ${id2} is the project owner`);
+        return -1;
     }
     // handle case where id2 does not exist in coll2
     else if (!id2Snap.exists()) {
         console.log(`Invalid '${coll2}' id: '${id2}' does not exist`);
+        return -1;
     }
     // handle case where id1_id2 does not exist in coll
     else if (!collSnap.exists()) {
         console.log(`Invalid id1 id2 combo: '${id1}_${id2}' does not exist in '${coll}'`);
+        return -1;
     }
     // handle case inputs are valid 
     else {
@@ -300,6 +321,7 @@ const deleteAssociation = async (coll, id1, id2) => {
                 console.log(`Opened '${coll1}' document id '${id1}'`);
             }
         }
+        return ref;
     }
 }
 

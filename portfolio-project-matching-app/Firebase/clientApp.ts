@@ -2,17 +2,23 @@
 import { initializeApp } from "firebase/app";
 // TODO: Add SDKs for Firebase products that you want to use
 import {
-  addDoc,
+  // REFERENCE GETTERS
   collection,
-  deleteDoc,
   doc,
-  getDoc,
-  getDocs,
   getFirestore,
   query,
-  setDoc,
-  updateDoc,
+  // MISC
   where,
+  // CREATE
+  addDoc,
+  setDoc,
+  // READ
+  getDoc,
+  getDocs,
+  // UPDATE
+  updateDoc,
+  // DELETE
+  deleteDoc,
 } from 'firebase/firestore';
 // import { getAnalytics } from "firebase/analytics";
 // https://firebase.google.com/docs/web/setup#available-libraries
@@ -51,7 +57,7 @@ const addNewDoc = async (coll, payload) => {
   */
   const collRef = collection(db, coll);
   const docRef = await addDoc(collRef, payload);
-  return docRef;
+  return await getDoc(docRef);
 }
 
 const addNewDocWithId = async (coll, id, payload) => {
@@ -120,7 +126,7 @@ const getCollectionSnapshotByCriteria = async (coll, field, operator, condition)
   return querySnapshot
 }
 
-const getDocReferenceById = async(coll, docId) => {
+const getDocReferenceById = async(coll, id) => {
   /*
   DESCRIPTION:  gets document reference from provided collection name with
                 provided document ID
@@ -130,11 +136,10 @@ const getDocReferenceById = async(coll, docId) => {
 
   RETURN:       reference of document with provided document ID
   */
-  const docRef = doc(db, coll, docId);
-  return docRef;
+  return doc(db, coll, id);
 }
 
-const getDocSnapshotById = async(coll, docId) => {
+const getDocSnapshotById = async(coll, id) => {
   /*
   DESCRIPTION:  gets snapshot of document from provided collection name with
                 provided document ID
@@ -144,9 +149,9 @@ const getDocSnapshotById = async(coll, docId) => {
 
   RETURN:       snapshot of document with provided document ID
   */
-  const docRef = doc(db, coll, docId);
-  const querySnapshot = await getDoc(docRef);
-  return querySnapshot;
+  const docRef = doc(db, coll, id);
+  const docSnap = await getDoc(docRef);
+  return docSnap;
 }
 
 /*
@@ -164,8 +169,7 @@ const updateDocument = async (coll, id, payload) => {
   */
   const docRef = doc(db, coll, id);
   await updateDoc(docRef, payload);
-  const docSnapshot = await getDoc(docRef);
-  return docSnapshot;
+  return await getDoc(docRef);
 }
 
 /*

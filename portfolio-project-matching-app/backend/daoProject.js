@@ -140,14 +140,17 @@ const createNewLike = async (projectId, userId) => {
     // handle case where projectId does not exist in Firebase
     if (!projectSnap.exists()) {
         console.log(`invalid projectId: '${projectId}' does not exist`);
+        return -1;
     }
     // handle case where userId does not exist in Firebase
     else if (!userSnap.exists()) {
         console.log(`invalid userId: '${userId}' does not exist`);
+        return -1;
     }
     // handle case where projectId_userId already exists in likes
     else if (likesSnap.exists()) {
         console.log(`invalid projectId userId combination: '${userId}' already liked project '${projectId}'`);
+        return -1;
     }
     // handle case where inputs are valid 
     else {
@@ -165,6 +168,7 @@ const createNewLike = async (projectId, userId) => {
         // update likes total and indicate success to user
         const docSnapshot = await updateDocument('projects', projectId, likesTotalPayload);
         console.log(`Updated project '${docSnapshot.id}' with ${docSnapshot.data().likes} total likes`);
+        return docSnapshot;
 
     }
 }
@@ -230,6 +234,7 @@ const getProjectById = async (projectId) => {
     // handle case where projectId is invalid
     else {
         console.log(`invalid projectId: '${projectId}' does not exist`);
+        return -1;
     }
 }
 
@@ -339,14 +344,17 @@ const deleteLike = async (projectId, userId) => {
     // handle case where projectId does not exist in Firebase
     if (!projectSnap.exists()) {
         console.log(`invalid projectId: '${projectId}' does not exist`);
+        return -1;
     }
     // handle case where userId does not exist in Firebase
     else if (!userSnap.exists()) {
         console.log(`invalid userId: '${userId}' does not exist`);
+        return -1;
     }
     // handle case where projectId_userId does not exist in likes
     else if (!likesSnap.exists()) {
         console.log(`invalid projectId userId combination: user '${userId}' has not liked project '${projectId}'`);
+        return -1;
     }
     // handle case where inputs are valid 
     else {
@@ -363,6 +371,7 @@ const deleteLike = async (projectId, userId) => {
         // update likes total and indicate success to user
         const docSnapshot = await updateDocument('projects', projectId, payload);
         console.log(`Updated project '${docSnapshot.id}' with ${docSnapshot.data().likes} total likes`);
+        return deleteRef;
 
     }
 }
