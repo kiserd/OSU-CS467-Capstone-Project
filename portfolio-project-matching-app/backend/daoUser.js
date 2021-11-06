@@ -36,6 +36,43 @@ const createNewUserDoc = async (user) => {
     console.log(`Created user document with id: ${newDocRef.id}`);
 }
 
+const createNewUsersTechnologiesDoc = async (userId, technologyId) => {
+    /*
+    DESCRIPTION:    creates new users_technologies document for provided
+                    user id and technology id.
+
+    INPUT:          user id and technology id in string format
+
+    RETURN:         NA
+    */
+    // get document snapshots for invalid input handling
+    const userSnap = await getDocSnapshotById('users', userId);
+    const technologySnap = await getDocSnapshotById('technologies', technologyId);
+    const usersTechnologiesSnap = await getDocSnapshotById('users_technologies', `${userId}_${technologyId}`);
+    // handle case where projectId does not exist in Firebase
+    if (!userSnap.exists()) {
+        console.log(`invalid userId: '${userId}' does not exist`);
+    }
+    // handle case where technologyId does not exist in Firebase
+    else if (!technologySnap.exists()) {
+        console.log(`invalid technologyId: '${technologyId}' does not exist`);
+    }
+    // handle case where userId_technologyId already exists in users_technologies
+    else if (usersTechnologiesSnap.exists()) {
+        console.log(`invalid userId technologyId combination: '${userId}_${technologyId}' already exists`);
+    }
+    // handle case inputs are valid 
+    else {
+        // build object to send to Firebase
+        const usersTechnologiesObj = {
+            user_id: userId,
+            technology_id: technologyId
+        }
+        const newDocRef = await addNewDocWithId('users_technologies', `${userId}_${technologyId}`, usersTechnologiesObj);
+        console.log(`Created users_technologies document with id: ${newDocRef.id}`);
+    }
+}
+
 /*
     READ
 */
@@ -168,6 +205,7 @@ const deleteUserDoc = async (userId) => {
 
 export {
     createNewUserDoc,
+    createNewUsersTechnologiesDoc,
     deleteUserDoc,
     getAllUsers,
     getProjectsByUserId,

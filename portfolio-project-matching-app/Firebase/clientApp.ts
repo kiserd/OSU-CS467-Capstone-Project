@@ -11,7 +11,9 @@ import {
   getFirestore,
   query,
   setDoc,
-  where } from 'firebase/firestore';
+  updateDoc,
+  where,
+} from 'firebase/firestore';
 // import { getAnalytics } from "firebase/analytics";
 // https://firebase.google.com/docs/web/setup#available-libraries
 
@@ -29,67 +31,9 @@ const firebaseApp = initializeApp(firebaseConfig);
 const db = getFirestore();
 // const analytics = getAnalytics(firebaseApp);
 
-const getDocSnapshotById = async(collectionName, docId) => {
-  /*
-  DESCRIPTION:  gets snapshot of document from provided collection name with
-                provided document ID
-
-  INPUT:        string indicating desired collection name and string indicating
-                desired document ID
-
-  RETURN:       snapshot of document with provided document ID
-  */
-  const docRef = doc(db, collectionName, docId);
-  const querySnapshot = await getDoc(docRef);
-  return querySnapshot;
-}
-
-const getCollectionSnapshot = async (collectionName) => {
-  /*
-    DESCRIPTION:  gets snapshot of documents from provided collection name
-
-    INPUT:        string indicating desired collection name. E.g.,
-                  getAllDocuments('technologies')
-
-    RETURN:       snapshot of documents from specified collection
-  */
-  const collectionRef = collection(db, collectionName);
-  const querySnapshot = await getDocs(collectionRef);
-  return querySnapshot;
-}
-
-const getDocReferenceById = async(collectionName, docId) => {
-  /*
-  DESCRIPTION:  gets document reference from provided collection name with
-                provided document ID
-
-  INPUT:        string indicating desired collection name and string indicating
-                desired document ID
-
-  RETURN:       reference of document with provided document ID
-  */
-  const docRef = doc(db, collectionName, docId);
-  return docRef;
-}
-
-const getCollectionSnapshotByCriteria = async (collectionName, field, operator, condition) => {
-  /*
-  DESCRIPTION:  gets snapshot of documents from provided collection name based
-                on criteria passed
-
-  INPUT:        collectionName: string indicating name of collection
-                field: field being compared to criteria
-                operator: operator used to compare against condition e.g., '=='
-                condition: value given field is being compared against
-                Example: getColl...Criteria('projects', 'open', '==', true)
-
-  RETURN:       snapshot of documents from specified collection
-  */
-  const collectionRef = collection(db, collectionName);
-  const q = query(collectionRef, where(field, operator, condition));
-  const querySnapshot = await getDocs(q);
-  return querySnapshot
-}
+/*
+  CREATE
+*/
 
 const addNewDoc = async (collectionName, data) => {
   /*
@@ -117,8 +61,8 @@ const addNewDocWithId = async (collectionName, id, data) => {
                   validation - that is currently left to the calling function.
                   Note, new document id must be provided by calling function
 
-    INPUT:        string indicating desired collection name and id of new
-                  document
+    INPUT:        string indicating desired collection name, id of new
+                  document, and data to be added.
 
     RETURN:       reference to new document
   */
@@ -126,6 +70,95 @@ const addNewDocWithId = async (collectionName, id, data) => {
   await setDoc(docRef, data);
   return docRef;
 }
+
+/*
+  READ
+*/
+
+const getCollectionSnapshot = async (collectionName) => {
+  /*
+    DESCRIPTION:  gets snapshot of documents from provided collection name
+
+    INPUT:        string indicating desired collection name. E.g.,
+                  getAllDocuments('technologies')
+
+    RETURN:       snapshot of documents from specified collection
+  */
+  const collectionRef = collection(db, collectionName);
+  const querySnapshot = await getDocs(collectionRef);
+  return querySnapshot;
+}
+
+const getCollectionSnapshotByCriteria = async (collectionName, field, operator, condition) => {
+  /*
+  DESCRIPTION:  gets snapshot of documents from provided collection name based
+                on criteria passed
+
+  INPUT:        collectionName: string indicating name of collection
+                field: field being compared to criteria
+                operator: operator used to compare against condition e.g., '=='
+                condition: value given field is being compared against
+                Example: getColl...Criteria('projects', 'open', '==', true)
+
+  RETURN:       snapshot of documents from specified collection
+  */
+  const collectionRef = collection(db, collectionName);
+  const q = query(collectionRef, where(field, operator, condition));
+  const querySnapshot = await getDocs(q);
+  return querySnapshot
+}
+
+const getDocReferenceById = async(collectionName, docId) => {
+  /*
+  DESCRIPTION:  gets document reference from provided collection name with
+                provided document ID
+
+  INPUT:        string indicating desired collection name and string indicating
+                desired document ID
+
+  RETURN:       reference of document with provided document ID
+  */
+  const docRef = doc(db, collectionName, docId);
+  return docRef;
+}
+
+const getDocSnapshotById = async(collectionName, docId) => {
+  /*
+  DESCRIPTION:  gets snapshot of document from provided collection name with
+                provided document ID
+
+  INPUT:        string indicating desired collection name and string indicating
+                desired document ID
+
+  RETURN:       snapshot of document with provided document ID
+  */
+  const docRef = doc(db, collectionName, docId);
+  const querySnapshot = await getDoc(docRef);
+  return querySnapshot;
+}
+
+/*
+  UPDATE
+*/
+
+const updateDocument = async (collectionName, id, data) => {
+  /*
+    DESCRIPTION:  updates an existing document with provided data.
+
+    INPUT:        string indicating desired collection name, id of new
+                  document, and data to be updated
+
+    RETURN:       reference to new document
+  */
+  const docRef = doc(db, collectionName, id);
+  await updateDoc(docRef, data);
+  const docSnapshot = await getDoc(docRef);
+  return docSnapshot;
+}
+
+/*
+  DELETE
+*/
 
 const deleteDocById = async (collectionName, id) => {
   /*
@@ -184,4 +217,5 @@ export {
   getCollectionSnapshotByCriteria,
   getDocReferenceById,
   getDocSnapshotById,
+  updateDocument,
 };

@@ -5,7 +5,9 @@ import {
     getCollectionSnapshot,
     getCollectionSnapshotByCriteria,
     getDocReferenceById,
-    getDocSnapshotById } from '../Firebase/clientApp.ts'
+    getDocSnapshotById,
+    updateDocument,
+} from '../Firebase/clientApp.ts'
 import { User } from '../models/User'
 import { Project } from '../models/Project'
 import { Technology } from '../models/Technology'
@@ -115,6 +117,54 @@ const createNewProjectsTechnologiesDoc = async (projectId, technologyId) => {
         }
         const newDocRef = await addNewDocWithId('projects_technologies', `${projectId}_${technologyId}`, projectsTechnologiesObj);
         console.log(`Created projects_technologies document with id: ${newDocRef.id}`);
+    }
+}
+
+const createNewLike = async (projectId, userId) => {
+    /*
+    DESCRIPTION:    creates new likes document for provided project id and
+                    user id.
+
+    INPUT:          project id and user id in string format
+
+    RETURN:         NA
+    */
+    // get document snapshots for invalid input handling
+    const projectSnap = await getDocSnapshotById('projects', projectId);
+    const userSnap = await getDocSnapshotById('users', userId);
+    const likesSnap = await getDocSnapshotById('likes', `${projectId}_${userId}`);
+    // handle case where projectId does not exist in Firebase
+    if (!projectSnap.exists()) {
+        console.log(`invalid projectId: '${projectId}' does not exist`);
+    }
+    // handle case where userId does not exist in Firebase
+    else if (!userSnap.exists()) {
+        console.log(`invalid userId: '${userId}' does not exist`);
+    }
+    // handle case where projectId_userId already exists in likes
+    else if (likesSnap.exists()) {
+        console.log(`invalid projectId userId combination: '${userId}' already liked project '${projectId}'`);
+    }
+    // handle case inputs are valid 
+    else {
+        // build object to send to Firebase
+        const likesObj = {
+            project_id: projectId,
+            user_id: userId
+        }
+        const newDocRef = await addNewDocWithId('likes', `${projectId}_${userId}`, likesObj);
+        console.log(`Created likes document with id: ${newDocRef.id}`);
+        // get new likes total and build update payload
+        const newLikes = projectSnap.data().likes + 1;
+        console.log('oldLikes: ', projectSnap.data().likes);
+        console.log('newLikes: ', newLikes);
+        const payload = {
+            likes: newLikes
+        }
+        // update likes total and indicate success to user
+        const docSnapshot = await updateDocument('projects', projectId, payload);
+        console.log(`Updated project '${docSnapshot.id}' with ${docSnapshot.data().likes} total likes`);
+
     }
 }
 
@@ -250,6 +300,50 @@ const getUsersByProjectId = async (projectId) => {
     DELETE
 */
 
+const deleteLike = async (projectId, userId) => {
+    /*
+    DESCRIPTION:    deletes like document for provided projectId and userId.
+                    Also, decrements project documents likes total.
+
+    INPUT:          project id and user id in string format
+
+    RETURN:         NA
+    */
+    // get document snapshots for invalid input handling
+    const projectSnap = await getDocSnapshotById('projects', projectId);
+    const userSnap = await getDocSnapshotById('users', userId);
+    const likesSnap = await getDocSnapshotById('likes', `${projectId}_${userId}`);
+    // handle case where projectId does not exist in Firebase
+    if (!projectSnap.exists()) {
+        console.log(`invalid projectId: '${projectId}' does not exist`);
+    }
+    // handle case where userId does not exist in Firebase
+    else if (!userSnap.exists()) {
+        console.log(`invalid userId: '${userId}' does not exist`);
+    }
+    // handle case where projectId_userId does not exist in likes
+    else if (!likesSnap.exists()) {
+        console.log(`invalid projectId userId combination: user '${userId}' has not liked project '${projectId}'`);
+    }
+    // handle case where inputs are valid 
+    else {
+        // delete likes document
+        const deleteRef = await deleteDocById('likes', `${projectId}_${userId}`);
+        console.log(`Deleted likes document with id: ${deleteRef.id}`);
+        // get new likes total and build update payload
+        const newLikes = projectSnap.data().likes - 1;
+        console.log('oldLikes: ', projectSnap.data().likes);
+        console.log('newLikes: ', newLikes);
+        const payload = {
+            likes: newLikes
+        }
+        // update likes total and indicate success to user
+        const docSnapshot = await updateDocument('projects', projectId, payload);
+        console.log(`Updated project '${docSnapshot.id}' with ${docSnapshot.data().likes} total likes`);
+
+    }
+}
+
 const deleteProjectDoc = async (projectId) => {
     /*
     DESCRIPTION:    deletes project document associating projectId
@@ -291,22 +385,57 @@ const deleteProjectsUsersDoc = async (projectId, userId) => {
     else if (!userSnap.exists()) {
         console.log(`invalid userId: '${userId}' does not exist`);
     }
-    // handle case where projectId_userId already exists in projects_technologies
+    // handle case where projectId_userId does not exist in projects_users
     else if (!projectsUsersSnap.exists()) {
         console.log(`invalid projectId userId combination: '${projectId}_${userId}' does not exist`);
     }
     // handle case where inputs are valid 
     else {
         const deleteRef = await deleteDocById('projects_users', `${projectId}_${userId}`);
+        console.log(`Deleted projects_users document with id: ${deleteRef.id}`);
+    }
+}
+
+const deleteProjectsTechnologiesDoc = async (projectId, technologyId) => {
+    /*
+    DESCRIPTION:    deletes document associating provided projectId and
+                    technolgyId
+
+    INPUT:          project id and technology id in string format
+
+    RETURN:         NA
+    */
+    // get document snapshots for invalid input handling
+    const projectSnap = await getDocSnapshotById('projects', projectId);
+    const technologySnap = await getDocSnapshotById('technologies', technologyId);
+    const projectsTechnologiesSnap = await getDocSnapshotById('projects_technologies', `${projectId}_${technologyId}`);
+    // handle case where projectId does not exist in Firebase
+    if (!projectSnap.exists()) {
+        console.log(`invalid projectId: '${projectId}' does not exist`);
+    }
+    // handle case where technologyId does not exist in Firebase
+    else if (!technologySnap.exists()) {
+        console.log(`invalid technologyId: '${technologyId}' does not exist`);
+    }
+    // handle case where projectId_technologyId already exists in projects_technologies
+    else if (!projectsTechnologiesSnap.exists()) {
+        console.log(`invalid projectId technologyId combination: '${projectId}_${technologyId}' does not exist`);
+    }
+    // handle case where inputs are valid 
+    else {
+        const deleteRef = await deleteDocById('projects_technologies', `${projectId}_${technologyId}`);
         console.log(`Deleted projects_technologies document with id: ${deleteRef.id}`);
     }
 }
 
 export {
+    createNewLike,
     createNewProjectDoc,
     createNewProjectsUsersDoc,
     createNewProjectsTechnologiesDoc,
+    deleteLike,
     deleteProjectDoc,
+    deleteProjectsTechnologiesDoc,
     deleteProjectsUsersDoc,
     getAllProjects,
     getOwnerByUserId,

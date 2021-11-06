@@ -1,9 +1,11 @@
 import { useEffect } from 'react'
 import {
     getProjectById,
+    createNewLike,
     createNewProjectDoc,
     createNewProjectsUsersDoc,
     createNewUserDoc,
+    deleteLike,
     deleteProjectsUsersDoc,
     deleteUserDoc,
     createNewProjectsTechnologiesDoc,
@@ -55,7 +57,14 @@ const test_createProject = () => {
 
         // const userId = 'rDwUUWUW0td9wBbQ0SbB';
         // await deleteUserDoc(userId);
-        
+
+        // const projectId = 'pLBXDJiDoasB3RXaZ70Y';
+        // const userId = 'NPpoT9FquOywcmJ5k8m2';
+        // await createNewLike(projectId, userId);
+
+        // const projectId = 'lvaaHKqTrt4QWr3rbEXI';
+        // const userId = 'C7UvzLR6Dj1g45QV6q4B';
+        // await deleteLike(projectId, userId);
     }
 
     useEffect(() => {
