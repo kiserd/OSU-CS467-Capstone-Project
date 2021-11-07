@@ -26,8 +26,6 @@ export function AuthProvider({ children }) {
         //updateAuth(user)
     }, []);
 
-    
-
     return (
         <AuthContext.Provider value={auth}>
             <AuthUpdateContext.Provider value={updateAuth}>

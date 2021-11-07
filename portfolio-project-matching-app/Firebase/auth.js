@@ -11,7 +11,8 @@ const signin = async() => {
         const credential = GoogleAuthProvider.credentialFromResult(result);
         const token = credential.accessToken;
         const user = result.user;
-        console.log(`${JSON.stringify(user)} logged in.`)
+        // Check if user in db here
+        console.log(`signed in`)
         return user;
     } catch (error) {
         const errorCode = error.code;
