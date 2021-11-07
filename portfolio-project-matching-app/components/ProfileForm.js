@@ -29,7 +29,6 @@ const myProfile = () => {
     
         useEffect(()=>{
             getUserProfile();
-            console.log(`${JSON.stringify(uid)}`);
         },[]);
     
         const getUserProfile = () => {

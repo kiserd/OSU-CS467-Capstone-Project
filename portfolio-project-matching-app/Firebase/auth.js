@@ -12,14 +12,13 @@ const signin = async() => {
         const token = credential.accessToken;
         const user = result.user;
         // Check if user in db here
-        console.log(`signed in`)
         return user;
     } catch (error) {
         const errorCode = error.code;
         const errorMessage = error.message;
         const email = error.email;
         const credential = GoogleAuthProvider.credentialFromError(error);
-        console.error(`${errorCode}`);
+        console.error(`Error on sign in:\n${errorCode}`);
         return null;
     }    
 }
@@ -30,7 +29,7 @@ const signout = async () => {
         let result = await auth.signOut();
         return result;
     } catch (error) {
-        console.error(`${error} on signout`)
+        console.error(`Error on sign out:\n${error}`)
         return error;
     }
 }

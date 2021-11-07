@@ -1,7 +1,7 @@
 import Button from './Button';
 import auth from '../Firebase/auth';
-import { useEffect, useState } from 'react';
-import { useAuth, useAuthUpdate } from '../context/AuthContext';
+import { useEffect, useState, useContext } from 'react';
+import { useAuth, useAuthUpdate, AuthContext } from '../context/AuthContext';
 
 
 
@@ -29,6 +29,10 @@ const SignOutButton = () => {
 
 const NewLogin = () => {
     let uid = useAuth();
+
+    function showUser (){
+        console.log(`${JSON.stringify(uid)}`);
+    }
     
     return (
         <div>
@@ -37,6 +41,7 @@ const NewLogin = () => {
                 :
                     <SignInButton />
             }
+            <button onClick={showUser}>Show user</button>
         </div>
     )
 }
