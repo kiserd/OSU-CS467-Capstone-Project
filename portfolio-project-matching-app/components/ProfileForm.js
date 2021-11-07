@@ -4,7 +4,9 @@ import Input from '../components/Input'
 import InputDropdown from '../components/InputDropdown'
 import Textarea from '../components/Textarea'
 import MultipleInputDropdown from '../components/MultipleInputDropdown'
+import NewLogin from './NewLogin'
 import styles from './ProfileForm.module.css'
+import { useAuth } from '../context/AuthContext'
 
 let technologies = [{id: 1, name: 'Javascript'}, {id: 2, name: 'C++'}, {id: 3, name: 'React'}, {id: 4, name: 'Flutter'}]
 
@@ -21,11 +23,13 @@ const myProfile = () => {
             introduction: "",
             technologies: []
         };
+        let uid = useAuth();
 
         let [userProfileValues, setUserprofileValues] = useState(initialUserProfileState);
     
         useEffect(()=>{
             getUserProfile();
+            console.log(`${JSON.stringify(uid)}`);
         },[]);
     
         const getUserProfile = () => {
@@ -69,7 +73,9 @@ const myProfile = () => {
         ]
     
         return (
-            <div className='bg-gray-200 p-2 w-full h-full'>
+            <div>
+            {
+                uid && uid.user ? <div className='bg-gray-200 p-2 w-full h-full'>
                 <div className='w-full mx-auto max-w-md border-2 border-gray-400 rounded-md shadow-md'>
                     <div className='p-2 divide-y divide-gray-400'>
                         <form onSubmit={handleSubmit} className="mx-10">
@@ -99,6 +105,11 @@ const myProfile = () => {
                         </form>
                     </div>
                 </div>
+            </div>
+            : 
+            <p>Not logged in</p>
+            }
+            <NewLogin />
             </div>
     )
 }
