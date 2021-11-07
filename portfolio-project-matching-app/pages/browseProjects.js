@@ -26,18 +26,28 @@ const browseProjects = () => {
     const [isSearching, setIsSearching] = useState(false)
 
     useEffect(() => {
-        initializeProjects()
-        initializeTechnologies()
+        // tracks whether component mounted, cleanup will assign false
+        let isMounted = true
+        // get projects and set state if component mounted
+        getAllProjects().then((projects) => {
+            if (isMounted) setVisibleProjects(projects)
+        })
+        // get technologies and set state if component mounted
+        getAllTechnologies().then((technologies) => {
+            if (isMounted) setAllTechnologies(technologies)
+        })
+        // cleanup function to assign false to isMounted
+        return function cleanup() {
+            isMounted = false
+        }
     }, [])
 
     const initializeProjects = async () => {
-        const projects = await getAllProjects()
-        setVisibleProjects(projects)
+        return await getAllProjects()
     }
 
     const initializeTechnologies = async () => {
-        const technologies = await getAllTechnologies()
-        setAllTechnologies(technologies)
+        return await getAllTechnologies()
     }
 
     const addFilter = (choice) => {
