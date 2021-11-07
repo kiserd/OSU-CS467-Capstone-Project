@@ -23,6 +23,8 @@ const browseProjects = () => {
     // array of all technologies
     const [allTechnologies, setAllTechnologies] = useState([])
 
+    const [isSearching, setIsSearching] = useState(false)
+
     useEffect(() => {
         initializeProjects()
         initializeTechnologies()
@@ -104,12 +106,25 @@ const browseProjects = () => {
         setHiddenProjects(newHidden)
     }
 
+    const onSearch = (searchFilter) => {
+        const updatedProjects = visibleProjects.filter((project) => {
+            return project.name.includes(searchFilter)
+        })
+        setVisibleProjects(updatedProjects)
+        setIsSearching(true)
+    }
+
+    const clearSearch = () => {
+        initializeProjects()
+        setIsSearching(false)
+    }
+
     return (
         <div>
             <div className='px-2 pb-1 pt-2'>
                 <div className='w-full flex'>
                     <div className='flex flex-grow justify-center'>
-                        <Search />
+                        {isSearching ? <Button text='Clear Search' onClick={clearSearch} type='btnWarning'/> : <Search onSearch={onSearch}/>}
                     </div>
                     <div className='flex justify-end'>
                         <Link href={'/newProject'} passHref>
