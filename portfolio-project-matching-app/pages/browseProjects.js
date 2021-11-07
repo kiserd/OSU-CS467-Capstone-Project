@@ -107,11 +107,9 @@ const browseProjects = () => {
     }
 
     const onSearch = (searchFilter) => {
-        console.log(`Search Filter ${searchFilter}`)
         const updatedProjects = visibleProjects.filter((project) => {
             return project.name.includes(searchFilter)
         })
-        console.log(updatedProjects)
         setVisibleProjects(updatedProjects)
         setIsSearching(true)
     }
