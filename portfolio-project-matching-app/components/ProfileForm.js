@@ -32,10 +32,7 @@ const myProfile = () => {
 
         const handleInputChange = e => {
             const { name, value } = e.target;
-            console.log(`${name}: ${value}`)
             setUserprofileValues({...userProfileValues, [name]: value});
-            console.log(`${JSON.stringify(userProfileValues)}`)
-            console.log("input changed")
         }
     
         const handleSubmit = async (e) => {
@@ -59,42 +56,48 @@ const myProfile = () => {
     
         return (
             <div>
-            {
-                auth && auth.user ? <div className='bg-gray-200 p-2 w-full h-full'>
-                <div className='w-full mx-auto max-w-md border-2 border-gray-400 rounded-md shadow-md'>
-                    <div className='p-2 divide-y divide-gray-400'>
-                        <form onSubmit={handleSubmit} className="mx-10">
-                            <div className='mb-4 mt-4'>
-                                <label className={styles.formLabel}>Username:</label>
-                                <Input type='text' value={userProfileValues.username} name="username" onChange={handleInputChange}/>   
-                            </div>
-                            <div className='mb-4 mt-4'>
-                                <label className={styles.formLabel}>Email:</label>
-                                <Input type='text' value={userProfileValues.email} name="email" onChange={handleInputChange}/>           
-                            </div>
-                            <div className='mb-4 mt-4'>
-                                <label className={styles.formLabel}>Timezone:</label>
-                                <InputDropdown choices={timezones} value={userProfileValues.timezone} name="timezone" onChange={handleInputChange}/>         
-                            </div>
-                            <div className='mb-4 mt-4'>
-                                <label className={styles.formLabel}>Introduction:</label>
-                                <Textarea value={userProfileValues.introduction} name="introduction" onChange={handleInputChange}/>         
-                            </div>
+            { auth && auth.user ? 
+                <div className='bg-gray-200 p-2 w-full h-full'>
+                    <div className='w-full mx-auto max-w-md border-2 border-gray-400 rounded-md shadow-md'>
+                        <div className='p-2 divide-y divide-gray-400'>
+                            <form onSubmit={handleSubmit} className="mx-10">
+                                <div className='mb-4 mt-4'>
+                                    <label className={styles.formLabel}>Username:</label>
+                                    <Input type='text' value={userProfileValues.username} name="username" onChange={handleInputChange}/>   
+                                </div>
+                                <div className='mb-4 mt-4'>
+                                    <label className={styles.formLabel}>Email:</label>
+                                    <Input type='text' value={userProfileValues.email} name="email" onChange={handleInputChange}/>           
+                                </div>
+                                <div className='mb-4 mt-4'>
+                                    <label className={styles.formLabel}>Timezone:</label>
+                                    <InputDropdown choices={timezones} value={userProfileValues.timezone} name="timezone" onChange={handleInputChange}/>         
+                                </div>
+                                <div className='mb-4 mt-4'>
+                                    <label className={styles.formLabel}>Introduction:</label>
+                                    <Textarea value={userProfileValues.introduction} name="introduction" onChange={handleInputChange}/>         
+                                </div>
 
-                            <div className='mb-4 mt-4'>
-                                <MultipleInputDropdown options={technologies} name='technologies' onChange={addTechnology}/>
-                            </div>
-                            <div className='mb-4'>
-                                <Button text="Submit"/>
-                            </div>  
-                        </form>
+                                <div className='mb-4 mt-4'>
+                                    <MultipleInputDropdown options={technologies} name='technologies' onChange={addTechnology}/>
+                                </div>
+                                <div className='mb-4'>
+                                    <Button text="Submit"/>
+                                </div>  
+                            </form>
+                            <NewLogin />
+                        </div>
+                    </div>
+                </div>
+            : 
+            <div className='bg-gray-200 p-2 w-full h-full'>
+                    <div className='w-full mx-auto max-w-md border-2 border-gray-400 rounded-md shadow-md'>
+                        <div className='p-2 divide-y divide-gray-400'>
+                        <NewLogin />
                     </div>
                 </div>
             </div>
-            : 
-            <></>
             }
-            <NewLogin />
             </div>
     )
 }

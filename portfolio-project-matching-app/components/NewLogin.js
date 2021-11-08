@@ -1,9 +1,6 @@
 import Button from './Button';
 import auth from '../Firebase/auth';
-import { useEffect, useState, useContext } from 'react';
-import { useAuth, useAuthUpdate, AuthContext } from '../context/AuthContext';
-import { updateDoc } from '../backend/dao';
-
+import { useAuth, useAuthUpdate } from '../context/AuthContext';
 
 
 const GoogleSignInButton = () => {
@@ -14,7 +11,7 @@ const GoogleSignInButton = () => {
         // Check if user is in user collection using uid
     }
     return (
-        <Button text="Sign In with Google" onClick={signIn}/>
+        <Button text="Sign In with Google" onClick={signIn} addClassName="m-2"/>
     )
 }
 
@@ -25,20 +22,21 @@ const SignOutButton = () => {
         updateAuth(null);
     }
     return (
-        <Button text="Sign Out" onClick={signOut}/>
+        <Button text="Sign Out" onClick={signOut} addClassName="m-2"/>
     )
 }
 
 const NewLogin = () => {
-    let uid = useAuth();
+    let authUser = useAuth();
 
     function showUser (){
-        console.log(`${JSON.stringify(uid)}`);
+        // Temporary function to show user in the console for development purposes
+        console.log(`${JSON.stringify(authUser)}`);
     }
     
     return (
         <div>
-            { uid.user ?
+            { authUser.user ?
                     <SignOutButton />
                 :
                     <GoogleSignInButton />

@@ -14,7 +14,9 @@ const signinWithGoogle = async() => {
         // Check if user has a doc collection in the database
         let userDoc = await getUserById(user.uid);
         if (userDoc === -1){
+            // If the user is here for the first time, make them a new user doc
             const newUser = await createNewUserDocWithId({
+                // Some default values for their username, email, and introduction
                 email: user.email,
                 username: user.email,
                 introduction: `Hi, I'm ${user.displayName}`,
