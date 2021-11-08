@@ -41,6 +41,28 @@ const createNewUserDoc = async (user) => {
     console.log(`Created user document with id: ${newDocRef.id}`);
 }
 
+const createNewUserDocWithId = async (user, id) => {
+    /*
+    DESCRIPTION:    creates new user document in Firebase Firestore Database
+                    based on user object provided. Similar to
+                    INSERT INTO 'users'. Note, only user document is
+                    created, not associations.
+
+    INPUT:          User object populated with data to be added in new
+                    document
+
+    RETURN:         NA
+    */
+    // build object to be added to Firebase as a user document
+    const userObj = {
+        email: user.email,
+        username: user.username,
+        introduction: user.introduction,
+    };
+    // add user document to Firebase
+    const newDocRef = await addNewDocWithId('users', id, userObj);
+}
+
 const createNewUsersTechnologiesDoc = async (userId, technologyId) => {
     /*
     DESCRIPTION:    creates new users_technologies document for provided
@@ -124,15 +146,22 @@ const getUserById = async (userId) => {
     */
     // get user doc snapshot and use to initialize user object
     const userSnap = await getDocSnapshotById('users', userId);
-    const user = User.fromDocSnapshot(userSnap.id, userSnap);
 
-    // get associated projects to populate user object's projects
-    user.projects = await getProjectsByUserId(user.id);
+    // handle case where user does not exist
+    if (!userSnap.exists()) {
+        console.log(`invalid id: '${userId}' does not exist in 'users'`);
+        return -1;
+    }else{
+        const user = User.fromDocSnapshot(userSnap.id, userSnap);
 
-    // get associated technologies to populate user object's technologies
-    user.technologies = await getTechnologiesByUserId(user.id);
-
-    return user;
+        // get associated projects to populate user object's projects
+        user.projects = await getProjectsByUserId(user.id);
+    
+        // get associated technologies to populate user object's technologies
+        user.technologies = await getTechnologiesByUserId(user.id);
+    
+        return user;
+    }
 }
 
 const getProjectsByUserId = async (userId) => {
@@ -209,6 +238,7 @@ const deleteUserDoc = async (userId) => {
 export {
     // CREATE
     createNewUserDoc,
+    createNewUserDocWithId,
     createNewUsersTechnologiesDoc,
     // READ
     getAllUsers,

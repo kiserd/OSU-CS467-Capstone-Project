@@ -72,9 +72,10 @@ const addNewDocWithId = async (coll, id, payload) => {
 
     RETURN:       snapshot of new document
   */
-  const docRef = doc(db, coll, id);
+  const docRef = await doc(db, coll, id);
   await setDoc(docRef, payload);
-  return await getDoc(docRef);
+  let result = await getDoc(docRef);
+  return result;
 }
 
 /*

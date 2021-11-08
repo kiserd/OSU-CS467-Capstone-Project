@@ -2,17 +2,19 @@ import Button from './Button';
 import auth from '../Firebase/auth';
 import { useEffect, useState, useContext } from 'react';
 import { useAuth, useAuthUpdate, AuthContext } from '../context/AuthContext';
+import { updateDoc } from '../backend/dao';
 
 
 
-const SignInButton = () => {
+const GoogleSignInButton = () => {
     let updateAuth = useAuthUpdate();
     async function signIn(){
-        let result = await auth.signin();
+        let result = await auth.signinWithGoogle();
         updateAuth(result);
+        // Check if user is in user collection using uid
     }
     return (
-        <Button text="Sign In" onClick={signIn}/>
+        <Button text="Sign In with Google" onClick={signIn}/>
     )
 }
 
@@ -39,7 +41,7 @@ const NewLogin = () => {
             { uid.user ?
                     <SignOutButton />
                 :
-                    <SignInButton />
+                    <GoogleSignInButton />
             }
             <button onClick={showUser}>Show user</button>
         </div>

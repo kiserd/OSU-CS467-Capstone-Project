@@ -1,6 +1,7 @@
 import React, { useContext, useState, useEffect } from 'react';
 import { getAuth, userInfo, onAuthStateChanged } from 'firebase/auth';
 import { firebaseApp } from "../Firebase/clientApp.ts";
+import { getUserById } from '../backend/daoUser';
 
 
 export const AuthContext = React.createContext();
@@ -25,12 +26,13 @@ export function AuthProvider({ children }) {
         let authObject = getAuth();
         // The code below listens for auth state change and will update the auth value
         const unlisten = authObject.onAuthStateChanged(
-            authUser => {
-              if(authUser){
-                setAuth({user: authUser})
-              } else {
-                setAuth({user: null});
-              }
+            async (authUser) => {
+                if(authUser){
+                    let user = await getUserById(authUser.uid);
+                    setAuth({user: user})
+                } else {
+                    setAuth({user: null});
+                }
             },
          );
         return unlisten();

@@ -7,6 +7,7 @@ import MultipleInputDropdown from '../components/MultipleInputDropdown'
 import NewLogin from './NewLogin'
 import styles from './ProfileForm.module.css'
 import { useAuth } from '../context/AuthContext'
+import { updateDoc } from '../backend/dao'
 
 let technologies = [{id: 1, name: 'Javascript'}, {id: 2, name: 'C++'}, {id: 3, name: 'React'}, {id: 4, name: 'Flutter'}]
 
@@ -16,34 +17,19 @@ technologies = technologies.map((technology) => {
 })
 
 const myProfile = () => {
-        const initialUserProfileState = {
-            username: "",
-            email: "",
-            timezone: "",
-            introduction: "",
-            technologies: []
-        };
-        let uid = useAuth();
-
-        let [userProfileValues, setUserprofileValues] = useState(initialUserProfileState);
-    
+        let auth = useAuth();
+        let [userProfileValues, setUserprofileValues] = useState({
+            email: '',
+            introduction: '',
+            username: '',
+            timezone: '',
+            technologies: [],
+        });
+        
         useEffect(()=>{
-            getUserProfile();
-        },[]);
-    
-        const getUserProfile = () => {
-            const values = {
-                username: "joshk",
-                email: "a@b.com",
-                timezone: "Mountain",
-                introduction: "Hi I'm Josh and I like to code",
-                technologies: ['JavaScript', 'Python', 'Blockchain']
-            }
-            // const values =  api.getUserInfo(user)
-    
-            setUserprofileValues({...userProfileValues, ...values})
-        }
-    
+            setUserprofileValues({...userProfileValues, ...auth.user});
+        }, [auth])
+
         const handleInputChange = e => {
             const { name, value } = e.target;
             console.log(`${name}: ${value}`)
@@ -52,9 +38,9 @@ const myProfile = () => {
             console.log("input changed")
         }
     
-        const handleSubmit = e=> {
+        const handleSubmit = async (e) => {
             e.preventDefault();
-            // api.setUserInfo(userProfileValues);
+            let userDoc = await updateDoc('users', auth.user.id, userProfileValues);
             console.log("Form submitted");
             console.log(userProfileValues);
         }
@@ -74,7 +60,7 @@ const myProfile = () => {
         return (
             <div>
             {
-                uid && uid.user ? <div className='bg-gray-200 p-2 w-full h-full'>
+                auth && auth.user ? <div className='bg-gray-200 p-2 w-full h-full'>
                 <div className='w-full mx-auto max-w-md border-2 border-gray-400 rounded-md shadow-md'>
                     <div className='p-2 divide-y divide-gray-400'>
                         <form onSubmit={handleSubmit} className="mx-10">
@@ -106,7 +92,7 @@ const myProfile = () => {
                 </div>
             </div>
             : 
-            <p>Not logged in</p>
+            <></>
             }
             <NewLogin />
             </div>
