@@ -23,6 +23,7 @@ const browseProjects = () => {
     // array of all technologies
     const [allTechnologies, setAllTechnologies] = useState([])
 
+    // helps to determine whether "clear search" button is visible
     const [isSearching, setIsSearching] = useState(false)
 
     useEffect(() => {
@@ -42,14 +43,6 @@ const browseProjects = () => {
         }
     }, [])
 
-    const initializeProjects = async () => {
-        return await getAllProjects()
-    }
-
-    const initializeTechnologies = async () => {
-        return await getAllTechnologies()
-    }
-
     const addFilter = (choice) => {
         /*
         DESCRIPTION:    moves projects lacking the provided technology from
@@ -65,18 +58,18 @@ const browseProjects = () => {
         let newVisible = visibleProjects
 
         // loop through hidden projects and potentially add additional filter
-        for (const project of hiddenProjects) {
-            project.addFilter(choice)
+        for (const hiddenProject of hiddenProjects) {
+            hiddenProject.addFilter(choice)
         }
 
         // loop through visible projects and determine whether they need hidden
-        for (const project of visibleProjects) {
-            if (!project.hasTechnology(choice.id)) {
+        for (const visibleProject of visibleProjects) {
+            if (!visibleProject.hasTechnology(choice.id)) {
                 // create FilteredProject to add to hiddenProjects list
-                const filteredProject = new FilteredProject(project, choice)
+                const filteredProject = FilteredProject.fromButton(visibleProject, choice)
                 newHidden.push(filteredProject)
                 newVisible = newVisible.filter((element) => {
-                    return element.id !== project.id
+                    return element.id !== visibleProject.id
                 })
             }
         }
@@ -100,14 +93,14 @@ const browseProjects = () => {
         const newVisible = visibleProjects
 
         // loop through hidden projects to see if they need moved to visible
-        for (const project of hiddenProjects) {
+        for (const hiddenProject of hiddenProjects) {
             // remove filter if applicable
-            project.removeFilter(choice)
+            hiddenProject.removeFilter(choice)
             // if last remaining filter removed, move project to visible
-            if (project.filtersIsEmpty()) {
-                newVisible.push(project.project)
+            if (hiddenProject.filtersIsEmpty() && !hiddenProject.searchFiltered) {
+                newVisible.push(hiddenProject.project)
                 newHidden = newHidden.filter((element) => {
-                    return element.project.id !== project.project.id
+                    return element.project.id !== hiddenProject.project.id
                 })
             }
         }
@@ -117,15 +110,47 @@ const browseProjects = () => {
     }
 
     const onSearch = (searchFilter) => {
-        const updatedProjects = visibleProjects.filter((project) => {
-            return project.name.includes(searchFilter)
-        })
-        setVisibleProjects(updatedProjects)
+        // helper arrays to harbor projects during staging
+        const newHidden = hiddenProjects
+        let newVisible = visibleProjects
+        // loop through hidden projects and potentially add search filter
+        for (const hiddenProject of hiddenProjects) {
+            if (!hiddenProject.project.hasSearchKey(searchFilter)) {
+                hiddenProject.addSearchFilter()
+            }
+        }
+        // loop through visible projects and potentially hide
+        for (const visibleProject of visibleProjects) {
+            if (!visibleProject.hasSearchKey(searchFilter)) {
+                // create HiddenProject object to add to hiddenProjects
+                newHidden.push(FilteredProject.fromSearch(visibleProject, searchFilter))
+                newVisible = newVisible.filter((element) => {
+                    return element.id !== visibleProject.id
+                });
+            }
+        }
+        setVisibleProjects(newVisible)
+        setHiddenProjects(newHidden)
         setIsSearching(true)
     }
 
     const clearSearch = () => {
-        initializeProjects()
+        // helper arrays to harbor projects during staging
+        let newHidden = hiddenProjects
+        const newVisible = visibleProjects
+        // loop through hidden projects and process elements
+        for (const hiddenProject of hiddenProjects) {
+            hiddenProject.removeSearchFilter()
+            // if last remaining filter removed, move from hidden to visible
+            if (hiddenProject.filtersIsEmpty() && !hiddenProject.searchFiltered) {
+                newVisible.push(hiddenProject.project)
+                newHidden = newHidden.filter((element) => {
+                    return element.project.id !== hiddenProject.project.id
+                })
+            }
+        }
+        setVisibleProjects(newVisible)
+        setHiddenProjects(newHidden)
         setIsSearching(false)
     }
 
