@@ -98,6 +98,11 @@ const test_createProject = () => {
         // const userId = 'PdJa7Nq3LJCbEOFxA2Vj';
         // await deleteAssociation('projects_users', projectId, userId); 
 
+        const coll = 'users';
+        const id = 'invalid id';
+        const myVal = await deleteDoc(coll, id);
+        console.log(`deleteDoc(${coll}, ${id}): ${myVal}`);
+
     }
 
     useEffect(() => {
