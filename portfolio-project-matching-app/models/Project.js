@@ -73,6 +73,19 @@ class Project {
         return project;
     }
 
+    hasSearchKey(key) {
+        /*
+        DESCRIPTION:    indicates whether search key is present in Project
+                        object's name property
+
+        INPUT:          key (string): search key applied to name property
+
+        RETURN:         boolean indication as to whether the search key appears
+                        in the Project's name
+        */
+        return this.name.includes(key);
+    }
+
     hasTechnology(technologyId) {
         /*
         DESCRIPTION:    indicates whether technology corresponding to provided
@@ -98,6 +111,19 @@ class Project {
         // search failed, return false
         return false
     }
+
+    technologiesIsEmpty() {
+        /*
+        DESCRIPTION:    indicates whether project is associated with zero
+                        technologies
+
+        INPUT:          NA
+
+        RETURN:         boolean indicating whether project is associated with
+                        zero technologies
+        */
+        return this.technologies === null || this.technologies.length === 0;
+    }   
     
 }
 
