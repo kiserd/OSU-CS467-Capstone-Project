@@ -2,7 +2,11 @@
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 // backend
-import { getAllProjects, getAllTechnologies } from '../backend/dao'
+import {
+    getAllProjects,
+    getAllTechnologies,
+    readAllDocs,
+} from '../backend/dao'
 // component
 import Button from '../components/Button'
 import FilterButtons from '../components/FilterButtons'
@@ -30,11 +34,11 @@ const browseProjects = () => {
         // tracks whether component mounted, cleanup will assign false
         let isMounted = true
         // get projects and set state if component mounted
-        getAllProjects().then((projects) => {
+        readAllDocs('projects').then((projects) => {
             if (isMounted) setVisibleProjects(projects)
         })
         // get technologies and set state if component mounted
-        getAllTechnologies().then((technologies) => {
+        readAllDocs('technologies').then((technologies) => {
             if (isMounted) setAllTechnologies(technologies)
         })
         // cleanup function to assign false to isMounted
