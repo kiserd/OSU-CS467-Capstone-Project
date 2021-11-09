@@ -1,5 +1,6 @@
 // library
 import { useState, useEffect } from 'react'
+import Link from 'next/link'
 // backend
 import { getAllProjects, getAllTechnologies } from '../backend/dao'
 // component
@@ -8,9 +9,9 @@ import FilterButtons from '../components/FilterButtons'
 import ProjectCard from '../components/ProjectCard'
 import Search from '../components/Search'
 // model
+import { FilteredProject } from '../models/FilteredProject'
 import { Project } from '../models/Project'
 import { Technology } from '../models/Technology'
-import Link from 'next/link'
 
 const browseProjects = () => {
     // array of projects that are currently visible to user
@@ -22,95 +23,143 @@ const browseProjects = () => {
     // array of all technologies
     const [allTechnologies, setAllTechnologies] = useState([])
 
-    // array of visible technology
-    const [visibleTechnologies, setVisibleTechnologies] = useState([])
+    // helps to determine whether "clear search" button is visible
+    const [isSearching, setIsSearching] = useState(false)
 
-    // array of hidden technology objects
-    const [hiddenTechnologies, setHiddenTechnologies] = useState([])
-
-    const initializeProjects = async () => {
-        const projects = await getAllProjects()
-        setVisibleProjects(projects)
-    }
-
-    const initializeTechnologies = async () => {
-        const technologies = await getAllTechnologies()
-        setAllTechnologies(technologies)
-    }
-
-    const onFilterClick = (choice) => {
-        // this should most likely be handled by FilterButtons
-        // hand work off to other functions based on whether add/remove
-        hiddenTechnologies.includes(choice) ? removeFilter(choice) : addFilter(choice)
-    }
+    useEffect(() => {
+        // tracks whether component mounted, cleanup will assign false
+        let isMounted = true
+        // get projects and set state if component mounted
+        getAllProjects().then((projects) => {
+            if (isMounted) setVisibleProjects(projects)
+        })
+        // get technologies and set state if component mounted
+        getAllTechnologies().then((technologies) => {
+            if (isMounted) setAllTechnologies(technologies)
+        })
+        // cleanup function to assign false to isMounted
+        return function cleanup() {
+            isMounted = false
+        }
+    }, [])
 
     const addFilter = (choice) => {
+        /*
+        DESCRIPTION:    moves projects lacking the provided technology from
+                        visibleProjects to hiddenProjects and converts them
+                        from Project objects to FilteredProject objects
+
+        INPUT:          Technology object representing filter being added
+
+        RETURN:         NA
+        */
         // helper arrays to harbor projects during staging
         const newHidden = hiddenProjects
         let newVisible = visibleProjects
 
         // loop through hidden projects and potentially add additional filter
-        for (const project of hiddenProjects) {
-            if (!project.project.hasTechnology(choice.id)) {
-                project.filters.push(choice)
-            }
+        for (const hiddenProject of hiddenProjects) {
+            hiddenProject.addFilter(choice)
         }
 
         // loop through visible projects and determine whether they need hidden
-        for (const project of visibleProjects) {
-            if (!project.hasTechnology(choice.id)) {
-                // create map to keep track of filters that are applied
-                newHidden.push({project: project, filters: [choice]})
-                newVisible = newVisible.filter((element) => element.id != project.id)
+        for (const visibleProject of visibleProjects) {
+            if (!visibleProject.hasTechnology(choice.id)) {
+                // create FilteredProject to add to hiddenProjects list
+                const filteredProject = FilteredProject.fromButton(visibleProject, choice)
+                newHidden.push(filteredProject)
+                newVisible = newVisible.filter((element) => {
+                    return element.id !== visibleProject.id
+                })
             }
         }
         // set state based on work done above
         setVisibleProjects(newVisible)
         setHiddenProjects(newHidden)
-        setVisibleTechnologies(visibleTechnologies.filter((element) => element.id === choice.id))
-        setHiddenTechnologies([...hiddenTechnologies, choice])
     }
 
     const removeFilter = (choice) => {
+        /*
+        DESCRIPTION:    moves projects lacking the provided technology from
+                        hiddenProjects to visibleProjects and converts them
+                        from FilteredProject objects to Project objects
+
+        INPUT:          Technology object representing filter being removed
+
+        RETURN:         NA
+        */
         // helper arrays to harbor projects during staging
         let newHidden = hiddenProjects
         const newVisible = visibleProjects
 
         // loop through hidden projects to see if they need moved to visible
-        for (const project of hiddenProjects) {
-            for (const technology of project.filters) {
-                // remove filter choice from filters tracking property if necessary
-                if (technology.id === choice.id) {
-                    project.filters = project.filters.filter((element) => element.id != choice.id)
-                }
-                // if last remaining filter removed, move project to visible
-                if (project.filters.length === 0) {
-                    newVisible.push(project.project)
-                    newHidden = hiddenProjects.filter((element) => element.id === choice.id)
-                }
+        for (const hiddenProject of hiddenProjects) {
+            // remove filter if applicable
+            hiddenProject.removeFilter(choice)
+            // if last remaining filter removed, move project to visible
+            if (hiddenProject.filtersIsEmpty() && !hiddenProject.searchFiltered) {
+                newVisible.push(hiddenProject.project)
+                newHidden = newHidden.filter((element) => {
+                    return element.project.id !== hiddenProject.project.id
+                })
             }
         }
         // set state based on work done above
         setVisibleProjects(newVisible)
         setHiddenProjects(newHidden)
-        setVisibleTechnologies([...visibleTechnologies, choice])
-        setHiddenTechnologies(hiddenTechnologies.filter((element) => element.id != choice.id))
     }
 
-    useEffect(() => {
-        initializeProjects()
-        initializeTechnologies()
-    }, [])
+    const onSearch = (searchFilter) => {
+        // helper arrays to harbor projects during staging
+        const newHidden = hiddenProjects
+        let newVisible = visibleProjects
+        // loop through hidden projects and potentially add search filter
+        for (const hiddenProject of hiddenProjects) {
+            if (!hiddenProject.project.hasSearchKey(searchFilter)) {
+                hiddenProject.addSearchFilter()
+            }
+        }
+        // loop through visible projects and potentially hide
+        for (const visibleProject of visibleProjects) {
+            if (!visibleProject.hasSearchKey(searchFilter)) {
+                // create HiddenProject object to add to hiddenProjects
+                newHidden.push(FilteredProject.fromSearch(visibleProject, searchFilter))
+                newVisible = newVisible.filter((element) => {
+                    return element.id !== visibleProject.id
+                });
+            }
+        }
+        setVisibleProjects(newVisible)
+        setHiddenProjects(newHidden)
+        setIsSearching(true)
+    }
 
-    // const technologies = [{id: 1, name: 'Javascript'}, {id: 2, name: 'C++'}, {id: 3, name: 'React'}, {id: 4, name: 'Flutter'}]
-
+    const clearSearch = () => {
+        // helper arrays to harbor projects during staging
+        let newHidden = hiddenProjects
+        const newVisible = visibleProjects
+        // loop through hidden projects and process elements
+        for (const hiddenProject of hiddenProjects) {
+            hiddenProject.removeSearchFilter()
+            // if last remaining filter removed, move from hidden to visible
+            if (hiddenProject.filtersIsEmpty() && !hiddenProject.searchFiltered) {
+                newVisible.push(hiddenProject.project)
+                newHidden = newHidden.filter((element) => {
+                    return element.project.id !== hiddenProject.project.id
+                })
+            }
+        }
+        setVisibleProjects(newVisible)
+        setHiddenProjects(newHidden)
+        setIsSearching(false)
+    }
 
     return (
         <div>
             <div className='px-2 pb-1 pt-2'>
                 <div className='w-full flex'>
                     <div className='flex flex-grow justify-center'>
-                        <Search />
+                        {isSearching ? <Button text='Clear Search' onClick={clearSearch} type='btnWarning'/> : <Search onSearch={onSearch}/>}
                     </div>
                     <div className='flex justify-end'>
                         <Link href={'/newProject'} passHref>
@@ -136,23 +185,16 @@ const browseProjects = () => {
                         Filters
                     </div>
                     <hr className='w-full border-b-2 border-gray-400'/>
-                    <FilterButtons category='Technologies' choices={allTechnologies} onClick={onFilterClick}/>
+                    <FilterButtons
+                    category='Technologies'
+                    choices={allTechnologies}
+                    onAdd={addFilter}
+                    onRemove={removeFilter}
+                    />
                 </div>
             </div>
         </div>
     )
 }
-
-// yanked from https://nextjs.org/docs/basic-features/data-fetching#getserversideprops-server-side-rendering
-// export async function getServerSideProps(context) {
-//   const projects = await getAllProjects()
-//   return {
-    
-//     // will be passed to the page component as props
-//     props: {
-//       projects,
-//     },
-//   }
-// }
 
 export default browseProjects

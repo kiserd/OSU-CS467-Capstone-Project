@@ -1,7 +1,9 @@
+// library
 import { useState, useEffect } from 'react'
+// component
 import Button from './Button'
 
-const FilterButtons = ({ category, choices, onClick }) => {
+const FilterButtons = ({ category, choices, onAdd, onRemove }) => {
     // declare new state variable indicating available filter choices
     const [availableChoices, setAvailableChoices] = useState([])
 
@@ -14,7 +16,7 @@ const FilterButtons = ({ category, choices, onClick }) => {
         // add choice to selectedChoices
         setSelectedChoices([...selectedChoices, choice])
         // pass filter choice to parent
-        onClick(choice)
+        onAdd(choice)
     }
 
     const removeFilter = (choice) => {
@@ -23,9 +25,7 @@ const FilterButtons = ({ category, choices, onClick }) => {
         // add choice to availableChoices
         setAvailableChoices([...availableChoices, choice])
         // pass filter choice to parent
-        onClick(choice)
-        // console.log('selectedChoices: ', selectedChoices)
-        // console.log('availableChoices: ', availableChoices)
+        onRemove(choice)
     }
 
     useEffect(() => {
