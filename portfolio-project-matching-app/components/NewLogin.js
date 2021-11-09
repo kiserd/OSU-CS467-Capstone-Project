@@ -8,7 +8,6 @@ const GoogleSignInButton = () => {
     async function signIn(){
         let result = await auth.signinWithGoogle();
         updateAuth(result);
-        // Check if user is in user collection using uid
     }
     return (
         <Button text="Sign In with Google" onClick={signIn} addClassName="m-2"/>

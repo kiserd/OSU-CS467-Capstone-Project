@@ -13,6 +13,7 @@ import {
 import { User } from '../models/User'
 import { Project } from '../models/Project'
 import { Technology } from '../models/Technology'
+import { createDocWithId } from './dao'
 
 /*
     CREATE
@@ -60,7 +61,7 @@ const createNewUserDocWithId = async (user, id) => {
         introduction: user.introduction,
     };
     // add user document to Firebase
-    const newDocRef = await addNewDocWithId('users', id, userObj);
+    const newDocRef = await createDocWithId('users', userObj, id);
 }
 
 const createNewUsersTechnologiesDoc = async (userId, technologyId) => {

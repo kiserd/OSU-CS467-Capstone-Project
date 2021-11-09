@@ -114,8 +114,8 @@ const createDocWithId = async (coll, payload, id) => {
             ownerRef = await getDocReferenceById('users', payload.ownerId);
         }
         // add document to Firebase
-        const newDocSnap = await addNewDocWithId(coll, payload, id);
-        console.log(`Created '${coll}' document with id: ${newDocRef.id}`);
+        const newDocSnap = await addNewDocWithId(coll, id, payload);
+        console.log(`Created '${coll}' document with id: ${newDocSnap.id}`);
         return newDocSnap;
     }
 }
@@ -367,6 +367,7 @@ export {
     // CREATE
     createAssociation,
     createDoc,
+    createDocWithId,
     createNewLike,
     // READ
     getAllProjects,
