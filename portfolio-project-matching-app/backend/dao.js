@@ -82,6 +82,44 @@ const createDoc = async (coll, payload) => {
     }
 }
 
+const createDocWithId = async (coll, payload, id) => {
+    /*
+    DESCRIPTION:    creates new document in provided Firebase collection with
+                    data provided in payload. Similar to INSERT INTO
+                    'collection'. Note, only document is created, not 
+                    associations.
+
+    INPUT:          coll (string): name of Firebase collection where the
+                    document being updated is located
+
+                    payload (object): keys correspond to document field names
+                    and values are the values being inserted into document.
+                    Note, any omitted keys will result in the lack of those
+                    fields in the new document.
+
+    RETURN:         NA
+    */
+    // get snapshot of provided collection for error handling
+    const collSnap = await getCollectionSnapshot(coll);
+    // handle case of invalid collection name
+    if (collSnap.empty) {
+        console.log(`Collection '${coll}' does not exist.`);
+        return -1;
+    }
+    // handle case where collection name is valid
+    else {
+        // handle case of creating project document ***this can probably be removed after midpoint archive is graded, we probably can get rid of the reference to owner and just store the ID ***
+        let ownerRef;
+        if (coll === 'projects') {
+            ownerRef = await getDocReferenceById('users', payload.ownerId);
+        }
+        // add document to Firebase
+        const newDocSnap = await addNewDocWithId(coll, id, payload);
+        console.log(`Created '${coll}' document with id: ${newDocSnap.id}`);
+        return newDocSnap;
+    }
+}
+
 const createAssociation = async (coll, id1, id2) => {
     /*
     DESCRIPTION:    creates new association document for provided collection.
@@ -329,6 +367,7 @@ export {
     // CREATE
     createAssociation,
     createDoc,
+    createDocWithId,
     createNewLike,
     // READ
     getAllProjects,

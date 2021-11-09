@@ -3,11 +3,14 @@ import Link from 'next/link'
 import Button from './Button'
 import styles from './Nav.module.css'
 import { useEffect, useState } from 'react'
+import { useAuth } from '../context/AuthContext'
+import auth from '../Firebase/auth'
 // import tailwind from 'tailwind/tailwindcss.css'
 
 const Nav = () => {
     let router = useRouter();
     const [path, setPath] = useState('');
+    let authUser = useAuth();
     useEffect(
         () => {
             setPath(router.pathname);
@@ -29,13 +32,18 @@ const Nav = () => {
                             <Button text="Browse" isLink={true} addClassName="bg-white m-2"/>
                             </a>
                         </Link>
-                        :
+                        : authUser.user ?
                         <Link href="/myProfile" passHref>
                             <a>
                             <Button text="Profile" isLink={true} addClassName="bg-white m-2"/>
                             </a>
                         </Link>
-
+                        :
+                        <Link href="/myProfile" passHref>
+                            <a>
+                            <Button text="Sign In" isLink={true} addClassName="bg-white m-2"/>
+                            </a>
+                        </Link>
                     }
                 </li>
             </ul>

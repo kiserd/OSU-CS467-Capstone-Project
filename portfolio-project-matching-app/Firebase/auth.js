@@ -1,25 +1,31 @@
 import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut, auth } from "firebase/auth";
+import { createNewUserDocWithId, getUserById } from '../backend/daoUser';
 import { useAuthUpdate } from '../context/AuthContext';
 import { firebaseApp } from "./clientApp.ts";
-const provider = new GoogleAuthProvider();
 
 
-const signin = async() => {
+
+const signinWithGoogle = async() => {
+    const provider = new GoogleAuthProvider();
     const auth = getAuth();
     try {
         const result = await signInWithPopup(auth, provider);
-        const credential = GoogleAuthProvider.credentialFromResult(result);
-        const token = credential.accessToken;
         const user = result.user;
-        // Check if user in db here
-        console.log(`signed in`)
-        return user;
+        // Check if user has a doc collection in the database
+        let userDoc = await getUserById(user.uid);
+        if (userDoc === -1){
+            // If the user is here for the first time, make them a new user doc
+            const newUser = await createNewUserDocWithId({
+                // Some default values for their username, email, and introduction
+                email: user.email,
+                username: user.email,
+                introduction: `Hi, I'm ${user.displayName}`,
+            }, user.uid);
+            userDoc = await getUserById(user.uid);
+        }
+        return userDoc;
     } catch (error) {
-        const errorCode = error.code;
-        const errorMessage = error.message;
-        const email = error.email;
-        const credential = GoogleAuthProvider.credentialFromError(error);
-        console.error(`${errorCode}`);
+        console.error(`Error on sign in:\n${error}`);
         return null;
     }    
 }
@@ -30,10 +36,10 @@ const signout = async () => {
         let result = await auth.signOut();
         return result;
     } catch (error) {
-        console.error(`${error} on signout`)
+        console.error(`Error on sign out:\n${error}`)
         return error;
     }
 }
    
 
-export default { signin, signout }
+export default { signinWithGoogle, signout }
