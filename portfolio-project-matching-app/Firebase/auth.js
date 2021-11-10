@@ -9,6 +9,13 @@ import { createNewUserDocWithId, getUserById } from '../backend/daoUser';
 
 
 const signinWithGoogle = async() => {
+    /* Signs the user in with google.
+        
+    User must already have an account.
+        
+    If the user doesn't have an account or firebase throws an error, 
+    this function will throw an error.
+    */
     const provider = new GoogleAuthProvider();
     const auth = getAuth();
     try {
@@ -28,6 +35,13 @@ const signinWithGoogle = async() => {
 }
 
 const signupWithGoogle = async() => {
+    /* Signs the user up with google.
+        
+    User must not yet have an account.
+        
+    If the user does have an account or firebase throws an error, 
+    this function will throw an error.
+    */
     const provider = new GoogleAuthProvider();
     const auth = getAuth();
     try {
@@ -55,6 +69,13 @@ const signupWithGoogle = async() => {
 }
 
 const signUpWithEmailAndPassword = async(email, password) => {
+    /* Signs the user in with username and password.
+        
+    User must not have an account.
+        
+    If the user doesn have an account or firebase throws an error, 
+    this function will throw an error.
+    */
     const auth = getAuth();
     try {
         let result = await createUserWithEmailAndPassword(auth, email, password);
@@ -79,6 +100,13 @@ const signUpWithEmailAndPassword = async(email, password) => {
 }
 
 const signinWithEmailAndPassword = async(email, password) => {
+    /* Signs the user in with username and password.
+        
+    User must already have an account.
+        
+    If the user doesn't have an account or firebase throws an error, 
+    this function will throw an error.
+    */
     const auth = getAuth();
     try {
         let result = await signInWithEmailAndPassword(auth, email, password);
@@ -97,6 +125,9 @@ const signinWithEmailAndPassword = async(email, password) => {
 }
 
 const signout = async () => {
+    /* 
+    Signs the user out 
+    */
     const auth = getAuth();
     try {
         let result = await auth.signOut();

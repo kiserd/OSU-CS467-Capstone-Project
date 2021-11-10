@@ -6,6 +6,12 @@ import { useState } from 'react';
 import Link from 'next/link';
 
 function ErrorHandler(props){
+    /*
+    A Functional Component that renders error messages
+    porps:
+        error: either and empty object or an error with a 'code' attribute
+    */
+
     let error = props.error;
     console.log(`Handling error in NewLogin \n${JSON.stringify(error)}`)
     if(error.code){

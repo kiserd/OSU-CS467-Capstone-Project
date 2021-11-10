@@ -7,6 +7,11 @@ import router, { useRouter } from 'next/router';
 import Link from 'next/link';
 
 const ErrorHandler = (props) => {
+    /*
+    A Functional Component that renders error messages
+    porps:
+        error: either and empty object or an error object with a 'code' attribute
+    */
     const error = props.error;
     console.log(`In handleSignUpError\n${JSON.stringify(error)}`)
     if (error.code === 'auth/email-already-in-use'){
@@ -63,6 +68,7 @@ const EmailPasswordSignUp = () => {
     }
 
     async function signUpUser(){
+        // Tries to sign the user up and throws an error if it fails.
         if (formValues.password != formValues.passwordRepeat) {
             console.log('passwords don\'t match')
             return false;
@@ -115,6 +121,7 @@ const GoogleSignUpButton = () => {
     let [errorState, setErrorState] = useState({});
 
     async function signUpUser(){
+        // Tries to sign the user up using Google and throws error if it fails.
         try{
             let result = await auth.signupWithGoogle();
             updateAuth(result);
