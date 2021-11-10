@@ -10,6 +10,11 @@ import {
     deleteDocById,
 
 } from '../Firebase/clientApp.ts'
+import {
+    getOwnerByUserId,
+    getTechnologiesByProjectId,
+    getUsersByProjectId,
+} from '../backend/daoProject'
 import { User } from '../models/User'
 import { Project } from '../models/Project'
 import { Technology } from '../models/Technology'
@@ -186,6 +191,42 @@ const getProjectsByUserId = async (userId) => {
     return projects;
 }
 
+const getDeepProjectsByUserId = async (userId) => {
+    /*
+    DESCRIPTION:    retrieves projects associated with specified user ID
+
+    INPUT:          desired user document ID in string format
+
+    RETURN:         array of Project objects associated with user along with
+                    association arrays populated (users/technologies)
+    */
+    // get filtered collection snapshot
+    const projectsUsersSnap = await getCollectionSnapshotByCriteria('projects_users', 'user_id', '==', userId);
+    // get user snapshot for error handling
+    const userSnap = await getDocSnapshotById('users', userId);
+    // handle case where userId is invalid
+    if (!userSnap.exists()) {
+        console.log(`userId '${userId}' does not exist in 'users' collection`);
+        return -1;
+    }
+    // handle case where userId is valid
+    else {
+        // loop through associated documents, adding Project objects to array
+        const projects = [];
+        for (const doc of projectsUsersSnap.docs) {
+            const projectRef = await getDocSnapshotById('projects', doc.data().project_id);
+            const project = Project.fromDocSnapshot(projectRef.id, projectRef);
+            // populate owner, users, and technologies fields
+            project.owner = await getOwnerByUserId(project.ownerId);
+            project.users = await getUsersByProjectId(project.id);
+            project.technologies = await getTechnologiesByProjectId(project.id);
+            // push to staging array
+            projects.push(project);
+        }
+        return projects;
+    }
+}
+
 const getTechnologiesByUserId = async (userId) => {
     /*
     DESCRIPTION:    retrieves technologies associated with specified user ID
@@ -243,6 +284,7 @@ export {
     createNewUsersTechnologiesDoc,
     // READ
     getAllUsers,
+    getDeepProjectsByUserId,
     getProjectsByUserId,
     getTechnologiesByUserId,
     getUserById,
