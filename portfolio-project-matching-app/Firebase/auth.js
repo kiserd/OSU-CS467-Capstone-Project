@@ -1,14 +1,10 @@
 import { getAuth, 
     signInWithPopup, 
     GoogleAuthProvider, 
-    GithubAuthProvider, 
     createUserWithEmailAndPassword,
     signInWithEmailAndPassword,
-    signOut
 } from "firebase/auth";
 import { createNewUserDocWithId, getUserById } from '../backend/daoUser';
-import { useAuthUpdate } from '../context/AuthContext';
-import { firebaseApp } from "./clientApp.ts";
 
 
 
@@ -23,7 +19,7 @@ const signinWithGoogle = async() => {
         let userDoc = await getUserById(user.uid);
         if (userDoc === -1){
             // If the user is here for the first time, throw an error
-            throw({error: "No user found. Please sign up to continue."})
+            throw({code: "auth/no-user-found"})
         }
         return userDoc;
     } catch (error) {
@@ -42,7 +38,7 @@ const signupWithGoogle = async() => {
         let userDoc = await getUserById(user.uid);
         if (userDoc === -1){
             // If the user is here for the first time, make them a new user doc
-            const newUser = await createNewUserDocWithId({
+            await createNewUserDocWithId({
                 // Some default values for their username, email, and introduction
                 email: user.email,
                 username: user.email,
@@ -67,7 +63,7 @@ const signUpWithEmailAndPassword = async(email, password) => {
         let userDoc = await getUserById(user.uid);
         if (userDoc === -1){
             // If the user is here for the first time, make them a new user doc
-            const newUser = await createNewUserDocWithId({
+            await createNewUserDocWithId({
                 // Some default values for their username, email, and introduction
                 email: user.email,
                 username: user.email,
