@@ -54,8 +54,8 @@ const test_createProject = () => {
         // };
         // await createDoc(coll, payload);
 
-        // const coll = 'projects';
-        // const id = '';
+        // const coll = 'projects_users';
+        // const id = 'xdrMi1WwwVly75qqNu6H_8Ro56x6vPshn2E5XFI2CNfZH5Kg1';
         // await deleteDoc(coll, id);
 
         // const projectId = 'pLBXDJiDoasB3RXaZ70Y';
@@ -99,9 +99,9 @@ const test_createProject = () => {
         // const userId = 'PdJa7Nq3LJCbEOFxA2Vj';
         // await deleteAssociation('projects_users', projectId, userId); 
 
-        const coll = 'technologies';
-        const docs = await readAllDocs(coll);
-        console.log(`All '${coll}': `, docs);
+        // const coll = 'technologies';
+        // const docs = await readAllDocs(coll);
+        // console.log(`All '${coll}': `, docs);
 
 
     }

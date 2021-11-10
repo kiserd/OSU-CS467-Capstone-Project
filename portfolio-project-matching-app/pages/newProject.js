@@ -56,34 +56,30 @@ const newProject = () => {
         // prevent page from reloading
         e.preventDefault();
         // test payload for missing form data
-        if (payload.name === '') {
-            alert('Please fill out name field');
+        if (payload.name === '' || payload.description === '' || payload.capacity === '') {
+            alert('Please fill out entire form');
         }
-        else if (payload.description === '') {
-            alert('Please fill out description field');
-        }
-        else if (payload.capacity === '') {
-            alert('Please fill out capacity field');
+        // handle case where user is not logged in
+        else if (!authUser.user) {
+            alert('Please login to create a project');
         }
         // handle case of valid input
         else {
-            // get owner reference to populate payload
-            const ownerRef = await getDocReferenceById('users', authUser.user.id);
             // determine whether project is open
             const openStatus = payload.capacity === 1 ? false : true;
             // populate payload with data not captured in form
-            setPayload({
-                ...payload,
-                census: 1,
-                ownerId: authUser.user.id,
-                ownerRef: ownerRef,
-                open: openStatus
-            });
+            // there has to be a better way to do this, but I'm struggling to see it **** TODO *****
+            const newPayload = payload;
+            newPayload.census = 1;
+            newPayload.ownerId = authUser.user.id;
+            newPayload.open = openStatus
+            setPayload(newPayload);
+            console.log('payload: ', payload);
             // create project document in Firebase
             const projectSnap = await createDoc('projects', payload);
             // create technology associations
             for (const technology of selectedTechnologies) {
-                await createAssociation('projects_technologies', projectSnap.id, technology.value.id);
+                await createAssociation('projects_technologies', projectSnap.id, technology.id);
             }
             // create user/owner association
             await createAssociation('projects_users', projectSnap.id, authUser.user.id);
