@@ -5,6 +5,7 @@ import {
     // READ
     getCollectionReference,
     getCollectionSnapshot,
+    getDocReferenceById,
     getDocSnapshotById,
     // UPDATE
     updateDocument,
