@@ -26,8 +26,8 @@ const ProjectCard = ({ project }) => {
                 )
                 })}
             </div>
-            <div className=''>
-                <p>{project.description}</p>
+            <div className='truncate'>
+                {project.description}
             </div>
             <div className='mt-2 flex flex-wrap'>
                 <div className='self-center'>
