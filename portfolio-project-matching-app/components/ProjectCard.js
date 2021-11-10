@@ -17,8 +17,7 @@ const ProjectCard = ({ project }) => {
                 <p className='text-xl font-medium'>{project.name}</p>
             </div>
             <hr className='w-11/12 sm:w-9/12 border-b-2 border-gray-400'/>
-            {/* Commented out, but leaving in just in case we decide to add this back */}
-            {/* <div className='flex flex-wrap'>
+            <div className='flex flex-wrap'>
                 {project.technologies.map((technology) => {
                     return (
                         <div key={technology.id} className='py-1 pr-2'>
@@ -26,7 +25,7 @@ const ProjectCard = ({ project }) => {
                         </div>
                 )
                 })}
-            </div> */}
+            </div>
             <div className=''>
                 <p>{project.description}</p>
             </div>

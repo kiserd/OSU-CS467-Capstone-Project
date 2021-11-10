@@ -34,11 +34,11 @@ const browseProjects = () => {
         // tracks whether component mounted, cleanup will assign false
         let isMounted = true
         // get projects and set state if component mounted
-        readAllDocs('projects').then((projects) => {
+        getAllProjects().then((projects) => {
             if (isMounted) setVisibleProjects(projects)
         })
         // get technologies and set state if component mounted
-        readAllDocs('technologies').then((technologies) => {
+        getAllTechnologies().then((technologies) => {
             if (isMounted) setAllTechnologies(technologies)
         })
         // cleanup function to assign false to isMounted
