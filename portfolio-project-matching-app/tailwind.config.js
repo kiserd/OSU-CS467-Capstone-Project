@@ -26,5 +26,8 @@ module.exports = {
   variants: {
     extend: {},
   },
-  plugins: [],
+  plugins: [
+    // helps with ProjectCard truncation on different screen sizes
+    require('@tailwindcss/line-clamp'),
+  ],
 }
