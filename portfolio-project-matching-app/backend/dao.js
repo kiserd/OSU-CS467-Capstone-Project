@@ -38,7 +38,9 @@ import {
     getTechnologiesByUserId,
     getUserById,
 } from '../backend/daoUser'
-import { DocumentReference } from '@firebase/firestore'
+import { Project } from '../models/Project'
+import { User } from '../models/User'
+import { Technology } from '../models/Technology'
 
 /*
     CREATE
@@ -224,6 +226,51 @@ const getPayload = (coll, id1, id2) => {
 
 // see daoProject.js, daoUser.js, and daoTechnology.js
 
+const readAllDocs = async (coll) => {
+    /*
+    DESCRIPTION:    retrieves all documents in the specified collection and
+                    returns an array of custom objects. Note, the associations
+                    will not be populated in the objects.
+
+    INPUT:          coll (string): collection to get documents from
+
+    RETURN:         array of custom objects
+    */
+    // get collection snapshot
+    const collSnap = await getCollectionSnapshot(coll);
+    // handle case of invalid collection name
+    if (collSnap.empty) {
+        console.log(`Collection '${coll}' does not exist.`);
+        return -1;
+    }
+    // handle case of collection passed that the function can't handle
+    if (coll !== 'projects' && coll !== 'users' && coll !== 'technologies') {
+        console.log(`Invalid collection: please use 'projects', 'users' or 'technologies'.`);
+        return -1;
+    }
+    // handle case of valid collection name
+    else {
+        // loop through documents in the snapshot, adding objects to array
+        const objects = [];
+        for (const doc of collSnap.docs) {
+            // handle case of 'projects' collection
+            if (coll === 'projects') {
+                objects.push(Project.fromDocSnapshot(doc.id, doc));
+            }
+            // handle case of 'users' collection
+            else if (coll === 'users') {
+                objects.push(User.fromDocSnapshot(doc.id, doc));
+            }
+            // handle case of 'technologies collection
+            else if (coll === 'technologies') {
+                objects.push(Technology.fromDocSnapshot(doc.id, doc));
+            }
+        }
+        // return populated array to calling function
+        return objects;
+    }
+}
+
 /*
     UPDATE
 */
@@ -381,6 +428,7 @@ export {
     getTechnologyById,
     getUserById,
     getUsersByProjectId,
+    readAllDocs,
     // UPDATE
     updateDoc,
     // DELETE

@@ -2,7 +2,11 @@
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 // backend
-import { getAllProjects, getAllTechnologies } from '../backend/dao'
+import {
+    getAllProjects,
+    getAllTechnologies,
+    readAllDocs,
+} from '../backend/dao'
 // component
 import Button from '../components/Button'
 import FilterButtons from '../components/FilterButtons'

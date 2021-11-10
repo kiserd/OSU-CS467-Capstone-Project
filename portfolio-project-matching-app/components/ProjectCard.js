@@ -27,22 +27,27 @@ const ProjectCard = ({ project }) => {
                 })}
             </div>
             <div className=''>
-                <p>{project.description}</p>
+                <p className='line-clamp-3 lg:line-clamp-2 xl:line-clamp-1'>
+                    {project.description}
+                </p>
             </div>
-            <div className='mt-4'>
-                <p>{project.census} out of {project.capacity} ({project.capacity - project.census} positions left)</p>
+            <div className='mt-2 flex flex-wrap'>
+                <div className='self-center'>
+                    {project.census} out of {project.capacity} ({project.capacity - project.census} positions left)
+                    </div>
+                <div className='p-1'>
+                    <Button text='join' type='btnGeneral' />
+                </div>
             </div>
             <div className='flex flex-wrap'>
-                {project.users.map((user) => {
+                {/* Commented out, but leaving in just in case we decide to add this back */}
+                {/* {project.users.map((user) => {
                     return (
                     <div key={user.id} className='py-1 pr-2'>
                         <UserIcon imgPath='/../public/user.ico' username={user.username} />
                     </div>
                     )
-                })}
-                <div className='p-1'>
-                    <Button text='join' type='btnGeneral' />
-                </div>
+                })} */}
             </div>
             <div className='inline'>
                 <h3 className='py-1 inline'>{project.likes} Likes</h3>
