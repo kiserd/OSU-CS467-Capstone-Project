@@ -15,16 +15,10 @@ import MultipleInputDropdown from '../components/MultipleInputDropdown'
 // context
 import { useAuth } from '../context/AuthContext'
 
-let technologies = [{id: 1, name: 'Javascript'}, {id: 2, name: 'C++'}, {id: 3, name: 'React'}, {id: 4, name: 'Flutter'}]
-
-// The Select component from react-select expects the 'options' prop to be an object with keys 'value' and 'label'
-technologies = technologies.map((technology) => {
-    return {value: technology.name, label: technology.name}
-})
-
 const newProject = () => {
     // get auth'd user
     let authUser = useAuth();
+
     // array of all technologies in the database
     const [allTechnologies, setAllTechnologies] = useState([]);
 
@@ -53,6 +47,14 @@ const newProject = () => {
     }, [])
 
     const addProject = async (e) => {
+        /*
+        DESCRIPTION:    upon submitting the new project form, this function
+                        will add the new project (and associations) to Firebase
+
+        INPUT:          e (event): passed implicitly by form onSubmit
+
+        RETURN:         NA
+        */
         // prevent page from reloading
         e.preventDefault();
         // test payload for missing form data
@@ -65,19 +67,11 @@ const newProject = () => {
         }
         // handle case of valid input
         else {
-            // determine whether project is open
-            const openStatus = payload.capacity === 1 ? false : true;
             // populate payload with data not captured in form
-            // there has to be a better way to do this, but I'm struggling to see it **** TODO *****
-            const newPayload = payload;
-            newPayload.census = 1;
-            newPayload.ownerId = authUser.user.id;
-            newPayload.open = openStatus
-            setPayload(newPayload);
-            console.log('payload: ', payload);
+            buildAndSetPayload();
             // create project document in Firebase
             const projectSnap = await createDoc('projects', payload);
-            // create technology associations
+            // create project/technology associations
             for (const technology of selectedTechnologies) {
                 await createAssociation('projects_technologies', projectSnap.id, technology.id);
             }
@@ -86,14 +80,32 @@ const newProject = () => {
             // flush state
             updateSelectedTechnologies([]);
             setPayload({name: '', description: '', capacity: '', });
-            console.log(`Created project id '${projectSnap.id}'`);
         }
     }
 
+    const buildAndSetPayload = () => {
+        /*
+        DESCRIPTION:    Populates payload fields not called for explicitly by
+                        the form e.g., ownerId, census, etc.
+
+        INPUT:          NA
+
+        RETURN:         NA
+        */
+        // get open field value by examining capacity
+        const openStatus = payload.capacity === 1 ? false : true;
+        // build on payload object with values from form
+        // there has to be a better way to do this
+        const newPayload = payload;
+        newPayload.census = 1;
+        newPayload.ownerId = authUser.user.id;
+        newPayload.open = openStatus
+        // set payload statge
+        setPayload(newPayload);
+    }
+
     const addTechnology = (e) => {
-        console.log('selectedTechnologies pre-update: ', selectedTechnologies);
         updateSelectedTechnologies(e.map(choice => choice.value));
-        console.log('selectedTechnologies post-update: ', selectedTechnologies)
     }
 
     const handleInputChange = e => {

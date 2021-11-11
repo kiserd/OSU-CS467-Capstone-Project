@@ -54,8 +54,8 @@ const test_createProject = () => {
         // };
         // await createDoc(coll, payload);
 
-        // const coll = 'projects_users';
-        // const id = 'xdrMi1WwwVly75qqNu6H_8Ro56x6vPshn2E5XFI2CNfZH5Kg1';
+        // const coll = 'projects_technologies';
+        // const id = 'Oyj9gA5FcCeUFq05Pjdk_X5S4dzoet7xCwTDwce4J';
         // await deleteDoc(coll, id);
 
         // const projectId = 'pLBXDJiDoasB3RXaZ70Y';
@@ -102,6 +102,22 @@ const test_createProject = () => {
         // const coll = 'technologies';
         // const docs = await readAllDocs(coll);
         // console.log(`All '${coll}': `, docs);
+
+        // const obj = {
+        //     user: 'logan',
+        //     data: 'silly',
+        //     other: 1,
+        // }
+
+        // const otherObj = {
+        //     new: 'this',
+        //     type: 1,
+        //     silly: 'other one',
+        // }
+
+        // const newObj = {...obj, ...{new: 'this', type: 1, silly: 'other one',}};
+
+        // console.log('newObj: ', newObj);
 
 
     }

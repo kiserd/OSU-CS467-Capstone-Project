@@ -77,7 +77,7 @@ const createDoc = async (coll, payload) => {
         let ownerRef;
         if (coll === 'projects') {
             ownerRef = await getDocReferenceById('users', payload.ownerId);
-            payload.ownerRef = ownerRef;
+            payload.owner = ownerRef;
         }
         // add document to Firebase
         const newDocSnap = await addNewDoc(coll, payload);
