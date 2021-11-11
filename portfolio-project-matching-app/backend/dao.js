@@ -140,9 +140,11 @@ const createAssociation = async (coll, id1, id2) => {
     // parse association collection name to get individual collection names
     const [coll1, coll2] = coll.split('_');
     // get document snapshots for invalid input handling
-    const id1Snap = await getDocSnapshotById(coll1, id1);
-    const id2Snap = await getDocSnapshotById(coll2, id2);
-    const collSnap = await getDocSnapshotById(coll, `${id1}_${id2}`);
+    const [id1Snap, id2Snap, collSnap] = await Promise.all([
+        getDocSnapshotById(coll1, id1),
+        getDocSnapshotById(coll2, id2),
+        getDocSnapshotById(coll, `${id1}_${id2}`)
+    ]);
     // handle case where coll does not exist in database
     if (collSnap.empty) {
         console.log(`Collection '${coll}' does not exist`);
@@ -401,9 +403,11 @@ const deleteAssociation = async (coll, id1, id2) => {
     // parse association collection name to get individual collection names
     const [coll1, coll2] = coll.split('_');
     // get document snapshots for invalid input handling
-    const id1Snap = await getDocSnapshotById(coll1, id1);
-    const id2Snap = await getDocSnapshotById(coll2, id2);
-    const collSnap = await getDocSnapshotById(coll, `${id1}_${id2}`);
+    const [id1Snap, id2Snap, collSnap] = await Promise.all([
+        getDocSnapshotById(coll1, id1),
+        getDocSnapshotById(coll2, id2),
+        getDocSnapshotById(coll, `${id1}_${id2}`)
+    ]);
     // handle case where coll does not exist in database
     if (collSnap.empty) {
         console.log(`Collection '${coll}' does not exist`);
