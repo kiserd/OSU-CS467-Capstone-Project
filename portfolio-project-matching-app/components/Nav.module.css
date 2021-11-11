@@ -1,3 +1,7 @@
-.nav {
-    @apply bg-blue-50;
+.navWarm {
+    @apply bg-gradient-to-r from-custom-warm-extraLight via-custom-warm-light to-custom-warm-med;
+}
+
+.navCool {
+    @apply border-b-2 border-custom-cool-extraDark bg-gradient-to-r from-custom-cool-light via-custom-cool-med to-custom-cool-dark;
 }
