@@ -217,9 +217,11 @@ const getDeepProjectsByUserId = async (userId) => {
             const projectRef = await getDocSnapshotById('projects', doc.data().project_id);
             const project = Project.fromDocSnapshot(projectRef.id, projectRef);
             // populate owner, users, and technologies fields
-            project.owner = await getOwnerByUserId(project.ownerId);
-            project.users = await getUsersByProjectId(project.id);
-            project.technologies = await getTechnologiesByProjectId(project.id);
+            [project.owner, project.users, project.technologies] = await Promise.all([
+            getOwnerByUserId(project.ownerId),
+            getUsersByProjectId(project.id),
+            getTechnologiesByProjectId(project.id)
+            ]);
             // push to staging array
             projects.push(project);
         }
