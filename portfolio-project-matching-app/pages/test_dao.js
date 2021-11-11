@@ -99,7 +99,7 @@ const test_createProject = () => {
         // const userId = 'PdJa7Nq3LJCbEOFxA2Vj';
         // await deleteAssociation('projects_users', projectId, userId); 
 
-        const coll = 'technologies';
+        const coll = 'projects';
         const docs = await readAllDocs(coll);
         console.log(`All '${coll}': `, docs);
 

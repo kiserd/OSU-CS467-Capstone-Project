@@ -244,31 +244,76 @@ const readAllDocs = async (coll) => {
         return -1;
     }
     // handle case of collection passed that the function can't handle
-    if (coll !== 'projects' && coll !== 'users' && coll !== 'technologies') {
+    if (!collectionIsValid(coll)) {
         console.log(`Invalid collection: please use 'projects', 'users' or 'technologies'.`);
         return -1;
     }
     // handle case of valid collection name
     else {
-        // loop through documents in the snapshot, adding objects to array
-        const objects = [];
-        for (const doc of collSnap.docs) {
-            // handle case of 'projects' collection
-            if (coll === 'projects') {
-                objects.push(Project.fromDocSnapshot(doc.id, doc));
-            }
-            // handle case of 'users' collection
-            else if (coll === 'users') {
-                objects.push(User.fromDocSnapshot(doc.id, doc));
-            }
-            // handle case of 'technologies collection
-            else if (coll === 'technologies') {
-                objects.push(Technology.fromDocSnapshot(doc.id, doc));
-            }
-        }
-        // return populated array to calling function
-        return objects;
+        // process collection snapshot and return array of objects to user
+        return buildObjects(coll, collSnap);
     }
+}
+
+// helpers, don't export
+
+const buildObjects = (coll, collSnap) => {
+    /*
+    DESCRIPTION:    builds array of appropriate objects based on collection
+                    passed and collection snapshot
+
+    INPUT:          coll (string): collection to get documents from
+
+                    collSnap (collectionSnapshot): collectionSnapshot
+
+    RETURN:         array of Project, User, or Technology objects
+    */
+    // initialize array vessel to return to calling function
+    const objects = [];
+    // loop through collection snapshot docs, build object, add to array
+    for (const doc of collSnap.docs) {
+        objects.push(buildObject(coll, doc));
+    }
+    return objects;
+}
+
+const buildObject = (coll, doc) => {
+    /*
+    DESCRIPTION:    builds appropriate object based on collection passed and
+                    document from collection snapshot
+
+    INPUT:          coll (string): collection to get documents from
+
+                    doc (documnent): document from collectionSnapshot's docs
+                    property
+
+    RETURN:         Project, User, or Technology object
+    */
+    // handle case of 'projects' collection
+    if (coll === 'projects') {
+        return Project.fromDocSnapshot(doc.id, doc);
+    }
+    // handle case of 'users' collection
+    else if (coll === 'users') {
+        return User.fromDocSnapshot(doc.id, doc);
+    }
+    // handle case of 'technologies collection
+    else if (coll === 'technologies') {
+        return Technology.fromDocSnapshot(doc.id, doc);
+    }
+}
+
+const collectionIsValid = async (coll) => {
+    /*
+    DESCRIPTION:    determines whether coll is either 'projects', 'users', or
+                    'technologies
+
+    INPUT:          coll (string): collection to get documents from
+
+    RETURN:         boolean indication of whether collection argument passed
+                    is valid
+    */
+    return coll === 'projects' || coll === 'users' || coll === 'technologies';
 }
 
 /*
