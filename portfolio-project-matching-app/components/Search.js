@@ -23,7 +23,7 @@ const Search = ({ onSearch }) => {
                 <Input type='text' value={searchValue} onChange={(e) => setSearchValue(e.target.value)}/>
             </span>
             <span className='pl-2 flex-shrink-0'>
-                <Button text='Search' type='btnGeneral' onClick={sendSearch} />
+                <Button text='Search' type='btnPurple' onClick={sendSearch} />
             </span>
         </div>
     )
