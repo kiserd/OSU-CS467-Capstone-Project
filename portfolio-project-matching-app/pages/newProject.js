@@ -1,7 +1,5 @@
 // library
 import React, { useState, useEffect } from 'react'
-// backend
-import { getDocReferenceById } from '../Firebase/clientApp.ts' // NEED TO FIX THIS, SHOULD COME FROM DAO
 import {
     createAssociation,
     createDoc,
