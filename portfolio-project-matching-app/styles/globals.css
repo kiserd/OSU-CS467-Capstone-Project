@@ -8,5 +8,9 @@
 }
 
 .defaultBorder {
-    @apply border-2 border-gray-400 rounded-md;
+    @apply border-2 border-custom-cool-extraDark rounded-md;
+}
+
+.background {
+    @apply bg-gradient-to-tr from-custom-cool-light to-transparent bg-opacity-60;
 }
