@@ -34,6 +34,7 @@ import {
 import {
     // READ
     getAllUsers,
+    getDeepProjectsByUserId,
     getProjectsByUserId,
     getTechnologiesByUserId,
     getUserById,
@@ -422,6 +423,7 @@ export {
     getAllUsers,
     getOwnerByUserId,
     getProjectById,
+    getDeepProjectsByUserId,
     getProjectsByUserId,
     getTechnologiesByProjectId,
     getTechnologiesByUserId,
