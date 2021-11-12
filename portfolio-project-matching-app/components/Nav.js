@@ -39,11 +39,18 @@ const Nav = () => {
                             </a>
                         </Link>
                         :
-                        <Link href="/myProfile" passHref>
-                            <a>
-                            <Button text="Sign In" isLink={true} addClassName="bg-white m-2"/>
-                            </a>
-                        </Link>
+                        <div>
+                            <Link href="/signUp" passHref>
+                                <a>
+                                    <Button text="Sign Up" isLink={true} addClassName="bg-white m-2"/>
+                                </a>
+                            </Link>
+                            <Link href="/myProfile" passHref>
+                                <a>
+                                <Button text="Sign In" isLink={true} addClassName="bg-white m-2"/>
+                                </a>
+                            </Link>
+                        </div>
                     }
                 </li>
             </ul>
