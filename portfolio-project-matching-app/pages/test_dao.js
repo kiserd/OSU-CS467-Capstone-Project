@@ -9,6 +9,7 @@ import {
     createNewUserDoc,
     deleteAssociation,
     deleteDoc,
+    deleteDocAndAssociations,
     deleteLike,
     deleteProjectsUsersDoc,
     deleteUserDoc,

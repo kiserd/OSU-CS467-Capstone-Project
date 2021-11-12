@@ -5,6 +5,7 @@ import {
     // READ
     getCollectionReference,
     getCollectionSnapshot,
+    getCollectionSnapshotByCriteria,
     getDocSnapshotById,
     // UPDATE
     updateDocument,
@@ -196,7 +197,7 @@ const createAssociation = async (coll, id1, id2) => {
     }
 }
 
-// helper functions, don't export
+// helpers, don't export
 
 const getPayload = (coll, id1, id2) => {
     /*
@@ -272,6 +273,25 @@ const readAllDocs = async (coll) => {
     }
 }
 
+const readQuerySnapshotById = async (coll, field, id) => {
+    /*
+    DESCRIPTION:    retrieves collection snapshot from specified collection
+                    where field matches id
+
+    INPUT:          coll (string) : name of Firebase collection where the
+                    document being updated is located
+
+                    field (string): document field to be compared against id
+
+                    id (string) : document ID of document being updated
+
+    RETURN:         collection snapshot subject to criteria above
+    */
+    // get collection snapshot
+    const querySnap = await getCollectionSnapshotByCriteria(coll, field, '==', id);
+    return querySnap;
+}
+
 /*
     UPDATE
 */
@@ -320,7 +340,7 @@ const deleteDoc = async (coll, id) => {
     INPUT:          coll (string) : name of Firebase collection where the
                     document being updated is located
 
-                    id (string) : document ID of document being updated
+                    id (string) : document ID of document being deleted
 
     RETURN:         NA
     */
@@ -411,6 +431,56 @@ const deleteAssociation = async (coll, id1, id2) => {
     }
 }
 
+const deleteDocAndAssociations = async (coll, id) => {
+    /*
+    DESCRIPTION:    deletes document with provided document ID from provided
+                    collection. Also deletes any association documents e.g.,
+                    'projects_users', 'users_technologies', etc
+
+    INPUT:          coll (string) : name of Firebase collection where the
+                    document being updated is located
+
+                    id (string) : document ID of document being deleted
+
+    RETURN:         NA
+    */
+    // get document snapshot for invalid input handling
+    const snap = await getDocSnapshotById(coll, id);
+    // handle case where id does not exist in provided Firebase collection
+    if (!snap.exists()) {
+        console.log(`invalid ${coll} document: '${id}' does not exist`);
+        return -1;
+    }
+    // handle case where inputs are valid
+    else {
+        // delete associations using helper object
+        for (const map of deleteAssociationsHelper[coll]) {
+            const querySnap = await readQuerySnapshotById(map.coll, map.field, id);
+            for (const doc of querySnap.docs) {
+                await deleteDoc(map.coll, doc.id);
+            }
+        }
+        // delete main doc
+        const docRef = await deleteDocById(coll, id);
+        console.log(`Deleted ${coll} document with id: '${docRef.id}'`);
+        return docRef;
+    }
+}
+
+// helpers, don't export
+
+const deleteAssociationsHelper = {
+    'projects': [
+        {coll: 'projects_users', field: 'project_id'},
+        {coll: 'projects_technologies', field: 'project_id'}
+    ],
+    'users': [
+        {coll: 'projects_users', field: 'user_id'},
+        {coll: 'projects_technologies', field: 'user_id'}
+    ],
+    'technologies': []
+};
+
 export {
     // CREATE
     createAssociation,
@@ -436,5 +506,6 @@ export {
     // DELETE
     deleteAssociation,
     deleteDoc,
+    deleteDocAndAssociations,
     deleteLike,
 }
