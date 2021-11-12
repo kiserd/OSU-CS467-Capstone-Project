@@ -9,6 +9,7 @@ import {
     createNewUserDoc,
     deleteAssociation,
     deleteDoc,
+    deleteDocAndAssociations,
     deleteLike,
     deleteProjectsUsersDoc,
     deleteUserDoc,
@@ -95,29 +96,13 @@ const test_createProject = () => {
         // const userId = 'PdJa7Nq3LJCbEOFxA2Vj';
         // await createAssociation('projects_users', projectId, userId);
 
-        // const projectId = '6AqEuYkqrsArfuUEIOCQ';
-        // const userId = 'PdJa7Nq3LJCbEOFxA2Vj';
-        // await deleteAssociation('projects_users', projectId, userId); 
+        const projectId = '8DubXEKajkhmy7l3sRdV';
+        const userId = '8Ro56x6vPshn2E5XFI2CNfZH5Kg1';
+        await deleteAssociation('projects_users', projectId, userId); 
 
         // const coll = 'technologies';
         // const docs = await readAllDocs(coll);
         // console.log(`All '${coll}': `, docs);
-
-        // const obj = {
-        //     user: 'logan',
-        //     data: 'silly',
-        //     other: 1,
-        // }
-
-        // const otherObj = {
-        //     new: 'this',
-        //     type: 1,
-        //     silly: 'other one',
-        // }
-
-        // const newObj = {...obj, ...{new: 'this', type: 1, silly: 'other one',}};
-
-        // console.log('newObj: ', newObj);
 
 
     }
