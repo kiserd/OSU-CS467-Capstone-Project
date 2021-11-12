@@ -365,6 +365,7 @@ const collectionIsValid = async (coll) => {
                     is valid
     */
     return coll === 'projects' || coll === 'users' || coll === 'technologies';
+}
 
 const readQuerySnapshotById = async (coll, field, id) => {
     /*
