@@ -170,6 +170,29 @@ const getUserById = async (userId) => {
     }
 }
 
+const getShallowUserById = async (userId) => {
+    /*
+    DESCRIPTION:    retrieves user data for specified user document ID.
+                    projects and technologies will remain null
+
+    INPUT:          desired user document ID in string format
+
+    RETURN:         user object containing data associated with user
+                    document ID passed as argument
+    */
+    // get user doc snapshot and use to initialize user object
+    const userSnap = await getDocSnapshotById('users', userId);
+
+    // handle case where user does not exist
+    if (!userSnap.exists()) {
+        console.log(`invalid id: '${userId}' does not exist in 'users'`);
+        return -1;
+    }else{
+        const user = User.fromDocSnapshot(userSnap.id, userSnap);
+        return user;
+    }
+}
+
 const getProjectsByUserId = async (userId) => {
     /*
     DESCRIPTION:    retrieves projects associated with specified user ID
@@ -288,6 +311,7 @@ export {
     getAllUsers,
     getDeepProjectsByUserId,
     getProjectsByUserId,
+    getShallowUserById,
     getTechnologiesByUserId,
     getUserById,
     // DELETE
