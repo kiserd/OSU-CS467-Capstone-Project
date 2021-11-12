@@ -96,30 +96,13 @@ const test_createProject = () => {
         // const userId = 'PdJa7Nq3LJCbEOFxA2Vj';
         // await createAssociation('projects_users', projectId, userId);
 
-        // const projectId = '6AqEuYkqrsArfuUEIOCQ';
-        // const userId = 'PdJa7Nq3LJCbEOFxA2Vj';
-        // await deleteAssociation('projects_users', projectId, userId); 
+        const projectId = '8DubXEKajkhmy7l3sRdV';
+        const userId = '8Ro56x6vPshn2E5XFI2CNfZH5Kg1';
+        await deleteAssociation('projects_users', projectId, userId); 
 
         // const coll = 'technologies';
         // const docs = await readAllDocs(coll);
         // console.log(`All '${coll}': `, docs);
-
-        // const coll = 'projects';
-        // const id = '8DubXEKajkhmy7l3sRdV';
-        // await deleteDocAndAssociations(coll, id);
-
-        // const helper = {
-        //     'projects': [
-        //         {coll: 'projects_users', field: 'project_id'},
-        //         {coll: 'projects_technologies', field: 'project_id'}
-        //     ],
-        //     'users': [
-        //         {coll: 'projects_users', field: 'user_id'},
-        //         {coll: 'projects_technologies', field: 'user_id'}
-        //     ],
-        //     'technologies': []
-        // };
-        // console.log(`helper['projects']: `, helper['projects']);
 
 
     }
