@@ -5,6 +5,7 @@ import {
     // READ
     getCollectionReference,
     getCollectionSnapshot,
+    getDocReferenceById,
     getCollectionSnapshotByCriteria,
     getDocSnapshotById,
     // UPDATE
@@ -78,10 +79,11 @@ const createDoc = async (coll, payload) => {
         let ownerRef;
         if (coll === 'projects') {
             ownerRef = await getDocReferenceById('users', payload.ownerId);
+            payload.owner = ownerRef;
         }
         // add document to Firebase
         const newDocSnap = await addNewDoc(coll, payload);
-        console.log(`Created '${coll}' document with id: ${newDocRef.id}`);
+        console.log(`Created '${coll}' document with id: ${newDocSnap.id}`);
         return newDocSnap;
     }
 }

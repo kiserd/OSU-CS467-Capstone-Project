@@ -55,8 +55,8 @@ const test_createProject = () => {
         // };
         // await createDoc(coll, payload);
 
-        // const coll = 'projects';
-        // const id = '';
+        // const coll = 'projects_technologies';
+        // const id = 'Oyj9gA5FcCeUFq05Pjdk_X5S4dzoet7xCwTDwce4J';
         // await deleteDoc(coll, id);
 
         // const projectId = 'pLBXDJiDoasB3RXaZ70Y';
