@@ -9,6 +9,9 @@ import Button from '../components/Button'
 import { useAuth } from '../context/AuthContext'
 
 const myApplications = () => {
+    // get auth'd user
+    let authUser = useAuth()
+
     // array harboring incoming applications
     const [inApplications, setInApplications] = useState([])
 
@@ -17,9 +20,6 @@ const myApplications = () => {
 
     // determines whether incoming or outgoing applications are displayed
     const [isOutgoing, setIsOutgoing] = useState(true)
-
-    // get auth'd user
-    let authUser = useAuth()
 
     useEffect(() => {
         // tracks whether component mounted, cleanup will assign false

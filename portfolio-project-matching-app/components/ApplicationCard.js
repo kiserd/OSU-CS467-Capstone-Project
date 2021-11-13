@@ -16,6 +16,10 @@ const ApplicationCard = ({ app, isOutgoing }) => {
     const onAction = async (response) => {
         // build payload to update application document
         const payload = {open: false, response: response}
+        // handle case of re-opened application
+        if (response === 'Pending') {
+            payload.open = true
+        }
         // update Firebase document
         await updateDoc('applications', app.id, payload)
         // handle case of approved application
@@ -24,14 +28,14 @@ const ApplicationCard = ({ app, isOutgoing }) => {
         }
         const updatedApp = appToUse
         updatedApp.response = response
-        updatedApp.open = false
+        updatedApp.open = payload.open
         setAppToUse(updatedApp)
     }
 
     return (
         <div className='p-2 w-full h-full border-2 border-gray-400 rounded-md'>
             <div className='w-full'>
-                <p className='text-xl font-medium'>{app.project.name}</p>
+                <p className='text-xl font-medium'>{appToUse.project.name}</p>
             </div>
             <hr className='w-11/12 sm:w-9/12 border-b-2 border-gray-400'/>
             <div className='pt-2'>
@@ -39,24 +43,29 @@ const ApplicationCard = ({ app, isOutgoing }) => {
                     isOutgoing ?
                         <div>
                             Project Owner:{'  '}
-                            <UserIcon username={app.owner.username} />
+                            <UserIcon username={appToUse.owner.username} />
                         </div>
                     :
                         <div>
                             Applicant:{'  '}
-                            <UserIcon username={app.user.username}/>
+                            <UserIcon username={appToUse.user.username}/>
                         </div>
                 }
             </div>
             <div className='pt-2'>
-                Response: {app.response}
+                Response: {appToUse.response}
             </div>
             <div className='pt-2'>
-                Status: {app.open ? 'Open' : 'Closed'}
+                Status: {appToUse.open ? 'Open' : 'Closed'}
             </div>
             <div className='pt-8'>
                 {
-                    !app.open ?
+                    !appToUse.open && appToUse.response === 'Cancelled' ?
+                    <div>
+                        <Button text='Re-Open Application' type='btnGeneral' onClick={() => onAction('Pending')}/>
+                    </div>
+                    :
+                    !appToUse.open ?
                     <div></div>
                     :
                     isOutgoing ?

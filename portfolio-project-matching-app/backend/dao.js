@@ -549,7 +549,7 @@ const updateDoc = async (coll, id, payload) => {
     else {
         // update document and indicate success to user
         const newDocSnap = await updateDocument(coll, id, payload);
-        console.log(`Updated project '${newDocSnap.id}'`);
+        console.log(`Updated '${coll}' document '${newDocSnap.id}'`);
         return newDocSnap;
     }
 }
