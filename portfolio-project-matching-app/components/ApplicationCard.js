@@ -14,6 +14,7 @@ const ApplicationCard = ({ app, isOutgoing }) => {
     const [appToUse, setAppToUse] = useState(app)
 
     const onAction = async (response) => {
+        console.log('appToUse at beginning of onAction: ', appToUse)                // **** DEBUG DELETE ME ****
         // build payload to update application document
         const payload = {open: false, response: response}
         // handle case of re-opened application
@@ -21,15 +22,18 @@ const ApplicationCard = ({ app, isOutgoing }) => {
             payload.open = true
         }
         // update Firebase document
-        await updateDoc('applications', app.id, payload)
+        await updateDoc('applications', appToUse.id, payload)
         // handle case of approved application
         if (response === 'Approved') {
-            await createAssociation('projects_users', app.project_id, app.user_id)
+            await createAssociation('projects_users', appToUse.project_id, appToUse.user_id)
         }
         const updatedApp = appToUse
-        updatedApp.response = response
+        updatedApp.response = payload.response
         updatedApp.open = payload.open
+        console.log('appToUse: ', appToUse)
+        console.log('updatedApp:', updatedApp)
         setAppToUse(updatedApp)
+        console.log('appToUse: ', appToUse)
     }
 
     return (

@@ -22,6 +22,7 @@ const myApplications = () => {
     const [isOutgoing, setIsOutgoing] = useState(true)
 
     useEffect(() => {
+        console.log('myApplications useEffect() called') //                                 **** DEBUG DELETE ME ****
         // tracks whether component mounted, cleanup will assign false
         let isMounted = true
         // handle case where user is NOT logged in

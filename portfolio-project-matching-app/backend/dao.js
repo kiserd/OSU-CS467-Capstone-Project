@@ -392,7 +392,8 @@ const readApplicationsById = async (field, id) => {
 
     INPUT:          field (string): document field to be compared against id
 
-                    id (string) : document ID of document being updated
+                    id (string) : document ID of document being compared
+                    against field
 
     RETURN:         array of Application objects
     */
@@ -421,6 +422,35 @@ const readApplicationsById = async (field, id) => {
         }
         // return array of Application objects to calling function
         return applications;
+    }
+}
+
+const readApplicationByApplicationId = async (id) => {
+    /*
+    DESCRIPTION:    retrieves application document by application document id
+
+    INPUT:          id (string) : document ID of desired application
+
+    RETURN:         Application object
+    */
+    // get snapshot for invalid input handling
+    const docSnap = await getDocSnapshotById('applications', id);
+    if (!docSnap.exists()) {
+        console.log(`Invalid id: 'applications' does not have document id '${id}'`);
+        return -1;
+    }
+    // handle case of valid field
+    else {
+        // build "base" Application object
+        const app = Application.fromDocSnapshot(docSnap.id, docSnap);
+        // populate project, user, and owner properties with applicable objects
+        [app.project, app.user, app.owner] = await Promise.all([
+            getShallowProjectById(app.projectId),
+            getShallowUserById(app.userId),
+            getShallowUserById(app.ownerId)
+        ])
+        // return array of Application objects to calling function
+        return app;
     }
 }
 
@@ -730,6 +760,7 @@ export {
     getUserById,
     getUsersByProjectId,
     readAllDocs,
+    readApplicationByApplicationId,
     readApplicationsById,
     // UPDATE
     updateDoc,
