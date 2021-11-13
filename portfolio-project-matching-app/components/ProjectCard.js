@@ -2,7 +2,7 @@
 import Link from 'next/link'
 import { useState, useEffect } from 'react'
 // backend
-import { createAssociation, getProjectById } from '../backend/dao.js'
+import { createAssociation, createApplication } from '../backend/dao.js'
 // component
 import Button from '../components/Button'
 // import UserIcon from '../components/UserIcon'
@@ -29,15 +29,13 @@ const ProjectCard = ({ project }) => {
         }
         // handle case where user is logged in
         else {
-            const docSnap = await createAssociation('projects_users', project.id, authUser.user.id)
+            const docSnap = await createApplication(project.id, authUser.user.id)
             // handle case where user is already added to project
             if (docSnap === -1) {
-                alert(`You have already joined that project`)
+                alert(`Error creating application -- tidy up this log later`)
             }
-            // handle case where user is added to project
-            else {
-                setProjectToUse(await getProjectById(project.id))
-            }
+            // raise alert to indicate successful application
+            alert(`Application '${docSnap.id}' created successfully. See application in My Profile -> My Applications`)
         }
     }
 

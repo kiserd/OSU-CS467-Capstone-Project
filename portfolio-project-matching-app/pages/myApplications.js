@@ -58,14 +58,22 @@ const myApplications = () => {
                     // if outGoing is set, show outgoing applications
                     <div className=''>
                         {outApplications.map((app) => {
-                            return <ApplicationCard key={app.id} app={app} isOutgoing={isOutgoing}/>
+                            return (
+                                <div key={app.id} className='p-2'>
+                                    <ApplicationCard app={app} isOutgoing={isOutgoing}/>
+                                </div>
+                            )
                         })}
                     </div>
                 :
                     // if outGoing is clear, show incoming applications
                     <div>
                         {inApplications.map((app) => {
-                            return <ApplicationCard key={app.id} app={app} isOutgoing={isOutgoing}/>
+                            return (
+                                <div key={app.id} className='p-2'>
+                                    <ApplicationCard app={app} isOutgoing={isOutgoing}/>
+                                </div>
+                            )
                         })}
                     </div>
             }

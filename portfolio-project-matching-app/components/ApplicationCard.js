@@ -1,21 +1,31 @@
 // library
+import { useState, useEffect } from 'react'
+// backend
+import { updateDoc, createAssociation } from '../backend/dao'
 // component
 import Button from '../components/Button'
 import UserIcon from '../components/UserIcon'
 
 
 const ApplicationCard = ({ app, isOutgoing }) => {
+    // state to force re-rendering of application data on reject, approve, etc
+    // probably better way to do this, but wanted to avoid re-querying the
+    // db from the parent and re-rendering the entire list
+    const [appToUse, setAppToUse] = useState(app)
 
-    const onCancel = () => {
-        // todo
-    }
-
-    const onApprove = () => {
-        // todo
-    }
-
-    const onReject = () => {
-        // todo
+    const onAction = async (response) => {
+        // build payload to update application document
+        const payload = {open: false, response: response}
+        // update Firebase document
+        await updateDoc('applications', app.id, payload)
+        // handle case of approved application
+        if (response === 'Approved') {
+            await createAssociation('projects_users', app.project_id, app.user_id)
+        }
+        const updatedApp = appToUse
+        updatedApp.response = response
+        updatedApp.open = false
+        setAppToUse(updatedApp)
     }
 
     return (
@@ -41,19 +51,25 @@ const ApplicationCard = ({ app, isOutgoing }) => {
             <div className='pt-2'>
                 Response: {app.response}
             </div>
+            <div className='pt-2'>
+                Status: {app.open ? 'Open' : 'Closed'}
+            </div>
             <div className='pt-8'>
                 {
+                    !app.open ?
+                    <div></div>
+                    :
                     isOutgoing ?
                     <div>
-                        <Button text='Cancel Application' type='btnWarning' onClick={onCancel}/>
+                        <Button text='Cancel Application' type='btnWarning' onClick={() => onAction('Cancelled')}/>
                     </div>
                     :
                     <div>
                         <div className='inline pr-2'>
-                            <Button text='Approve' type='btnGeneral' onClick={onApprove}/>
+                            <Button text='Approve' type='btnGeneral' onClick={() => onAction('Approved')}/>
                         </div>
                         <div className='inline'>
-                            <Button text='Reject' type='btnWarning' onClick={onReject}/>
+                            <Button text='Reject' type='btnWarning' onClick={() => onAction('Rejected')}/>
                         </div>
                     </div>
                 }
