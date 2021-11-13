@@ -102,14 +102,14 @@ const test_createProject = () => {
         // const userId = '8Ro56x6vPshn2E5XFI2CNfZH5Kg1';
         // await deleteAssociation('projects_users', projectId, userId); 
 
-        // const projectId = '6AqEuYkqrsArfuUEIOCQ';
-        // const userId = '0ko4TWBnkjPdpqqnbdCTnjMmROB2';
+        // const projectId = 'lvaaHKqTrt4QWr3rbEXI';
+        // const userId = '8Ro56x6vPshn2E5XFI2CNfZH5Kg1';
         // await createApplication(projectId, userId);
 
         // await deleteDoc('applications', '6AqEuYkqrsArfuUEIOCQ_0ko4TWBnkjPdpqqnbdCTnjMmROB2');
 
         const field = 'user_id';
-        const id = '0ko4TWBnkjPdpqqnbdCTnjMmROB2';
+        const id = '8Ro56x6vPshn2E5XFI2CNfZH5Kg1';
         const apps = await readApplicationsById(field, id);
         console.log('apps: ', apps);
 
