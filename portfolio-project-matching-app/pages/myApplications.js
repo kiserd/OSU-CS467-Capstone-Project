@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { readApplicationsById } from '../backend/dao.js';
 // component
 import ApplicationCard from '../components/ApplicationCard'
+import Button from '../components/Button'
 // context
 import { useAuth } from '../context/AuthContext'
 
@@ -13,6 +14,9 @@ const myApplications = () => {
 
     // array harboring outgoing applications
     const [outApplications, setOutApplications] = useState([])
+
+    // determines whether incoming or outgoing applications are displayed
+    const [isOutgoing, setIsOutgoing] = useState(true)
 
     // get auth'd user
     let authUser = useAuth()
@@ -40,11 +44,31 @@ const myApplications = () => {
         }
     }, [])
 
+    const toggleOutgoing = () => {
+        setIsOutgoing(isOutgoing ? false : true)
+    }
+
     return (
-        <div>
-            {outApplications.map((app) => {
-                return <ApplicationCard key={app.id} app={app}/>
-            })}
+        <div className='p-2'>
+            <div className='pb-2'>
+                <Button text={isOutgoing ? 'Show Incoming' : 'Show Outgoing'} type='btnGeneral' onClick={toggleOutgoing}/>
+            </div>
+            {
+                isOutgoing ?
+                    // if outGoing is set, show outgoing applications
+                    <div className=''>
+                        {outApplications.map((app) => {
+                            return <ApplicationCard key={app.id} app={app} isOutgoing={isOutgoing}/>
+                        })}
+                    </div>
+                :
+                    // if outGoing is clear, show incoming applications
+                    <div>
+                        {inApplications.map((app) => {
+                            return <ApplicationCard key={app.id} app={app} isOutgoing={isOutgoing}/>
+                        })}
+                    </div>
+            }
         </div>
     )
 }
