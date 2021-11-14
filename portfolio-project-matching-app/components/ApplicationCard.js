@@ -5,8 +5,6 @@ import { updateDoc, createAssociation, readApplicationByApplicationId } from '..
 // component
 import Button from '../components/Button'
 import UserIcon from '../components/UserIcon'
-// model
-import { Application } from '../models/Application'
 
 
 const ApplicationCard = ({ appId, isOutgoing }) => {
@@ -27,7 +25,7 @@ const ApplicationCard = ({ appId, isOutgoing }) => {
         const updatedApp = await readApplicationByApplicationId(app.id)
         // handle case of approved application
         if (response === 'Approved') {
-            createAssociation('projects_users', app.project_id, appToUse.user_id)
+            createAssociation('projects_users', app.project_id, app.user_id)
         }
         setApp(updatedApp)
     }

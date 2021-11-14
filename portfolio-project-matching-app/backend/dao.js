@@ -375,7 +375,7 @@ const readAllDocs = async (coll) => {
     }
     // handle case of collection passed that the function can't handle
     if (!collectionIsValid(coll)) {
-        console.log(`Invalid collection: please use 'projects', 'users' or 'technologies'.`);
+        console.log(`Invalid collection: please use 'projects', 'users', or 'technologies'.`);
         return -1;
     }
     // handle case of valid collection name
@@ -385,44 +385,27 @@ const readAllDocs = async (coll) => {
     }
 }
 
-const readApplicationsById = async (field, id) => {
-    /*
-    DESCRIPTION:    retrieves applications documents when field === id. E.g., 
-                    ownerId === 'someId'
+const readDocIdsByCriteria = async (coll, field, criteria) => {
+        /*
+    DESCRIPTION:    retrieves document IDs from specified collection, subject
+                    to specified criteria. E.g.,
+                    readDocIdsByCriteria('applications', 'owner_id', 'myId')
+                    translates to get all application IDs where owner_id field
+                    equals 'myId'
 
-    INPUT:          field (string): document field to be compared against id
+    INPUT:          coll (string): collection to get document IDs from
 
-                    id (string) : document ID of document being compared
-                    against field
+                    field (string): field to compare criteria against
+    
+                    criteria (value): value to compare against field for
+                    equality
 
-    RETURN:         array of Application objects
+    RETURN:         array IDs in string format
     */
-    // handle case of invalid field
-    if (!applicationFieldIsValid(field)) {
-        console.log(`Invalid field argument: '${field}' does not exist in 'appliations`);
-        return -1;
-    }
-    // handle case of valid field
-    else {
-        // get applications query snapshot
-        const applicationsSnap = await getCollectionSnapshotByCriteria('applications', field, '==', id);
-        // loop through documents creating "base" Application objects
-        const applications = [];
-        for (const doc of applicationsSnap.docs) {
-            const application = Application.fromDocSnapshot(doc.id, doc);
-            applications.push(application);
-        }
-        // populate project, user, and owner properties with applicable objects
-        for (const app of applications) {
-            [app.project, app.user, app.owner] = await Promise.all([
-                getShallowProjectById(app.projectId),
-                getShallowUserById(app.userId),
-                getShallowUserById(app.ownerId)
-            ])
-        }
-        // return array of Application objects to calling function
-        return applications;
-    }
+    // get query snapshot
+    const querySnap = await getCollectionSnapshotByCriteria(coll, field, '==', criteria);
+    // build array of IDs from query snapshot
+    return querySnap.docs.map(doc => doc.id);
 }
 
 const readApplicationByApplicationId = async (id) => {
@@ -455,19 +438,6 @@ const readApplicationByApplicationId = async (id) => {
 }
 
 // helpers, don't export
-
-const applicationFieldIsValid = (field) => {
-    /*
-    DESCRIPTION:    determines whether field is either 'project_id', 'user_id',
-                    or 'owner_id'
-
-    INPUT:          field (string): application field
-
-    RETURN:         boolean indication of whether field argument passed
-                    is valid
-    */
-    return field === 'project_id' || field === 'user_id' || field === 'owner_id';
-}
 
 const buildObjects = (coll, collSnap) => {
     /*
@@ -761,7 +731,7 @@ export {
     getUsersByProjectId,
     readAllDocs,
     readApplicationByApplicationId,
-    readApplicationsById,
+    readDocIdsByCriteria,
     // UPDATE
     updateDoc,
     // DELETE
