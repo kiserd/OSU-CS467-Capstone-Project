@@ -22,22 +22,19 @@ const myApplications = () => {
     const [isOutgoing, setIsOutgoing] = useState(true)
 
     useEffect(() => {
-        console.log('myApplications useEffect() called') //                                 **** DEBUG DELETE ME ****
         // tracks whether component mounted, cleanup will assign false
         let isMounted = true
         // handle case where user is NOT logged in
-        console.log(authUser);
-        console.log(authUser.user.id);
         if (!authUser.user) {
             alert('must be logged in to view this page')
         }
         // get outgoing applications and set statge
         readApplicationsById('user_id', authUser.user.id).then((apps) => {
-            if (isMounted) setOutApplications(apps)
+            if (isMounted) setOutApplications(apps.map(app => app.id))
         })
         // get incoming applications and set stgatge
         readApplicationsById('owner_id', authUser.user.id).then((apps) => {
-            if (isMounted) setInApplications(apps)
+            if (isMounted) setInApplications(apps.map(app => app.id))
         })
         // cleanup function to assign false to isMounted
         return function cleanup() {
@@ -60,8 +57,8 @@ const myApplications = () => {
                     <div className=''>
                         {outApplications.map((app) => {
                             return (
-                                <div key={app.id} className='p-2'>
-                                    <ApplicationCard app={app} isOutgoing={isOutgoing}/>
+                                <div key={app} className='p-2'>
+                                    <ApplicationCard appId={app} isOutgoing={isOutgoing}/>
                                 </div>
                             )
                         })}
@@ -71,8 +68,8 @@ const myApplications = () => {
                     <div>
                         {inApplications.map((app) => {
                             return (
-                                <div key={app.id} className='p-2'>
-                                    <ApplicationCard app={app} isOutgoing={isOutgoing}/>
+                                <div key={app} className='p-2'>
+                                    <ApplicationCard appId={app} isOutgoing={isOutgoing}/>
                                 </div>
                             )
                         })}
