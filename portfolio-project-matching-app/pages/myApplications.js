@@ -5,6 +5,7 @@ import { readApplicationsById, readApplicationIdsById, readDocIdsByCriteria } fr
 // component
 import ApplicationCard from '../components/ApplicationCard'
 import Button from '../components/Button'
+import FilterButtons from '../components/FilterButtons.js';
 // context
 import { useAuth } from '../context/AuthContext'
 
@@ -46,35 +47,69 @@ const myApplications = () => {
         setIsOutgoing(isOutgoing ? false : true)
     }
 
+    const inOutChoices = [
+        {id: 1, name: 'Incoming'},
+        {id: 2, name: 'Outgoing'},
+    ]
+
+    const responseChoices = [
+        {id: 1, name: 'Pending'},
+        {id: 2, name: 'Accepted'},
+        {id: 3, name: 'Cancelled'},
+        {id: 4, name: 'Rejected'},
+    ]
+
+    const openChoices = [
+        {id: 1, name: 'Open'},
+        {id: 2, name: 'Closed'},
+    ]
+
     return (
-        <div className='p-2'>
-            <div className='pb-2'>
-                <Button text={isOutgoing ? 'Show Incoming' : 'Show Outgoing'} type='btnGeneral' onClick={toggleOutgoing}/>
+        <div className='background'>
+            <div className='grid grid-cols-3'>
+                <div className='col-span-2'>
+                    <Button text={isOutgoing ? 'Show Incoming' : 'Show Outgoing'} type='btnGeneral' onClick={toggleOutgoing}/>
+                    <ApplicationList apps={isOutgoing ? outApplications : inApplications} isOutgoing={isOutgoing} />
+                </div>
+                <div className='sticky top-4 m-2 p-2 col-span-1 h-auto defaultBorder bg-white shadow-2xl'>
+                    <div className='text-xl font-medium text-center'>
+                        Filters
+                    </div>
+                    <hr className='w-full border-b-2 border-custom-cool-extraDark'/>
+                    <FilterButtons 
+                    category='Incoming / Outgoing'
+                    choices={inOutChoices}
+                    onAdd={() => {}}
+                    onRemove={() => {}}
+                    />
+                    <FilterButtons 
+                    category='Open / Closed'
+                    choices={openChoices}
+                    onAdd={() => {}}
+                    onRemove={() => {}}
+                    />
+                    <FilterButtons 
+                    category='Response'
+                    choices={responseChoices}
+                    onAdd={() => {}}
+                    onRemove={() => {}}
+                    />
+                </div>
             </div>
-            {
-                isOutgoing ?
-                    // if outGoing is set, show outgoing applications
-                    <div className=''>
-                        {outApplications.map((app) => {
-                            return (
-                                <div key={app} className='p-2'>
-                                    <ApplicationCard appId={app} isOutgoing={isOutgoing}/>
-                                </div>
-                            )
-                        })}
+        </div>
+    )
+}
+
+const ApplicationList = ({ apps, isOutgoing }) => {
+    return (
+        <div className=''>
+            {apps.map((app) => {
+                return (
+                    <div key={app} className='p-2'>
+                        <ApplicationCard appId={app} isOutgoing={isOutgoing}/>
                     </div>
-                :
-                    // if outGoing is clear, show incoming applications
-                    <div>
-                        {inApplications.map((app) => {
-                            return (
-                                <div key={app} className='p-2'>
-                                    <ApplicationCard appId={app} isOutgoing={isOutgoing}/>
-                                </div>
-                            )
-                        })}
-                    </div>
-            }
+                )
+            })}
         </div>
     )
 }
