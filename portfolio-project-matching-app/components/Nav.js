@@ -17,7 +17,7 @@ const Nav = () => {
         }
     )
     return (
-        <nav className={styles.navCool}>
+        <nav className={styles.navWarm}>
             <ul className="grid grid-cols-3">
                 <li className="col-start-2 justify-self-center m-2">
                     <Link href="/">
