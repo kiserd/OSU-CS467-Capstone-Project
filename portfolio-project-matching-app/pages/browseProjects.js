@@ -2,12 +2,18 @@
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 // backend
-import { getAllProjects, getAllTechnologies } from '../backend/dao'
+import {
+    getAllProjects,
+    getAllTechnologies,
+    readAllDocs,
+} from '../backend/dao'
 // component
 import Button from '../components/Button'
 import FilterButtons from '../components/FilterButtons'
 import ProjectCard from '../components/ProjectCard'
 import Search from '../components/Search'
+// context
+import { useAuth } from '../context/AuthContext'
 // model
 import { FilteredProject } from '../models/FilteredProject'
 import { Project } from '../models/Project'

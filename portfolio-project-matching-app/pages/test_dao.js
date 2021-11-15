@@ -9,10 +9,12 @@ import {
     createNewUserDoc,
     deleteAssociation,
     deleteDoc,
+    deleteDocAndAssociations,
     deleteLike,
     deleteProjectsUsersDoc,
     deleteUserDoc,
     getProjectById,
+    readAllDocs,
     updateDoc,
     updateProject,
 } from '../backend/dao'
@@ -53,8 +55,8 @@ const test_createProject = () => {
         // };
         // await createDoc(coll, payload);
 
-        // const coll = 'projects';
-        // const id = '';
+        // const coll = 'projects_technologies';
+        // const id = 'Oyj9gA5FcCeUFq05Pjdk_X5S4dzoet7xCwTDwce4J';
         // await deleteDoc(coll, id);
 
         // const projectId = 'pLBXDJiDoasB3RXaZ70Y';
@@ -94,14 +96,11 @@ const test_createProject = () => {
         // const userId = 'PdJa7Nq3LJCbEOFxA2Vj';
         // await createAssociation('projects_users', projectId, userId);
 
-        // const projectId = '6AqEuYkqrsArfuUEIOCQ';
-        // const userId = 'PdJa7Nq3LJCbEOFxA2Vj';
-        // await deleteAssociation('projects_users', projectId, userId); 
+        const projectId = '8DubXEKajkhmy7l3sRdV';
+        const userId = '8Ro56x6vPshn2E5XFI2CNfZH5Kg1';
+        await deleteAssociation('projects_users', projectId, userId); 
 
-        const coll = 'users';
-        const id = 'invalid id';
-        const myVal = await deleteDoc(coll, id);
-        console.log(`deleteDoc(${coll}, ${id}): ${myVal}`);
+
 
     }
 
