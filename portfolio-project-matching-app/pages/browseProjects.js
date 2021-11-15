@@ -161,7 +161,7 @@ const browseProjects = () => {
     }
 
     return (
-        <div>
+        <div className='background'>
             <div className='px-2 pb-1 pt-2'>
                 <div className='w-full flex'>
                     <div className='flex flex-grow justify-center'>
@@ -186,11 +186,11 @@ const browseProjects = () => {
                         )
                     })}
                 </div>
-                <div className='m-2 p-2 col-span-1 border-2 border-gray-400 rounded-md'>
+                <div className='sticky top-4 m-2 p-2 col-span-1 h-auto max-h-80 defaultBorder bg-white shadow-2xl'>
                     <div className='text-xl font-medium text-center'>
                         Filters
                     </div>
-                    <hr className='w-full border-b-2 border-gray-400'/>
+                    <hr className='w-full border-b-2 border-custom-cool-extraDark'/>
                     <FilterButtons
                     category='Technologies'
                     choices={allTechnologies}

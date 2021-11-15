@@ -1,5 +1,8 @@
 // library
 import Link from 'next/link'
+
+import styles from './ProjectCard.module.css'
+
 import { useState, useEffect } from 'react'
 // backend
 import { createAssociation, getProjectById } from '../backend/dao.js'
@@ -8,6 +11,7 @@ import Button from '../components/Button'
 // import UserIcon from '../components/UserIcon'
 // context
 import { useAuth } from '../context/AuthContext'
+
 
 const ProjectCard = ({ project }) => {
     // get auth'd user
@@ -46,11 +50,11 @@ const ProjectCard = ({ project }) => {
     }
 
     return (
-        <div className='p-2 w-full h-full border-2 border-gray-400 rounded-md'>
+        <div className={styles.project}>
             <div className='w-full'>
                 <p className='text-xl font-medium'>{projectToUse.name}</p>
             </div>
-            <hr className='w-11/12 sm:w-9/12 border-b-2 border-gray-400'/>
+            <hr className='w-11/12 sm:w-9/12 border-b-2 border-custom-cool-extraDark'/>
             <div className='flex flex-wrap'>
                 {projectToUse.technologies.map((technology) => {
                     return (
@@ -91,7 +95,7 @@ const ProjectCard = ({ project }) => {
             </div>
             <Link href={`/project?id=${projectToUse.id}`} passHref>
                 <a>
-                    <Button text="View More Info" addClassName='block mt-2'/>
+                    <Button text="View More Info" type='btnPurple' addClassName='block mt-2'/>
                 </a>
             </Link>
         </div>

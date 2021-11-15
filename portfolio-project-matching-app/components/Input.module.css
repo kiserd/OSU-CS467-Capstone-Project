@@ -1,15 +1,15 @@
 .text {
-    @apply w-full p-2 bg-gray-200 appearance-none border-2 border-gray-200 rounded-md text-gray-700 leading-tight focus:outline-none focus:bg-white focus:border-purple-500
+    @apply w-full p-2 bg-gray-100 appearance-none border-2 border-custom-cool-extraDark rounded-md text-gray-700 leading-tight focus:outline-none focus:bg-white focus:border-purple-500
 }
 
 .password {
-    @apply w-full p-2 bg-gray-200 appearance-none border-2 border-gray-200 rounded-md text-gray-700 leading-tight focus:outline-none focus:bg-white focus:border-purple-500
+    @apply w-full p-2 bg-gray-100 appearance-none border-2 border-custom-cool-extraDark rounded-md text-gray-700 leading-tight focus:outline-none focus:bg-white focus:border-purple-500
 }
 
 .email {
-    @apply w-full p-2 border-2 border-gray-600 text-gray-600 rounded-md hover:text-gray-900 hover:border-gray-900
+    @apply w-full p-2 border-2 border-custom-cool-extraDark text-gray-600 rounded-md hover:text-gray-900 hover:border-gray-900
 }
 
 .number {
-    @apply w-full p-2 bg-gray-200 appearance-none border-2 border-gray-200 rounded-md text-gray-700 leading-tight focus:outline-none focus:bg-white focus:border-purple-500
+    @apply w-full p-2 bg-gray-100 appearance-none border-2 border-custom-cool-extraDark rounded-md text-gray-700 leading-tight focus:outline-none focus:bg-white focus:border-purple-500
 }
