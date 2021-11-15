@@ -124,16 +124,17 @@ const getAllUsers = async () => {
     // get snapshot of users collection
     const collectionSnap = await getCollectionSnapshot('users');
 
-    // loop through documents in the snapshot, adding User objects to array
-    const users = [];
-    for (const doc of collectionSnap.docs) {
-        // create User object to add to array
-        const user = User.fromDocSnapshot(doc.id, doc);
-        // populate technologies and projects associations in User object
-        user.technologies = await getTechnologiesByUserId(user.id);
-        user.projects = await getProjectsByUserId(user.id);
-        users.push(user);
-    }
+    // use collection snapshot to build "base" array of User objects
+    const users = collectionSnap.docs.map(doc => User.fromDocSnapshot(doc.id, doc));
+    // loop through User object array and add associations
+    await Promise.all(users.map(async (user) => {
+        [user.technologies, user.projects] = await Promise.all([
+            getTechnologiesByUserId(user.id),
+            getProjectsByUserId(user.id),
+        ]);
+        return user;
+    }));
+    // return to calling function
     return users;
 }
 
@@ -157,15 +158,17 @@ const getUserById = async (userId) => {
     if (!userSnap.exists()) {
         console.log(`invalid id: '${userId}' does not exist in 'users'`);
         return -1;
-    }else{
+    }
+    // handle case where user exists
+    else {
+        // build "base" User object
         const user = User.fromDocSnapshot(userSnap.id, userSnap);
-
         // get associated projects to populate user object's projects
-        user.projects = await getProjectsByUserId(user.id);
-    
-        // get associated technologies to populate user object's technologies
-        user.technologies = await getTechnologiesByUserId(user.id);
-    
+        [user.projects, user.technologies] = await Promise.all([
+            getProjectsByUserId(user.id),
+            getTechnologiesByUserId(user.id)
+        ]);
+        // return to calling function
         return user;
     }
 }
