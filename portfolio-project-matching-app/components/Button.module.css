@@ -5,7 +5,7 @@
 }
 
 .btnGeneral {
-    @apply btn bg-white border-custom-cool-dark text-custom-cool-dark hover:shadow hover:text-custom-cool-dark hover:border-custom-cool-light hover:underline focus:ring-custom-cool-dark focus:bg-custom-cool-dark focus:text-white;
+    @apply btn bg-white border-custom-cool-dark text-custom-cool-dark hover:shadow hover:text-white hover:border-custom-cool-light hover:bg-custom-cool-dark hover:underline focus:ring-custom-cool-dark focus:bg-custom-cool-dark focus:text-white;
 }
 
 .btnPurple {
