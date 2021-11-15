@@ -1,5 +1,6 @@
 import { useEffect } from 'react'
 import {
+    createApplication,
     createAssociation,
     createDoc,
     createNewLike,
@@ -15,6 +16,8 @@ import {
     deleteUserDoc,
     getProjectById,
     readAllDocs,
+    readApplicationsById,
+    readDocIdsByCriteria,
     updateDoc,
     updateProject,
 } from '../backend/dao'
@@ -96,10 +99,26 @@ const test_createProject = () => {
         // const userId = 'PdJa7Nq3LJCbEOFxA2Vj';
         // await createAssociation('projects_users', projectId, userId);
 
-        const projectId = '8DubXEKajkhmy7l3sRdV';
-        const userId = '8Ro56x6vPshn2E5XFI2CNfZH5Kg1';
-        await deleteAssociation('projects_users', projectId, userId); 
+        // const projectId = '8DubXEKajkhmy7l3sRdV';
+        // const userId = '8Ro56x6vPshn2E5XFI2CNfZH5Kg1';
+        // await deleteAssociation('projects_users', projectId, userId); 
 
+        // const projectId = 'lvaaHKqTrt4QWr3rbEXI';
+        // const userId = '8Ro56x6vPshn2E5XFI2CNfZH5Kg1';
+        // await createApplication(projectId, userId);
+
+        // await deleteDoc('applications', '6AqEuYkqrsArfuUEIOCQ_0ko4TWBnkjPdpqqnbdCTnjMmROB2');
+
+        // const field = 'user_id';
+        // const id = '8Ro56x6vPshn2E5XFI2CNfZH5Kg1';
+        // const apps = await readApplicationsById(field, id);
+        // console.log('apps: ', apps);
+
+        // const coll = 'dummy';
+        // const field = 'dummy';
+        // const criteria = 'dummy';
+        // const ids = await readDocIdsByCriteria(coll, field, criteria);
+        // console.log('ids: ', ids);
 
 
     }

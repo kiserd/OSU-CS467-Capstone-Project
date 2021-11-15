@@ -239,6 +239,31 @@ const getProjectById = async (projectId) => {
     }
 }
 
+const getShallowProjectById = async (projectId) => {
+    /*
+    DESCRIPTION:    retrieves project data for specified project document ID.
+                    The owner, users, and technologies will be null
+
+    INPUT:          desired project document ID in string format
+
+    RETURN:         project object containing data associated with project
+                    document ID passed as argument
+    */
+    // get project doc snapshot and use to initialize project object
+    const projectSnap = await getDocSnapshotById('projects', projectId);
+    
+    // handle case where projectId is valid
+    if (projectSnap.exists()){
+        const project = Project.fromDocSnapshot(projectSnap.id, projectSnap);
+        return project;
+    }
+    // handle case where projectId is invalid
+    else {
+        console.log(`invalid projectId: '${projectId}' does not exist`);
+        return -1;
+    }
+}
+
 const getOwnerByUserId = async (userId) => {
     /*
     DESCRIPTION:    retrieves owner User object associated with specified
@@ -471,6 +496,7 @@ export {
     getAllProjects,
     getOwnerByUserId,
     getProjectById,
+    getShallowProjectById,
     getTechnologiesByProjectId,
     getUsersByProjectId,
     // UPDATE

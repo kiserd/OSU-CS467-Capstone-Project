@@ -21,6 +21,7 @@ import {
     getAllProjects,
     getOwnerByUserId,
     getProjectById,
+    getShallowProjectById,
     getTechnologiesByProjectId,
     getUsersByProjectId,
     // DELETE
@@ -38,9 +39,11 @@ import {
     getAllUsers,
     getDeepProjectsByUserId,
     getProjectsByUserId,
+    getShallowUserById,
     getTechnologiesByUserId,
     getUserById,
 } from '../backend/daoUser'
+import { Application } from '../models/Application'
 import { Project } from '../models/Project'
 import { User } from '../models/User'
 import { Technology } from '../models/Technology'
@@ -126,6 +129,40 @@ const createDocWithId = async (coll, payload, id) => {
     }
 }
 
+const createApplication = async (projectId, userId) => {
+    /*
+    DESCRIPTION:    creates new application to a project
+
+    INPUT:          userId (string): document ID for user applying to project
+
+                    projectId (string): document ID for project being applied
+                    to
+
+    RETURN:         new application document snapshot
+    */
+    // utilize helper function in validating inputs
+    const inputIsValid = await createApplicationInputIsValid(projectId, userId);
+    // handle case of invalid inputs
+    if (!inputIsValid) return -1;
+    // handle case inputs are valid 
+    else {
+        // get project document snapshot for ownerId
+        const projectSnap = await getDocSnapshotById('projects', projectId);
+        // build application payload to send to Firebase
+        const payload = {
+            project_id: projectId,
+            user_id: userId,
+            owner_id: projectSnap.data().ownerId,
+            open: true,
+            response: 'pending'
+
+        };
+        const newDocSnap = await addNewDocWithId('applications', `${projectId}_${userId}`, payload);
+        console.log(`Created 'applications' document with id: ${newDocSnap.id}`);
+        return newDocSnap;
+    }
+}
+
 const createAssociation = async (coll, id1, id2) => {
     /*
     DESCRIPTION:    creates new association document for provided collection.
@@ -163,6 +200,49 @@ const createAssociation = async (coll, id1, id2) => {
 }
 
 // helpers, don't export
+
+const createApplicationInputIsValid = async (projectId, userId) => {
+    /*
+    DESCRIPTION:    determines whether userId and projectId are valid inputs
+                    for creating an application
+
+    INPUT:          projectId (string): document ID for project being applied
+                    to
+
+                    userId (string): document ID for user applying to project
+
+    RETURN:         boolean indication as to whether the inputs are valid
+    */
+    // get document snapshots for error handling
+    const [userSnap, projectSnap, applicationSnap, projectsUsersSnap] = await Promise.all([
+        getDocSnapshotById('projects', projectId),
+        getDocSnapshotById('users', userId),
+        getDocSnapshotById('applications', `${projectId}_${userId}`),
+        getDocSnapshotById('projects_users', `${projectId}_${userId}`)
+    ]);
+    // handle case where project does not exist
+    if (!projectSnap.exists()) {
+        console.log(`Invalid 'projects' id: '${projectId}' does not exist`);
+        return false;
+    }
+    // handle case where user does not exists
+    else if (!userSnap.exists()) {
+        console.log(`Invalid 'users' id: '${userId}' does not exist`);
+        return false;
+    }
+    // handle case where user is already added to project
+    else if (projectsUsersSnap.exists()) {
+        console.log(`Invalid userId projectId combination: user id '${userId}' is already added to project id '${projectId}'`);
+        return false;
+    }
+    // handle case where user already has applied to project
+    else if (applicationSnap.exists()) {
+        console.log(`Invalid userId projectId combination: user id '${userId}' has already applied to project id '${projectId}'`);
+        return false;
+    }
+    // all tests passed return true
+    return true;
+}
 
 const getPayload = (coll, id1, id2) => {
     /*
@@ -297,7 +377,7 @@ const readAllDocs = async (coll) => {
     }
     // handle case of collection passed that the function can't handle
     if (!collectionIsValid(coll)) {
-        console.log(`Invalid collection: please use 'projects', 'users' or 'technologies'.`);
+        console.log(`Invalid collection: please use 'projects', 'users', or 'technologies'.`);
         return -1;
     }
     // handle case of valid collection name
@@ -307,6 +387,57 @@ const readAllDocs = async (coll) => {
     }
 }
 
+const readDocIdsByCriteria = async (coll, field, criteria) => {
+        /*
+    DESCRIPTION:    retrieves document IDs from specified collection, subject
+                    to specified criteria. E.g.,
+                    readDocIdsByCriteria('applications', 'owner_id', 'myId')
+                    translates to get all application IDs where owner_id field
+                    equals 'myId'
+
+    INPUT:          coll (string): collection to get document IDs from
+
+                    field (string): field to compare criteria against
+    
+                    criteria (value): value to compare against field for
+                    equality
+
+    RETURN:         array IDs in string format
+    */
+    // get query snapshot
+    const querySnap = await getCollectionSnapshotByCriteria(coll, field, '==', criteria);
+    // build array of IDs from query snapshot
+    return querySnap.docs.map(doc => doc.id);
+}
+
+const readApplicationByApplicationId = async (id) => {
+    /*
+    DESCRIPTION:    retrieves application document by application document id
+
+    INPUT:          id (string) : document ID of desired application
+
+    RETURN:         Application object
+    */
+    // get snapshot for invalid input handling
+    const docSnap = await getDocSnapshotById('applications', id);
+    if (!docSnap.exists()) {
+        console.log(`Invalid id: 'applications' does not have document id '${id}'`);
+        return -1;
+    }
+    // handle case of valid field
+    else {
+        // build "base" Application object
+        const app = Application.fromDocSnapshot(docSnap.id, docSnap);
+        // populate project, user, and owner properties with applicable objects
+        [app.project, app.user, app.owner] = await Promise.all([
+            getShallowProjectById(app.projectId),
+            getShallowUserById(app.userId),
+            getShallowUserById(app.ownerId)
+        ])
+        // return array of Application objects to calling function
+        return app;
+    }
+}
 
 // helpers, don't export
 
@@ -359,7 +490,7 @@ const buildObject = (coll, doc) => {
 const collectionIsValid = async (coll) => {
     /*
     DESCRIPTION:    determines whether coll is either 'projects', 'users', or
-                    'technologies
+                    'technologies'
 
     INPUT:          coll (string): collection to get documents from
 
@@ -420,7 +551,7 @@ const updateDoc = async (coll, id, payload) => {
     else {
         // update document and indicate success to user
         const newDocSnap = await updateDocument(coll, id, payload);
-        console.log(`Updated project '${newDocSnap.id}'`);
+        console.log(`Updated '${coll}' document '${newDocSnap.id}'`);
         return newDocSnap;
     }
 }
@@ -582,6 +713,7 @@ const deleteAssociationsHelper = {
 
 export {
     // CREATE
+    createApplication,
     createAssociation,
     createDoc,
     createDocWithId,
@@ -600,6 +732,8 @@ export {
     getUserById,
     getUsersByProjectId,
     readAllDocs,
+    readApplicationByApplicationId,
+    readDocIdsByCriteria,
     // UPDATE
     updateDoc,
     // DELETE

@@ -14,6 +14,12 @@ const myProfile = () => {
                     <Button text="My Projects" isLink={true} addClassName="bg-white m-2"/>
                     </a>
                 </Link>
+                <Link href="/myApplications" passHref>
+                    {/* Link's child must take an href, so Button must be wrapped with <a> tags */}
+                    <a>
+                    <Button text="My Applications" isLink={true} addClassName="bg-white m-2"/>
+                    </a>
+                </Link>
                 <ProfileForm />
             </div>
     )
