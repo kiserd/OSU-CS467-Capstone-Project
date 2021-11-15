@@ -12,5 +12,5 @@
 }
 
 .background {
-    @apply bg-gradient-to-tr from-custom-cool-light to-transparent bg-opacity-60;
+    @apply bg-custom-cool-extraLight bg-opacity-60;
 }
