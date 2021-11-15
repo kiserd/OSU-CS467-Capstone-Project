@@ -57,8 +57,8 @@ const myProfile = () => {
         return (
             <div>
             { auth && auth.user ? 
-                <div className='bg-gray-200 p-2 w-full h-full'>
-                    <div className='w-full mx-auto max-w-md border-2 border-gray-400 rounded-md shadow-md'>
+                <div className='background p-2 w-full h-full'>
+                    <div className='w-full mx-auto max-w-md defaultBorder'>
                         <div className='p-2 divide-y divide-gray-400'>
                             <form onSubmit={handleSubmit} className="mx-10">
                                 <div className='mb-4 mt-4'>
@@ -90,8 +90,8 @@ const myProfile = () => {
                     </div>
                 </div>
             : 
-            <div className='bg-gray-200 p-2 w-full h-full'>
-                    <div className='w-full mx-auto max-w-md border-2 border-gray-400 rounded-md shadow-md'>
+            <div className='background p-2 w-full h-full'>
+                    <div className='w-full mx-auto max-w-md defaultBorder'>
                         <div className='p-2 divide-y divide-gray-400'>
                         <NewLogin />
                     </div>
