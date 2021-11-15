@@ -180,7 +180,7 @@ const browseProjects = () => {
                         )
                     })}
                 </div>
-                <div className='m-2 p-2 col-span-1 defaultBorder'>
+                <div className='sticky top-4 m-2 p-2 col-span-1 h-auto max-h-80 defaultBorder bg-white shadow-2xl'>
                     <div className='text-xl font-medium text-center'>
                         Filters
                     </div>
