@@ -93,9 +93,10 @@ const newProject = () => {
         // get open field value by examining capacity
         const openStatus = payload.capacity === 1 ? false : true;
         // build on payload object with values from form
-        // there has to be a better way to do this
         const newPayload = payload;
-        newPayload.census = 1;
+        newPayload.census = 0; // createAssociation will increment to 1
+        newPayload.capacity = parseInt(newPayload.capacity, 10)
+        newPayload.likes = 0;
         newPayload.ownerId = authUser.user.id;
         newPayload.open = openStatus
         // set payload statge
