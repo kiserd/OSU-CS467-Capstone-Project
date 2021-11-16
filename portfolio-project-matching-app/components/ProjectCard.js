@@ -41,6 +41,13 @@ const ProjectCard = ({ initialProject }) => {
     })
 
     const applyToProject = async (e) => {
+        /*
+        DESCRIPTION:    creates appropriate application document
+
+        INPUT:          e (event)
+
+        RETURN:         NA
+        */
         // prevent page refresh on submit
         e.preventDefault();
         // handle case where user is not logged in
@@ -60,7 +67,15 @@ const ProjectCard = ({ initialProject }) => {
         }
     }
 
-    const likeProject = async (e) => {
+    const likeProject = async () => {
+        /*
+        DESCRIPTION:    creates like document associating project and current
+                        user
+
+        INPUT:          NA
+
+        RETURN:         NA
+        */
         // handle case where user is NOT logged in
         if (!authUser.user) {
             alert(`You must be logged in to like a project`)
@@ -78,7 +93,14 @@ const ProjectCard = ({ initialProject }) => {
         }
     }
 
-    const dislikeProject = async (e) => {
+    const dislikeProject = async () => {
+        /*
+        DESCRIPTION:    deletes like document associating user and project
+
+        INPUT:          NA
+
+        RETURN:         NA
+        */
         // handle case where user is NOT logged in
         if (!authUser.user) {
             alert(`You must be logged in to dislike a project`)
