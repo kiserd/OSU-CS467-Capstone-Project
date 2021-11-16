@@ -35,26 +35,31 @@ class Application {
         return application;
     }
 
-    // static fromObject(map) {
-    //     /*
-    //     DESCRIPTION:    takes map of project related data and creates a Project
-    //                     object with similar fields
+    // methods
+    isOpen() {
+        /*
+        DESCRIPTION:    indicates whether Application object status property
+                        matches status passed
 
-    //     INPUT:          map of project data with keys mirroring fields in
-    //                     Firebase project documents
+        INPUT:          status (string): 
 
-    //     RETURN:         Project object with fields populated. Note, any keys
-    //                     that do not exist in the map will be left null in the
-    //                     returned Project object
-    //     */
-    //     // instantiate new Project object
-    //     const project = new Project();
-    //     // set fields/properties based on provided id and snapshot
-    //     if (map.id) project.id = map.id;
-    //     if (map.name) project.name = map.name;
-    //     // return to user
-    //     return project;
-    // }
+        RETURN:         boolean indicating whether status matches
+        */
+        return this.open;
+    }
+
+    hasResponse(response) {
+        /*
+        DESCRIPTION:    indicates whether Application object response property
+                        matches response string passed
+
+        INPUT:          response (string): 'Cancelled', 'Approved', 'Rejected',
+                        or 'Pending'
+
+        RETURN:         boolean indicating whether response matches
+        */
+        return this.response === response.name;
+    }
 }
 
 export { Application }

@@ -370,21 +370,36 @@ const readAllDocs = async (coll) => {
     */
     // get collection snapshot
     const collSnap = await getCollectionSnapshot(coll);
-    // handle case of invalid collection name
-    if (collSnap.empty) {
-        console.log(`Collection '${coll}' does not exist.`);
-        return -1;
-    }
-    // handle case of collection passed that the function can't handle
-    if (!collectionIsValid(coll)) {
-        console.log(`Invalid collection: please use 'projects', 'users', or 'technologies'.`);
-        return -1;
-    }
+    // handle case of invalid collection
+    if (!collectionIsValid(coll)) return -1;
     // handle case of valid collection name
-    else {
-        // process collection snapshot and return array of objects to user
-        return buildObjects(coll, collSnap);
-    }
+    // process collection snapshot and return array of objects to user
+    return buildObjects(coll, collSnap);
+}
+
+const readDocsByCriteria = async (coll, field, criteria) => {
+        /*
+    DESCRIPTION:    retrieves documents from specified collection, subject to
+                    specified criteria. E.g.,
+                    readDocsByCriteria('applications', 'owner_id', 'myId')
+                    translates to get all applications where owner_id field
+                    equals 'myId'
+
+    INPUT:          coll (string): collection to get document IDs from
+
+                    field (string): field to compare criteria against
+    
+                    criteria (value): value to compare against field for
+                    equality
+
+    RETURN:         array of objects
+    */
+    // get query snapshot
+    const querySnap = await getCollectionSnapshotByCriteria(coll, field, '==', criteria);
+    // handle case of invalid collection
+    if (!collectionIsValid(coll)) return -1;
+    // handle case of valid collection, build array of IDs from query snapshot
+    return buildObjects(coll, querySnap);
 }
 
 const readDocIdsByCriteria = async (coll, field, criteria) => {
@@ -471,7 +486,7 @@ const buildObject = (coll, doc) => {
                     doc (documnent): document from collectionSnapshot's docs
                     property
 
-    RETURN:         Project, User, or Technology object
+    RETURN:         Project, User, Technology, or Application object
     */
     // handle case of 'projects' collection
     if (coll === 'projects') {
@@ -481,23 +496,33 @@ const buildObject = (coll, doc) => {
     else if (coll === 'users') {
         return User.fromDocSnapshot(doc.id, doc);
     }
-    // handle case of 'technologies collection
+    // handle case of 'technologies' collection
     else if (coll === 'technologies') {
         return Technology.fromDocSnapshot(doc.id, doc);
+    }
+    // handle case of 'applications' collection
+    else if (coll === 'applications') {
+        return Application.fromDocSnapshot(doc.id, doc);
     }
 }
 
 const collectionIsValid = async (coll) => {
     /*
     DESCRIPTION:    determines whether coll is either 'projects', 'users', or
-                    'technologies'
+                    'technologies', or 'applications'
 
     INPUT:          coll (string): collection to get documents from
 
     RETURN:         boolean indication of whether collection argument passed
                     is valid
     */
-    return coll === 'projects' || coll === 'users' || coll === 'technologies';
+    const colls = ['projects', 'users', 'technologies', 'appliactions'];
+    if (!colls.includes(coll)) {
+        console.log(`Invalid collection: please use 'projects', 'users', 'technologies', or 'applications'`);
+        return false;
+    }
+    // all tests passed, return true to indicate valid collection
+    return true;
 }
 
 const readQuerySnapshotById = async (coll, field, id) => {
@@ -734,6 +759,7 @@ export {
     readAllDocs,
     readApplicationByApplicationId,
     readDocIdsByCriteria,
+    readDocsByCriteria,
     // UPDATE
     updateDoc,
     // DELETE
