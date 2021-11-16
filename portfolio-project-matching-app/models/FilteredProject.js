@@ -21,9 +21,9 @@ class FilteredProject {
         RETURN:         FilteredProject object with project property set and
                         technology filter added to buttonFilters array property
         */
-        // instantiate new Project object
+        // instantiate new FilteredProject object
         const filteredProject = new FilteredProject();
-        // set fields/properties based on provided id and snapshot
+        // set fields/properties based on provided object and filter
         filteredProject.project = project;
         filteredProject.buttonFilters = [technology];
         filteredProject.searchFiltered = false;
