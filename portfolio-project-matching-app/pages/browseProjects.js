@@ -181,7 +181,7 @@ const browseProjects = () => {
                     {visibleProjects.map((project) => {
                         return (
                             <div key={project.id} className='p-2'>
-                                <ProjectCard project={project} />
+                                <ProjectCard initialProject={project} />
                             </div>
                         )
                     })}

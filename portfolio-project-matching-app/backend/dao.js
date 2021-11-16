@@ -454,6 +454,25 @@ const readApplicationByApplicationId = async (id) => {
     }
 }
 
+const readAssociationById = async (coll, id) => {
+    /*
+    DESCRIPTION:    retrieves association document by ID. Note, a simple
+                    document snapshot is returned, not an object
+
+    INPUT:          coll (string): collection to get document from
+    
+                    id (string) : document ID of desired association
+
+    RETURN:         Firebase document snapshot
+    */
+    // get snapshot
+    const docSnap = await getDocSnapshotById(coll, id);
+    // handle case where docSnap does not exist
+    if (!docSnap.exists()) return -1;
+    // handle case where docSnap exists
+    return docSnap;
+}
+
 // helpers, don't export
 
 const buildObjects = (coll, collSnap) => {
@@ -758,6 +777,7 @@ export {
     getUsersByProjectId,
     readAllDocs,
     readApplicationByApplicationId,
+    readAssociationById,
     readDocIdsByCriteria,
     readDocsByCriteria,
     // UPDATE
