@@ -5,9 +5,13 @@
 }
 
 .btnGeneral {
-    @apply btn border-gray-600 text-gray-600 hover:text-gray-900 hover:border-gray-900 hover:bg-gray-100 focus:ring-gray-900 focus:bg-gray-200;
+    @apply btn bg-white border-custom-cool-dark text-custom-cool-dark hover:shadow hover:text-white hover:border-custom-cool-light hover:bg-custom-cool-dark hover:underline focus:ring-custom-cool-dark focus:bg-custom-cool-dark focus:text-white;
+}
+
+.btnPurple {
+    @apply btn bg-gray-100 border-custom-cool-extraDark text-custom-cool-extraDark hover:shadow hover:text-purple-500 hover:border-purple-500 hover:bg-white focus:ring-gray-900 focus:bg-gray-200;
 }
 
 .btnWarning {
-    @apply btn border-red-600 text-red-600 hover:text-red-900 hover:border-red-900 hover:bg-red-100 focus:ring-red-900 focus:bg-red-100;
+    @apply btn bg-gray-100 border-red-600 text-red-600 hover:text-red-900 hover:border-red-900 hover:bg-red-100 focus:ring-red-900 focus:bg-red-100;
 }

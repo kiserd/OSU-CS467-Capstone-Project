@@ -192,15 +192,15 @@ const getAllProjects = async () => {
     const collectionSnap = await getCollectionSnapshot('projects');
 
     // loop through documents in the snapshot, adding Project objects to array
-    const projects = [];
-    for (const doc of collectionSnap.docs) {
-        const project = Project.fromDocSnapshot(doc.id, doc);
-        // populate owner, users, and technologies fields
-        project.owner = await getOwnerByUserId(project.ownerId);
-        project.users = await getUsersByProjectId(project.id);
-        project.technologies = await getTechnologiesByProjectId(project.id);
-        projects.push(project);
-    }
+    const projects = collectionSnap.docs.map(doc => Project.fromDocSnapshot(doc.id, doc));
+    await Promise.all(projects.map(async (project) => {
+        [project.owner, project.users, project.technologies] = await Promise.all([
+            getOwnerByUserId(project.ownerId),
+            getUsersByProjectId(project.id),
+            getTechnologiesByProjectId(project.id)
+        ]);
+        return project;
+    }));
     return projects;
 }
 
@@ -219,16 +219,42 @@ const getProjectById = async (projectId) => {
     */
     // get project doc snapshot and use to initialize project object
     const projectSnap = await getDocSnapshotById('projects', projectId);
+
+    // handle case where projectId is invalid
+    if (!projectSnap.exists()) {
+        console.log(`invalid projectId: '${projectId}' does not exist`);
+        return -1;
+    }
+    // handle case where projectId is valid
+    else {
+        const project = Project.fromDocSnapshot(projectSnap.id, projectSnap);
+
+        // populate technologies, users, and owner association fields
+        [project.owner, project.users, project.technologies] = await Promise.all([
+            getOwnerByUserId(project.ownerId),
+            getUsersByProjectId(project.id),
+            getTechnologiesByProjectId(project.id)
+        ]);
+        return project;
+    }
+}
+
+const getShallowProjectById = async (projectId) => {
+    /*
+    DESCRIPTION:    retrieves project data for specified project document ID.
+                    The owner, users, and technologies will be null
+
+    INPUT:          desired project document ID in string format
+
+    RETURN:         project object containing data associated with project
+                    document ID passed as argument
+    */
+    // get project doc snapshot and use to initialize project object
+    const projectSnap = await getDocSnapshotById('projects', projectId);
     
     // handle case where projectId is valid
     if (projectSnap.exists()){
         const project = Project.fromDocSnapshot(projectSnap.id, projectSnap);
-
-        // populate technologies, users, and owner association fields
-        project.owner = await getOwnerByUserId(project.ownerId);
-        project.users = await getUsersByProjectId(project.id);
-        project.technologies = await getTechnologiesByProjectId(project.id);
-
         return project;
     }
     // handle case where projectId is invalid
@@ -470,6 +496,7 @@ export {
     getAllProjects,
     getOwnerByUserId,
     getProjectById,
+    getShallowProjectById,
     getTechnologiesByProjectId,
     getUsersByProjectId,
     // UPDATE

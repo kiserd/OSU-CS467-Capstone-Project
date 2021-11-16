@@ -19,12 +19,15 @@ module.exports = {
         'custom-warm-light': '#ca6702',
         'custom-warm-med': '#bb3e03',
         'custom-warm-dark': '#ae2012',
-        'custom-warm-darkExtra': '#9b2226'
+        'custom-warm-extraDark': '#9b2226'
       }
     },
   },
   variants: {
     extend: {},
   },
-  plugins: [],
+  plugins: [
+    // helps with ProjectCard truncation on different screen sizes
+    require('@tailwindcss/line-clamp'),
+  ],
 }

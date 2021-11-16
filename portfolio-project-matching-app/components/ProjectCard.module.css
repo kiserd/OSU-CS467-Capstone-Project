@@ -1,0 +1,3 @@
+.project {
+    @apply shadow-2xl bg-white p-2 w-full h-full border-2 border-custom-cool-extraDark rounded-md;
+}

@@ -10,6 +10,11 @@ import {
     deleteDocById,
 
 } from '../Firebase/clientApp.ts'
+import {
+    getOwnerByUserId,
+    getTechnologiesByProjectId,
+    getUsersByProjectId,
+} from '../backend/daoProject'
 import { User } from '../models/User'
 import { Project } from '../models/Project'
 import { Technology } from '../models/Technology'
@@ -119,16 +124,17 @@ const getAllUsers = async () => {
     // get snapshot of users collection
     const collectionSnap = await getCollectionSnapshot('users');
 
-    // loop through documents in the snapshot, adding User objects to array
-    const users = [];
-    for (const doc of collectionSnap.docs) {
-        // create User object to add to array
-        const user = User.fromDocSnapshot(doc.id, doc);
-        // populate technologies and projects associations in User object
-        user.technologies = await getTechnologiesByUserId(user.id);
-        user.projects = await getProjectsByUserId(user.id);
-        users.push(user);
-    }
+    // use collection snapshot to build "base" array of User objects
+    const users = collectionSnap.docs.map(doc => User.fromDocSnapshot(doc.id, doc));
+    // loop through User object array and add associations
+    await Promise.all(users.map(async (user) => {
+        [user.technologies, user.projects] = await Promise.all([
+            getTechnologiesByUserId(user.id),
+            getProjectsByUserId(user.id),
+        ]);
+        return user;
+    }));
+    // return to calling function
     return users;
 }
 
@@ -152,15 +158,40 @@ const getUserById = async (userId) => {
     if (!userSnap.exists()) {
         console.log(`invalid id: '${userId}' does not exist in 'users'`);
         return -1;
+    }
+    // handle case where user exists
+    else {
+        // build "base" User object
+        const user = User.fromDocSnapshot(userSnap.id, userSnap);
+        // get associated projects to populate user object's projects
+        [user.projects, user.technologies] = await Promise.all([
+            getProjectsByUserId(user.id),
+            getTechnologiesByUserId(user.id)
+        ]);
+        // return to calling function
+        return user;
+    }
+}
+
+const getShallowUserById = async (userId) => {
+    /*
+    DESCRIPTION:    retrieves user data for specified user document ID.
+                    projects and technologies will remain null
+
+    INPUT:          desired user document ID in string format
+
+    RETURN:         user object containing data associated with user
+                    document ID passed as argument
+    */
+    // get user doc snapshot and use to initialize user object
+    const userSnap = await getDocSnapshotById('users', userId);
+
+    // handle case where user does not exist
+    if (!userSnap.exists()) {
+        console.log(`invalid id: '${userId}' does not exist in 'users'`);
+        return -1;
     }else{
         const user = User.fromDocSnapshot(userSnap.id, userSnap);
-
-        // get associated projects to populate user object's projects
-        user.projects = await getProjectsByUserId(user.id);
-    
-        // get associated technologies to populate user object's technologies
-        user.technologies = await getTechnologiesByUserId(user.id);
-    
         return user;
     }
 }
@@ -184,6 +215,44 @@ const getProjectsByUserId = async (userId) => {
         projects.push(project);
     }
     return projects;
+}
+
+const getDeepProjectsByUserId = async (userId) => {
+    /*
+    DESCRIPTION:    retrieves projects associated with specified user ID
+
+    INPUT:          desired user document ID in string format
+
+    RETURN:         array of Project objects associated with user along with
+                    association arrays populated (users/technologies)
+    */
+    // get filtered collection snapshot
+    const projectsUsersSnap = await getCollectionSnapshotByCriteria('projects_users', 'user_id', '==', userId);
+    // get user snapshot for error handling
+    const userSnap = await getDocSnapshotById('users', userId);
+    // handle case where userId is invalid
+    if (!userSnap.exists()) {
+        console.log(`userId '${userId}' does not exist in 'users' collection`);
+        return -1;
+    }
+    // handle case where userId is valid
+    else {
+        // loop through associated documents, adding Project objects to array
+        const projects = [];
+        for (const doc of projectsUsersSnap.docs) {
+            const projectRef = await getDocSnapshotById('projects', doc.data().project_id);
+            const project = Project.fromDocSnapshot(projectRef.id, projectRef);
+            // populate owner, users, and technologies fields
+            [project.owner, project.users, project.technologies] = await Promise.all([
+            getOwnerByUserId(project.ownerId),
+            getUsersByProjectId(project.id),
+            getTechnologiesByProjectId(project.id)
+            ]);
+            // push to staging array
+            projects.push(project);
+        }
+        return projects;
+    }
 }
 
 const getTechnologiesByUserId = async (userId) => {
@@ -243,7 +312,9 @@ export {
     createNewUsersTechnologiesDoc,
     // READ
     getAllUsers,
+    getDeepProjectsByUserId,
     getProjectsByUserId,
+    getShallowUserById,
     getTechnologiesByUserId,
     getUserById,
     // DELETE
