@@ -1,7 +1,11 @@
 // library
 import { useState, useEffect } from 'react'
 // backend
-import { updateDoc, createAssociation, readObjectById } from '../backend/dao'
+import {
+    updateDoc,
+    createAssociation,
+    readObjectById,
+} from '../backend/dao'
 // component
 import Button from '../components/Button'
 import UserIcon from '../components/UserIcon'
