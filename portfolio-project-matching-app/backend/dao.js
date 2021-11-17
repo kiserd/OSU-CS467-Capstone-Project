@@ -102,40 +102,6 @@ const createDocWithId = async (coll, payload, id) => {
     }
 }
 
-const createApplication = async (projectId, userId) => {
-    /*
-    DESCRIPTION:    creates new application to a project
-
-    INPUT:          userId (string): document ID for user applying to project
-
-                    projectId (string): document ID for project being applied
-                    to
-
-    RETURN:         new application document snapshot
-    */
-    // utilize helper function in validating inputs
-    const inputIsValid = await createApplicationInputIsValid(projectId, userId);
-    // handle case of invalid inputs
-    if (!inputIsValid) return -1;
-    // handle case inputs are valid 
-    else {
-        // get project document snapshot for ownerId
-        const projectSnap = await getDocSnapshotById('projects', projectId);
-        // build application payload to send to Firebase
-        const payload = {
-            project_id: projectId,
-            user_id: userId,
-            owner_id: projectSnap.data().ownerId,
-            open: true,
-            response: 'pending'
-
-        };
-        const newDocSnap = await addNewDocWithId('applications', `${projectId}_${userId}`, payload);
-        console.log(`Created 'applications' document with id: ${newDocSnap.id}`);
-        return newDocSnap;
-    }
-}
-
 const createAssociation = async (coll, id1, id2) => {
     /*
     DESCRIPTION:    creates new association document for provided collection.
@@ -221,49 +187,6 @@ const createNewLike = async (projectId, userId) => {
 
 // helpers, don't export
 
-const createApplicationInputIsValid = async (projectId, userId) => {
-    /*
-    DESCRIPTION:    determines whether userId and projectId are valid inputs
-                    for creating an application
-
-    INPUT:          projectId (string): document ID for project being applied
-                    to
-
-                    userId (string): document ID for user applying to project
-
-    RETURN:         boolean indication as to whether the inputs are valid
-    */
-    // get document snapshots for error handling
-    const [userSnap, projectSnap, applicationSnap, projectsUsersSnap] = await Promise.all([
-        getDocSnapshotById('projects', projectId),
-        getDocSnapshotById('users', userId),
-        getDocSnapshotById('applications', `${projectId}_${userId}`),
-        getDocSnapshotById('projects_users', `${projectId}_${userId}`)
-    ]);
-    // handle case where project does not exist
-    if (!projectSnap.exists()) {
-        console.log(`Invalid 'projects' id: '${projectId}' does not exist`);
-        return false;
-    }
-    // handle case where user does not exists
-    else if (!userSnap.exists()) {
-        console.log(`Invalid 'users' id: '${userId}' does not exist`);
-        return false;
-    }
-    // handle case where user is already added to project
-    else if (projectsUsersSnap.exists()) {
-        console.log(`Invalid userId projectId combination: user id '${userId}' is already added to project id '${projectId}'`);
-        return false;
-    }
-    // handle case where user already has applied to project
-    else if (applicationSnap.exists()) {
-        console.log(`Invalid userId projectId combination: user id '${userId}' has already applied to project id '${projectId}'`);
-        return false;
-    }
-    // all tests passed return true
-    return true;
-}
-
 const getPayload = async (coll, id1, id2) => {
     /*
     DESCRIPTION:    builds association document payload based on coll input
@@ -339,6 +262,14 @@ const createAssociationInputIsValid = async (coll, id1, coll1, id2, coll2) => {
     else if (coll === 'projects_users' && !id1Snap.data().open) {
         console.log(`Invalid '${coll1}' id: ${id1} is at capacity`);
         return false;
+    }
+    // handle case of applications where user is already added to project
+    else if (coll === 'applications') {
+        const projectsUsersSnap = getDocSnapshotById('projects_users', `${id1}_${id2}`);
+        if (projectsUsersSnap.exists()) {
+            console.log(`Invalid 'id combination: user is already added to project'`);
+            return false;
+        }
     }
     // handle case where id2 does not exist in coll2
     else if (!id2Snap.exists()) {
@@ -1049,7 +980,6 @@ const decrementLikesByProjectId = async (id) => {
 
 export {
     // CREATE
-    createApplication,
     createAssociation,
     createDoc,
     createDocWithId,
