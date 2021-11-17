@@ -748,13 +748,13 @@ const deleteDoc = async (coll, id) => {
     }
 }
 
-const deleteAssociation = async (coll, id1, id2) => {
+const deleteAssociationByIds = async (coll, id1, id2) => {
     /*
     DESCRIPTION:    deletes association document for provided collection. Also,
                     updates project document if removing user from project
 
-    INPUT:          coll (string): name of Firebase collection where the
-                    document being updated is located
+    INPUT:          coll (string): name of Firebase ASSOCIATION collection
+                    where document is stored
 
                     id1 (string): document ID from first table being associated
 
@@ -763,63 +763,52 @@ const deleteAssociation = async (coll, id1, id2) => {
 
     RETURN:         NA
     */
-    // parse association collection name to get individual collection names
-    const [coll1, coll2] = coll.split('_');
-    // get document snapshots for invalid input handling
-    const [id1Snap, id2Snap, collSnap] = await Promise.all([
-        getDocSnapshotById(coll1, id1),
-        getDocSnapshotById(coll2, id2),
-        getDocSnapshotById(coll, `${id1}_${id2}`)
-    ]);
-    // handle case where coll does not exist in database
-    if (collSnap.empty) {
-        console.log(`Collection '${coll}' does not exist`);
-        return -1;
-    }
-    // handle case where id1 does not exist in coll1
-    else if (!id1Snap.exists()) {
-        console.log(`Invalid '${coll1}' id: '${id1}' does not exist`);
-        return -1;
-    }
-    // handle case of projects_users where id2 is the project owner
-    else if (coll === 'projects_users' && !id1Snap.data().owner === id2) {
-        console.log(`Invalid '${coll2}' id: ${id2} is the project owner`);
-        return -1;
-    }
-    // handle case where id2 does not exist in coll2
-    else if (!id2Snap.exists()) {
-        console.log(`Invalid '${coll2}' id: '${id2}' does not exist`);
-        return -1;
-    }
-    // handle case where id1_id2 does not exist in coll
-    else if (!collSnap.exists()) {
-        console.log(`Invalid id1 id2 combo: '${id1}_${id2}' does not exist in '${coll}'`);
-        return -1;
-    }
+    // user helper object in obtaining associated collection names
+    const coll1 = deleteAssociationHelper[coll].coll1;
+    const coll2 = deleteAssociationHelper[coll].coll2;
+    // handle case where input is invalid
+    const inputIsValid = await deleteAssociationInputIsValid(coll, coll1, id1, coll2, id2);
+    if (!inputIsValid) return -1;
     // handle case inputs are valid 
-    else {
-        // delete association document from Firebase
-        const ref = await deleteDocById(coll, `${id1}_${id2}`);
-        console.log(`Deleted '${coll}' document with id: ${ref.id}`);
-        // handle case of projects_users
-        if (coll === 'projects_users') {
-            // create update payload for decremented census
-            const payload = {
-                census: id1Snap.data().census - 1,
-            }
-            // handle case where project needs opened
-            const payloadNeedsUpdated = id1Snap.data().census === id1Snap.data().capacity;
-            if (payloadNeedsUpdated){
-                payload.open = true;
-            }
-            const collSnapNew = await updateDoc(coll1, id1, payload);
-            console.log(`Updated '${coll1}' document id '${id1}' census to ${collSnapNew.data().census}`);
-            if (payloadNeedsUpdated) {
-                console.log(`Opened '${coll1}' document id '${id1}'`);
-            }
-        }
-        return ref;
-    }
+    // delete association document from Firebase
+    const ref = await deleteDocById(coll, `${id1}_${id2}`);
+    console.log(`Deleted '${coll}' document with id: ${ref.id}`);
+    // handle case of projects_users, decrement project census and (maybe) close
+    if (coll === 'projects_users') await decrementCensusByProjectId(id1);
+    // handle case of likes, decrement project likes
+    if (coll === 'likes') await decrementLikesByProjectId(id1);
+    return ref;
+}
+
+const deleteAssociationById = async (coll, id) => {
+    /*
+    DESCRIPTION:    deletes association document for provided collection. Also,
+                    updates project document if removing user from project
+
+    INPUT:          coll (string): name of Firebase ASSOCIATION collection
+                    where document is stored
+
+                    id (string): document ID of association document to delete
+
+    RETURN:         NA
+    */
+    // user helper object in obtaining associated collection names
+    const coll1 = deleteAssociationHelper[coll].coll1;
+    const coll2 = deleteAssociationHelper[coll].coll2;
+    // parse association ID for individual IDs
+    const [id1, id2] = id.split('_');
+    // handle case where input is invalid
+    const inputIsValid = await deleteAssociationInputIsValid(coll, coll1, id1, coll2, id2);
+    if (!inputIsValid) return -1;
+    // handle case inputs are valid 
+    // delete association document from Firebase
+    const ref = await deleteDocById(coll, `${id1}_${id2}`);
+    console.log(`Deleted '${coll}' document with id: ${ref.id}`);
+    // handle case of projects_users, decrement project census and (maybe) close
+    if (coll === 'projects_users') await decrementCensusByProjectId(id1);
+    // handle case of likes, decrement project likes
+    if (coll === 'likes') await decrementLikesByProjectId(id1);
+    return ref;
 }
 
 const deleteDocAndAssociations = async (coll, id) => {
@@ -852,8 +841,7 @@ const deleteDocAndAssociations = async (coll, id) => {
             }
         }
         // delete main doc
-        const docRef = await deleteDocById(coll, id);
-        console.log(`Deleted ${coll} document with id: '${docRef.id}'`);
+        const docRef = await deleteAssociationById(coll, id);
         return docRef;
     }
 }
@@ -908,17 +896,119 @@ const deleteLike = async (projectId, userId) => {
 
 // helpers, don't export
 
+const deleteAssociationHelper = {
+    'projects_users': {coll1: 'projects', coll2: 'users', field1: 'project_id', field2: 'user_id'},
+    'projects_technologies': {coll1: 'projects', coll2: 'technologies', field1: 'project_id', field2: 'technology_id'},
+    'users_technologies': {coll1: 'users', coll2: 'technologies', field1: 'user_id', field2: 'technology_id'},
+    'applications': {coll1: 'projects', coll2: 'users', field1: 'project_id', field2: 'user_id'},
+    'likes': {coll1: 'projects', coll2: 'users', field1: 'project_id', field2: 'user_id'},
+};
+
 const deleteAssociationsHelper = {
     'projects': [
         {coll: 'projects_users', field: 'project_id'},
-        {coll: 'projects_technologies', field: 'project_id'}
+        {coll: 'projects_technologies', field: 'project_id'},
+        {coll: 'likes', field: 'project_id'},
+        {coll: 'applications', field: 'project_id'}
     ],
     'users': [
         {coll: 'projects_users', field: 'user_id'},
-        {coll: 'projects_technologies', field: 'user_id'}
+        {coll: 'projects_technologies', field: 'user_id'},
+        {coll: 'likes', field: 'user_id'},
+        {coll: 'applications', field: 'user_id'}
     ],
-    'technologies': []
 };
+
+const deleteAssociationInputIsValid = async (coll, coll1, id1, coll2, id2) => {
+    /*
+    DESCRIPTION:    determines whether inputs represent a valid association
+                    document to be deleted
+
+    INPUT:          
+
+    RETURN:         boolean indication as to whether input is valid for
+                    deleting an association document      
+    */
+    // get document snapshots for invalid input handling
+    const [id1Snap, id2Snap, collSnap] = await Promise.all([
+        getDocSnapshotById(coll1, id1),
+        getDocSnapshotById(coll2, id2),
+        getDocSnapshotById(coll, `${id1}_${id2}`)
+    ]);
+    // handle case where coll does not exist in database
+    if (collSnap.empty) {
+        console.log(`Collection '${coll}' does not exist`);
+        return false;
+    }
+    // handle case where id1 does not exist in coll1
+    else if (!id1Snap.exists()) {
+        console.log(`Invalid '${coll1}' id: '${id1}' does not exist`);
+        return false;
+    }
+    // handle case of projects_users where id2 is the project owner
+    else if (coll === 'projects_users' && !id1Snap.data().owner === id2) {
+        console.log(`Invalid '${coll2}' id: ${id2} is the project owner`);
+        return false;
+    }
+    // handle case where id2 does not exist in coll2
+    else if (!id2Snap.exists()) {
+        console.log(`Invalid '${coll2}' id: '${id2}' does not exist`);
+        return false;
+    }
+    // handle case where id1_id2 does not exist in coll
+    else if (!collSnap.exists()) {
+        console.log(`Invalid id1 id2 combo: '${id1}_${id2}' does not exist in '${coll}'`);
+        return false;
+    }
+    // all tests passed, return true
+    return true;
+}
+
+const decrementCensusByProjectId = async (id) => {
+    /*
+    DESCRIPTION:    decrements project census and potentially clears the open
+                    flag 
+
+    INPUT:          id (string): id of project to decrement census and
+                    potentially clear open flag for         
+
+    RETURN:         NA
+    */
+    // get project document snapshot for current census
+    const projectSnap = await getDocSnapshotById('projects', id);
+    // create update payload for decremented census
+    const payload = {
+        census: projectSnap.data().census - 1,
+    }
+    // handle case where project needs opened
+    const openNeedsUpdated = projectSnap.data().census === projectSnap.data().capacity;
+    if (openNeedsUpdated){
+        payload.open = true;
+    }
+    const collSnapNew = await updateDoc('projects', id, payload);
+    console.log(`Updated 'projects' document id '${id}' census to ${collSnapNew.data().census}`);
+    if (openNeedsUpdated) {
+        console.log(`Opened 'projects' document id '${id}'`);
+    } 
+}
+
+const decrementLikesByProjectId = async (id) => {
+    /*
+    DESCRIPTION:    decrements project likes
+
+    INPUT:          id (string): id of project to decrement likes for
+
+    RETURN:         NA
+    */
+    // get project document snapshot for current census
+    const projectSnap = await getDocSnapshotById('projects', id);
+    // create update payload for decremented census
+    const payload = {
+        likes: projectSnap.data().likes - 1,
+    }
+    const collSnapNew = await updateDoc('projects', id, payload);
+    console.log(`Updated 'projects' document id '${id}' likes to ${collSnapNew.data().likes}`);
+}
 
 export {
     // CREATE
@@ -937,7 +1027,8 @@ export {
     // UPDATE
     updateDoc,
     // DELETE
-    deleteAssociation,
+    deleteAssociationById,
+    deleteAssociationByIds,
     deleteDoc,
     deleteDocAndAssociations,
     deleteLike,
