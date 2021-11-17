@@ -1,7 +1,7 @@
 // library
 import { useState, useEffect } from 'react'
 // backend
-import { getDeepProjectsByUserId, readAssociationsByType } from '../backend/dao.js'
+import { getDeepProjectsByUserId, readAssociationObjectsByType } from '../backend/dao.js'
 // component
 import ProjectCard from '../components/ProjectCard'
 // context
@@ -24,7 +24,7 @@ const myProjects = () => {
         // handle case where user is logged in
         else {
             // get projects and set state if component mounted
-            readAssociationsByType('projects_users', 'user_id', authUser.user.id, 'projects', 'project_id', true).then((projects) => {
+            readAssociationObjectsByType('projects_users', 'user_id', authUser.user.id, 'projects', 'project_id', true).then((projects) => {
                 if (isMounted) setProjects(projects)
             })
         }

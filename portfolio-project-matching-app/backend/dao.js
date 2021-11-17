@@ -493,6 +493,43 @@ const readAllDocs = async (coll) => {
     });
 }
 
+const readAssociationObjectsByType = async (assocColl, assocField, assocId, coll, field, deep = false) => {
+    /*
+    DESCRIPTION:    returns an array of associations based on arguments passed.
+                    Note, this function is not for the feint of heart :P
+
+    INPUT:          assocColl (string): association collection that stores
+                    the relationship
+
+                    assocField (string): field pertaining to the document you
+                    want to get associations for. E.g., if the user wants
+                    projects by user => assocField = user_id
+
+                    assocId (string): document ID of the document user desires
+                    associations for
+
+                    coll (string): collection where the associations live.
+                    If the user wants projects by user => coll = 'projects'
+
+                    field (string): field in assocColl pertaining to the
+                    document ID of the associations
+
+    RETURN:         array of objects
+    */   
+    // get query snapshot from association collection
+    const querySnap = await getCollectionSnapshotByCriteria(assocColl, assocField, '==', assocId);
+    // get document snapshots from original collection
+    const docSnaps = await Promise.all(querySnap.docs.map((doc) => {
+        return getDocSnapshotById(coll, doc.data()[field]);
+    }));
+    // build objects from document snapshots
+    const objects = await Promise.all(docSnaps.map((doc) => {
+        return buildObject(coll, doc, deep);
+    }));
+    // return objects to calling function
+    return objects
+}
+
 // helpers, don't export
 
 const buildObjects = async (coll, collSnap, deep = false) => {
@@ -617,18 +654,18 @@ const populateAssociations = async (coll, object) => {
     if (coll === 'projects') {
         [object.owner, object.users, object.technologies] = await Promise.all([
             readObjectById('users', object.ownerId, false), // cyclical call, be careful with this
-            readAssociationsByType('projects_users', 'project_id', object.id, 'users', 'user_id'),
+            readAssociationObjectsByType('projects_users', 'project_id', object.id, 'users', 'user_id', false),
             // getUsersByProjectId(object.id),
-            readAssociationsByType('projects_technologies', 'project_id', object.id, 'technologies', 'technology_id')
+            readAssociationObjectsByType('projects_technologies', 'project_id', object.id, 'technologies', 'technology_id', false)
             // getTechnologiesByProjectId(object.id)
         ]);
     }
     // handle User object
     else if (coll === 'users') {
         [object.technologies, object.projects] = await Promise.all([
-            readAssociationsByType('users_technologies', 'user_id', object.id, 'technologgies', 'technology_id'),
+            readAssociationObjectsByType('users_technologies', 'user_id', object.id, 'technologgies', 'technology_id', false),
             // getTechnologiesByUserId(object.id),
-            readAssociationsByType('projects_users', 'user_id', object.id, 'projects', 'project_id')
+            readAssociationObjectsByType('projects_users', 'user_id', object.id, 'projects', 'project_id', false)
             // getProjectsByUserId(object.id),
         ]);
     }
@@ -642,43 +679,6 @@ const populateAssociations = async (coll, object) => {
             readObjectById('users', object.ownerId, false)
         ]);
     }
-}
-
-const readAssociationsByType = async (assocColl, assocField, assocId, coll, field, deep = false) => {
-    /*
-    DESCRIPTION:    returns an array of associations based on arguments passed.
-                    Note, this function is not for the feint of heart :P
-
-    INPUT:          assocColl (string): association collection that stores
-                    the relationship
-
-                    assocField (string): field pertaining to the document you
-                    want to get associations for. E.g., if the user wants
-                    projects by user => assocField = user_id
-
-                    assocId (string): document ID of the document user desires
-                    associations for
-
-                    coll (string): collection where the associations live.
-                    If the user wants projects by user => coll = 'projects'
-
-                    field (string): field in assocColl pertaining to the
-                    document ID of the associations
-
-    RETURN:         array of objects
-    */   
-    // get query snapshot from association collection
-    const querySnap = await getCollectionSnapshotByCriteria(assocColl, assocField, '==', assocId);
-    // get document snapshots from original collection
-    const docSnaps = await Promise.all(querySnap.docs.map((doc) => {
-        return getDocSnapshotById(coll, doc.data()[field]);
-    }));
-    // build objects from document snapshots
-    const objects = await Promise.all(docSnaps.map((doc) => {
-        return buildObject(coll, doc, deep);
-    }));
-    // return objects to calling function
-    return objects
 }
 
 /*
@@ -942,7 +942,7 @@ export {
     // getUsersByProjectId,
     readAllDocs,
     readAllObjects,
-    readAssociationsByType,
+    readAssociationObjectsByType,
     readDocIdsByCriteria,
     readObjectsByCriteria,
     readObjectById,
