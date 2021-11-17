@@ -151,25 +151,23 @@ const createAssociation = async (coll, id1, id2) => {
 
     RETURN:         new coll document snapshot
     */
-    // parse association collection name to get individual collection names
-    const [coll1, coll2] = coll.split('_');
+    // user helper object in obtaining associated collection names
+    const coll1 = deleteAssociationHelper[coll].coll1;
+    const coll2 = deleteAssociationHelper[coll].coll2;
     // handle case where coll does not exist in database
-    if (!createAssociationInputIsValid(coll, id1, coll1, id2, coll2)) {
-        return -1;
-    }
+    const inputIsValid = await createAssociationInputIsValid(coll, id1, coll1, id2, coll2);
+    if (!inputIsValid) return -1;
     // handle case inputs are valid 
-    else {
-        // build association document to send to Firebase
-        const payload = getPayload(coll, id1, id2);
-        const newDocSnap = await addNewDocWithId(coll, `${id1}_${id2}`, payload);
-        console.log(`Created '${coll}' document with id: ${newDocSnap.id}`);
-        // handle case of projects_users
-        if (coll === 'projects_users') {
-            // increment project census and close if necessary
-            await incrementProjectCensusAndClose(coll1, id1);
-        }
-        return newDocSnap;
-    }
+    // build association document to send to Firebase
+    const payload = await getPayload(coll, id1, id2);
+    const newDocSnap = await addNewDocWithId(coll, `${id1}_${id2}`, payload);
+    console.log(`Created '${coll}' document with id: ${newDocSnap.id}`);
+    // handle case of projects_users, increment census and maybe close
+    if (coll === 'projects_users') await incrementCensusAndClose(id1);
+    // handle case of likes, incremement project likes
+    if (coll === 'likes') await incrementLikes(id1);
+    // return document snapshot to calling function
+    return newDocSnap;
 }
 
 const createNewLike = async (projectId, userId) => {
@@ -266,7 +264,7 @@ const createApplicationInputIsValid = async (projectId, userId) => {
     return true;
 }
 
-const getPayload = (coll, id1, id2) => {
+const getPayload = async (coll, id1, id2) => {
     /*
     DESCRIPTION:    builds association document payload based on coll input
 
@@ -276,7 +274,7 @@ const getPayload = (coll, id1, id2) => {
     RETURN:         payload object to be inserted into association collection
     */
     // handle case of projects_users
-    if (coll === 'projects_users') {
+    if (coll === 'projects_users' || coll === 'likes') {
         return {project_id: id1, user_id: id2};
     }
     // handle case of projects_technologies
@@ -286,6 +284,20 @@ const getPayload = (coll, id1, id2) => {
     // handle case of users_technologies
     else if (coll === 'users_technologies') {
         return {user_id: id1, technology_id: id2}
+    }
+    // handle case of applications
+    else if (coll === 'applications') {
+        const projectSnap = await getDocSnapshotById('projects', id1);
+        return {
+            project_id: id1,
+            user_id: id2,
+            owner_id: projectSnap.data().ownerId,
+            open: true,
+            response: 'pending'
+        }
+    }
+    else {
+        console.log(`please update 'getPayload()' in dao.js to handle this type of association`);
     }
 }
 
@@ -344,19 +356,16 @@ const createAssociationInputIsValid = async (coll, id1, coll1, id2, coll2) => {
     }
 }
 
-const incrementProjectCensusAndClose = async (coll, id) => {
+const incrementCensusAndClose = async (id) => {
     /*
     DESCRIPTION:    increments project census and closes project if necessary
 
-    INPUT:          coll (string): name of Firebase collection where the
-                    document being updated is located
-
-                    id (string): document ID of project being updated
+    INPUT:          id (string): document ID of project being updated
 
     RETURN:         new coll document snapshot
     */
     // get project snapshot to determine new census and if it needs closed
-    const projectSnap = await getDocSnapshotById(coll, id);
+    const projectSnap = await getDocSnapshotById('projects', id);
     // create update payload for incremented census
     const payload = {
         census: projectSnap.data().census + 1,
@@ -366,13 +375,41 @@ const incrementProjectCensusAndClose = async (coll, id) => {
     if (payloadNeedsUpdated){
         payload.open = false;
     }
-    const projectSnapNew = await updateDoc(coll, id, payload);
-    console.log(`Updated '${coll}' document id '${id}' census to ${projectSnapNew.data().census}`);
+    const projectSnapNew = await updateDoc('projects', id, payload);
+    console.log(`Updated 'projects' document id '${id}' census to ${projectSnapNew.data().census}`);
     if (payloadNeedsUpdated) {
-        console.log(`Closed '${coll}' document id '${id}'`);
+        console.log(`Closed 'projects' document id '${id}'`);
     }
     return projectSnapNew;
 }
+
+const incrementLikes = async (id) => {
+    /*
+    DESCRIPTION:    increments project likes
+
+    INPUT:          id (string): document ID of project being updated
+
+    RETURN:         new coll document snapshot
+    */
+    // get project snapshot to determine new census and if it needs closed
+    const projectSnap = await getDocSnapshotById('projects', id);
+    // create update payload for incremented census
+    const payload = {
+        likes: projectSnap.data().likes + 1,
+    }
+    // update project
+    const projectSnapNew = await updateDoc('projects', id, payload);
+    console.log(`Updated 'projects' document id '${id}' likes to ${projectSnapNew.data().likes}`);
+    return projectSnapNew;
+}
+
+const createAssociationHelper = {
+    'projects_users': {coll1: 'projects', coll2: 'users', field1: 'project_id', field2: 'user_id'},
+    'projects_technologies': {coll1: 'projects', coll2: 'technologies', field1: 'project_id', field2: 'technology_id'},
+    'users_technologies': {coll1: 'users', coll2: 'technologies', field1: 'user_id', field2: 'technology_id'},
+    'applications': {coll1: 'projects', coll2: 'users', field1: 'project_id', field2: 'user_id'},
+    'likes': {coll1: 'projects', coll2: 'users', field1: 'project_id', field2: 'user_id'},
+};
 
 /*
     READ
