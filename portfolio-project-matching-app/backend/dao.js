@@ -621,20 +621,44 @@ const populateAssociations = async (coll, object) => {
     // handle Project object
     if (coll === 'projects') {
         [object.owner, object.users, object.technologies] = await Promise.all([
-            readObjectById('users', object.ownerId, false), // cyclical call, be careful with this
-            readAssociationObjectsByType('projects_users', 'project_id', object.id, 'users', 'user_id', false),
-            // getUsersByProjectId(object.id),
-            readAssociationObjectsByType('projects_technologies', 'project_id', object.id, 'technologies', 'technology_id', false)
-            // getTechnologiesByProjectId(object.id)
+            readObjectById('users', object.ownerId, false),
+            readAssociationObjectsByType(
+                'projects_users',
+                'project_id',
+                object.id,
+                'users',
+                'user_id',
+                false // import to keep deep set to false
+            ),
+            readAssociationObjectsByType(
+                'projects_technologies',
+                'project_id',
+                object.id,
+                'technologies',
+                'technology_id',
+                false // import to keep deep set to false
+            )
         ]);
     }
     // handle User object
     else if (coll === 'users') {
         [object.technologies, object.projects] = await Promise.all([
-            readAssociationObjectsByType('users_technologies', 'user_id', object.id, 'technologgies', 'technology_id', false),
-            // getTechnologiesByUserId(object.id),
-            readAssociationObjectsByType('projects_users', 'user_id', object.id, 'projects', 'project_id', false)
-            // getProjectsByUserId(object.id),
+            readAssociationObjectsByType(
+                'users_technologies',
+                'user_id',
+                object.id,
+                'technologgies',
+                'technology_id',
+                false // import to keep deep set to false
+            ),
+            readAssociationObjectsByType(
+                'projects_users',
+                'user_id',
+                object.id,
+                'projects',
+                'project_id',
+                false // import to keep deep set to false
+            )
         ]);
     }
     // handle Technology object, do nothing
