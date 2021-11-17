@@ -475,6 +475,24 @@ const readDocIdsByCriteria = async (coll, field, criteria) => {
     return querySnap.docs.map(doc => doc.id);
 }
 
+const readAllDocs = async (coll) => {
+    /*
+    DESCRIPTION:    retrieves all Firebase documents for specified collection
+
+    INPUT:          coll (string): collection to get documents from
+
+    RETURN:         array of Firebase documents with ID included
+    */
+    // get collection snapshot
+    const collSnap = await getCollectionSnapshot(coll);
+    // handle case of empty collection snapshot
+    if (collSnap.empty) return [];
+    // handle case of non-empty collection
+    return collSnap.docs.map((doc) => {
+        return {...doc.data(), id: doc.id};
+    });
+}
+
 // helpers, don't export
 
 const buildObjects = async (coll, collSnap, deep = false) => {
@@ -922,6 +940,7 @@ export {
     // getTechnologyById,
     // getUserById,
     // getUsersByProjectId,
+    readAllDocs,
     readAllObjects,
     readAssociationsByType,
     readDocIdsByCriteria,

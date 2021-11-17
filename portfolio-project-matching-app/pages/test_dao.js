@@ -8,6 +8,7 @@ import {
     deleteDoc,
     deleteDocAndAssociations,
     deleteLike,
+    readAllDocs,
     readAssociationsByType,
     readDocIdsByCriteria,
     readAllObjects,
@@ -26,6 +27,10 @@ const test_createProject = () => {
         // const field = 'user_id';
         // const objects = await readAssociationsByType(assocColl, assocField, assocId, coll, field, true);
         // console.log('objects: ', objects);
+
+        const coll = 'dummy';
+        const docs = await readAllDocs(coll);
+        console.log('docs: ', docs);
 
     }
 

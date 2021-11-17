@@ -4,7 +4,7 @@ import { getAuth,
     createUserWithEmailAndPassword,
     signInWithEmailAndPassword,
 } from "firebase/auth";
-import { createNewUserDocWithId, getUserById } from '../backend/daoUser';
+import { readObjectById, createDocWithId } from "../backend/dao";
 
 
 
@@ -23,7 +23,7 @@ const signinWithGoogle = async() => {
         const user = result.user;
         // Check if user has a doc collection in the database
         console.log(`${JSON.stringify(user)}`)
-        let userDoc = await getUserById(user.uid);
+        let userDoc = await readObjectById('users', user.uid, true);
         if (userDoc === -1){
             // If the user is here for the first time, throw an error
             throw({code: "auth/no-user-found"})
@@ -49,16 +49,16 @@ const signupWithGoogle = async() => {
         const user = result.user;
         // Check if user has a doc collection in the database
         console.log(`${JSON.stringify(user)}`)
-        let userDoc = await getUserById(user.uid);
+        let userDoc = await readObjectById('users', user.uid, true);
         if (userDoc === -1){
             // If the user is here for the first time, make them a new user doc
-            await createNewUserDocWithId({
+            await createDocWithId('users', {
                 // Some default values for their username, email, and introduction
                 email: user.email,
                 username: user.email,
                 introduction: `Hi, I'm ${user.displayName}`,
             }, user.uid);
-            userDoc = await getUserById(user.uid);
+            userDoc = await readObjectById('users', user.uid, true);
         } else {
             throw({code: 'auth/email-already-in-use'})
         }
@@ -81,16 +81,17 @@ const signUpWithEmailAndPassword = async(email, password) => {
         let result = await createUserWithEmailAndPassword(auth, email, password);
         const user = result.user;
         // Check if user has a doc collection in the database
-        let userDoc = await getUserById(user.uid);
+        let userDoc = await readObjectById('users', user.uid, true);
         if (userDoc === -1){
             // If the user is here for the first time, make them a new user doc
-            await createNewUserDocWithId({
+            await createDocWithId('users',
+            {
                 // Some default values for their username, email, and introduction
                 email: user.email,
                 username: user.email,
                 introduction: `Hi, I'm anonymous`,
             }, user.uid);
-            userDoc = await getUserById(user.uid);
+            userDoc = await readObjectById('users', user.uid, true);
         }
         return userDoc;
     } catch (error) {
@@ -112,7 +113,7 @@ const signinWithEmailAndPassword = async(email, password) => {
         let result = await signInWithEmailAndPassword(auth, email, password);
         const user = result.user;
         // Check if user has a doc collection in the database
-        let userDoc = await getUserById(user.uid);
+        let userDoc = await readObjectById('users', user.uid, true);
         if (userDoc === -1){
             // If the user is here for the first time throw an error. This is sign in
             throw({error: "no_user_found"})
