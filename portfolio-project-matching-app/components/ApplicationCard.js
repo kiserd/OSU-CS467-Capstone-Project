@@ -1,7 +1,7 @@
 // library
 import { useState, useEffect } from 'react'
 // backend
-import { updateDoc, createAssociation, readApplicationByApplicationId } from '../backend/dao'
+import { updateDoc, createAssociation, readObjectById } from '../backend/dao'
 // component
 import Button from '../components/Button'
 import UserIcon from '../components/UserIcon'
@@ -22,7 +22,7 @@ const ApplicationCard = ({ appId, isOutgoing }) => {
         }
         // update Firebase document and get updated Application object
         await updateDoc('applications', app.id, payload)
-        const updatedApp = await readApplicationByApplicationId(app.id)
+        const updatedApp = await readObjectById('applications', app.id, true)
         // handle case of approved application
         if (response === 'Approved') {
             createAssociation('projects_users', app.project_id, app.user_id)
@@ -34,7 +34,7 @@ const ApplicationCard = ({ appId, isOutgoing }) => {
         // tracks whether component mounted, cleanup will assign false
         let isMounted = true
         // get Application object and set state if component mounted
-        readApplicationByApplicationId(appId).then((app) => {
+        readObjectById('applications', appId, true).then((app) => {
             if (isMounted) setApp(app)
         })
         // cleanup function to assign false to isMounted

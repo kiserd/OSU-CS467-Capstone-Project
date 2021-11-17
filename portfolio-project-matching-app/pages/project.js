@@ -1,6 +1,6 @@
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
-import { getProjectById } from '../backend/dao';
+import { getProjectById, readObjectById } from '../backend/dao';
 import Button from '../components/Button'
 import UserIcon from '../components/UserIcon';
 
@@ -11,7 +11,7 @@ const Project = () => {
 
     useEffect(()=>{
         if(router.query.id){
-            getProjectById(router.query.id)
+            readObjectById('projects', router.query.id, true)
             .then((data)=>{
                 console.log(`${JSON.stringify(data)}`);
                 setProject({...project, ...data});
