@@ -306,17 +306,19 @@ const deleteUserDoc = async (userId) => {
 }
 
 export {
-    // CREATE
-    createNewUserDoc,
-    createNewUserDocWithId,
-    createNewUsersTechnologiesDoc,
-    // READ
-    getAllUsers,
-    getDeepProjectsByUserId,
-    getProjectsByUserId,
-    getShallowUserById,
-    getTechnologiesByUserId,
-    getUserById,
-    // DELETE
-    deleteUserDoc,
+    // // CREATE
+    // createNewUserDoc,
+    // createNewUserDocWithId,
+    // createNewUsersTechnologiesDoc,
+
+    // // READ
+    // getAllUsers,
+    // getDeepProjectsByUserId,
+    // getProjectsByUserId,
+    // getShallowUserById,
+    // getTechnologiesByUserId,
+    // getUserById,
+    
+    // // DELETE
+    // deleteUserDoc,
 }

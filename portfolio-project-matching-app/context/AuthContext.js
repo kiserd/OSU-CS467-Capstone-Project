@@ -1,7 +1,7 @@
 import React, { useContext, useState, useEffect } from 'react';
 import { getAuth, userInfo, onAuthStateChanged } from 'firebase/auth';
 import { firebaseApp } from "../Firebase/clientApp.ts";
-import { getUserById } from '../backend/daoUser';
+import { readObjectById } from '../backend/dao';
 
 
 export const AuthContext = React.createContext();
@@ -28,7 +28,7 @@ export function AuthProvider({ children }) {
         const unlisten = authObject.onAuthStateChanged(
             async (authUser) => {
                 if(authUser){
-                    let user = await getUserById(authUser.uid);
+                    let user = await readObjectById('users', authUser.uid, true);
                     setAuth({user: user})
                 } else {
                     setAuth({user: null});

@@ -7,12 +7,9 @@ import { useState, useEffect } from 'react'
 // backend
 import {
     createAssociation,
-    createApplication,
-    createDocWithId,
-    createNewLike,
-    deleteLike,
-    getProjectById,
-    readAssociationById
+    deleteAssociationByIds,
+    readAssociationById,
+    readObjectById,
 } from '../backend/dao.js'
 // component
 import Button from '../components/Button'
@@ -57,7 +54,7 @@ const ProjectCard = ({ initialProject }) => {
         }
         // handle case where user is logged in
         else {
-            const docSnap = await createApplication(project.id, authUser.user.id)
+            const docSnap = await createAssociation('applications', project.id, authUser.user.id)
             // handle case where user is already added to project
             if (docSnap === -1) {
                 alert(`Error creating application`)
@@ -84,11 +81,11 @@ const ProjectCard = ({ initialProject }) => {
         // handle case where user is logged in
         else {
             // attempt create new like
-            const likeSnap = await createNewLike(`${project.id}`, `${authUser.user.id}`)
+            const likeSnap = await createAssociation('likes', `${project.id}`, `${authUser.user.id}`)
             // handle case of successful createNewLike()
             if (likeSnap !== -1) setHasLiked(true)
             // get updated project and set state
-            const updatedProject = await getProjectById(project.id)
+            const updatedProject = await readObjectById('projects', project.id, true)
             setProject(updatedProject)
         }
     }
@@ -109,11 +106,11 @@ const ProjectCard = ({ initialProject }) => {
         // handle case where user is logged in
         else {
             // attempt to delete like
-            const likeRef = await deleteLike(`${project.id}`, `${authUser.user.id}`)
+            const likeRef = await deleteAssociationByIds('likes', `${project.id}`, `${authUser.user.id}`)
             // handle case of successful deleteLike()
             if (likeRef !== -1) setHasLiked(false)
             // get updated project and set state
-            const updatedProject = await getProjectById(project.id)
+            const updatedProject = await readObjectById('projects', project.id, true)
             setProject(updatedProject)
         }
     }
