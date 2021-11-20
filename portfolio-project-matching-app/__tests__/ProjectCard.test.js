@@ -23,7 +23,7 @@ const project = {
     open: true,
     likes: 42,
     users: [],
-    technologies: [],
+    technologies: [{id: 1, name: 'Javascript'}, {id: 2, name: 'C++'}],
 }
 
 test('Dislike button renders as expected', async () => {

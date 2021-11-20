@@ -5,6 +5,12 @@ import ApplicationCard from '../components/ApplicationCard';
 import { readObjectById } from '../backend/dao';
 import { act } from 'react-dom/test-utils';
 
+// mock functions to control return values
+jest.mock('../backend/dao', () => ({
+    readObjectById: jest.fn()
+}));
+
+// dummy application to pass to ApplicationCard as prop
 const fakeApplication = {
     id: 'id',
     response: "pending",
@@ -17,23 +23,28 @@ const fakeApplication = {
     user: {id: 1, username: "user username"}
 };
 
-jest.mock('../backend/dao', () => ({
-    readObjectById: jest.fn()
-}));
-
-test('ApplicationCard tests', async () => {
+test('Application correctly renders as outgoing', async () => {
+    // trying out giving mocked readObjectById an alias
     readObjectById.mockName('mockedReadApplication');
+    // force readObjectById() to return our fake application
     readObjectById.mockResolvedValue(fakeApplication);
+
+    // ARRANGE: render component
     render(
         <ApplicationCard
         appId={'id'}
         isOutgoing={true}
         />
     );
+    // ASSERT: make sure loading message appears
+    expect(screen.getByText('Loading...')).toBeInTheDocument();
+    // ASSERT: make sure owner username renders rather than user username
     expect(await screen.findByText('owner username')).toBeInTheDocument();
+    // ASSERT: make sure mocked readObjectById() only called once
+    expect(readObjectById).toHaveBeenCalledTimes(1);
+    // making sure alias sticks to readObjectById()
     console.log(readObjectById.getMockName());
+    // testing things out, checking to see what mocked function was called with
     console.log(readObjectById.mock.results);
 
-    // expect(readObjectById).toHaveBeenCalledTimes(1);
-    screen.debug()
 });
