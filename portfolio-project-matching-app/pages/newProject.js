@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react'
 import {
     createAssociation,
     createDoc,
-    getAllTechnologies,
+    readAllObjects,
 } from '../backend/dao'
 // components
 import Input from '../components/Input'
@@ -30,7 +30,7 @@ const newProject = () => {
         // tracks whether component mounted, cleanup will assign false
         let isMounted = true
         // get technologies and set state if component mounted
-        getAllTechnologies().then((technologies) => {
+        readAllObjects('technologies').then((technologies) => {
             // The Select component from react-select expects the 'options' prop to be an object with keys 'value' and 'label'
             technologies = technologies.map((technology) => {
                 return {value: technology, label: technology.name};

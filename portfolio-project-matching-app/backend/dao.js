@@ -1,3 +1,4 @@
+// clientApp (Firebase queries)
 import {
     // CREATE
     addNewDoc,
@@ -14,35 +15,7 @@ import {
     deleteDocById,
 } from '../Firebase/clientApp.ts'
 
-import {
-    // CREATE
-    createNewLike,
-    // READ
-    getAllProjects,
-    getOwnerByUserId,
-    getProjectById,
-    getShallowProjectById,
-    getTechnologiesByProjectId,
-    getUsersByProjectId,
-    // DELETE
-    deleteLike,
-} from '../backend/daoProject'
-
-import {
-    // READ
-    getAllTechnologies,
-    getTechnologyById,
-} from '../backend/daoTechnology'
-
-import {
-    // READ
-    getAllUsers,
-    getDeepProjectsByUserId,
-    getProjectsByUserId,
-    getShallowUserById,
-    getTechnologiesByUserId,
-    getUserById,
-} from '../backend/daoUser'
+// model
 import { Application } from '../models/Application'
 import { Project } from '../models/Project'
 import { User } from '../models/User'
@@ -129,40 +102,6 @@ const createDocWithId = async (coll, payload, id) => {
     }
 }
 
-const createApplication = async (projectId, userId) => {
-    /*
-    DESCRIPTION:    creates new application to a project
-
-    INPUT:          userId (string): document ID for user applying to project
-
-                    projectId (string): document ID for project being applied
-                    to
-
-    RETURN:         new application document snapshot
-    */
-    // utilize helper function in validating inputs
-    const inputIsValid = await createApplicationInputIsValid(projectId, userId);
-    // handle case of invalid inputs
-    if (!inputIsValid) return -1;
-    // handle case inputs are valid 
-    else {
-        // get project document snapshot for ownerId
-        const projectSnap = await getDocSnapshotById('projects', projectId);
-        // build application payload to send to Firebase
-        const payload = {
-            project_id: projectId,
-            user_id: userId,
-            owner_id: projectSnap.data().ownerId,
-            open: true,
-            response: 'pending'
-
-        };
-        const newDocSnap = await addNewDocWithId('applications', `${projectId}_${userId}`, payload);
-        console.log(`Created 'applications' document with id: ${newDocSnap.id}`);
-        return newDocSnap;
-    }
-}
-
 const createAssociation = async (coll, id1, id2) => {
     /*
     DESCRIPTION:    creates new association document for provided collection.
@@ -178,73 +117,77 @@ const createAssociation = async (coll, id1, id2) => {
 
     RETURN:         new coll document snapshot
     */
-    // parse association collection name to get individual collection names
-    const [coll1, coll2] = coll.split('_');
+    // user helper object in obtaining associated collection names
+    const coll1 = deleteAssociationHelper[coll].coll1;
+    const coll2 = deleteAssociationHelper[coll].coll2;
     // handle case where coll does not exist in database
-    if (!createAssociationInputIsValid(coll, id1, coll1, id2, coll2)) {
+    const inputIsValid = await createAssociationInputIsValid(coll, id1, coll1, id2, coll2);
+    if (!inputIsValid) return -1;
+    // handle case inputs are valid 
+    // build association document to send to Firebase
+    const payload = await getPayload(coll, id1, id2);
+    const newDocSnap = await addNewDocWithId(coll, `${id1}_${id2}`, payload);
+    console.log(`Created '${coll}' document with id: ${newDocSnap.id}`);
+    // handle case of projects_users, increment census and maybe close
+    if (coll === 'projects_users') await incrementCensusAndClose(id1);
+    // handle case of likes, incremement project likes
+    if (coll === 'likes') await incrementLikes(id1);
+    // return document snapshot to calling function
+    return newDocSnap;
+}
+
+const createNewLike = async (projectId, userId) => {
+    /*
+    DESCRIPTION:    creates new likes document for provided project id and
+                    user id.
+
+    INPUT:          project id and user id in string format
+
+    RETURN:         NA
+    */
+    // get document snapshots for invalid input handling
+    const projectSnap = await getDocSnapshotById('projects', projectId);
+    const userSnap = await getDocSnapshotById('users', userId);
+    const likesSnap = await getDocSnapshotById('likes', `${projectId}_${userId}`);
+    // handle case where projectId does not exist in Firebase
+    if (!projectSnap.exists()) {
+        console.log(`invalid projectId: '${projectId}' does not exist`);
         return -1;
     }
-    // handle case inputs are valid 
+    // handle case where userId does not exist in Firebase
+    else if (!userSnap.exists()) {
+        console.log(`invalid userId: '${userId}' does not exist`);
+        return -1;
+    }
+    // handle case where projectId_userId already exists in likes
+    else if (likesSnap.exists()) {
+        console.log(`invalid projectId userId combination: '${userId}' already liked project '${projectId}'`);
+        return -1;
+    }
+    // handle case where inputs are valid 
     else {
-        // build association document to send to Firebase
-        const payload = getPayload(coll, id1, id2);
-        const newDocSnap = await addNewDocWithId(coll, `${id1}_${id2}`, payload);
-        console.log(`Created '${coll}' document with id: ${newDocSnap.id}`);
-        // handle case of projects_users
-        if (coll === 'projects_users') {
-            // increment project census and close if necessary
-            await incrementProjectCensusAndClose(coll1, id1);
+        // build likes object to send to Firebase
+        const likesPayload = {
+            project_id: projectId,
+            user_id: userId
         }
-        return newDocSnap;
+        const newDocRef = await addNewDocWithId('likes', `${projectId}_${userId}`, likesPayload);
+        console.log(`Created likes document with id: ${newDocRef.id}`);
+        // get new likes total and build update payload
+        const likesTotalPayload = {
+            likes: projectSnap.data().likes + 1,
+        }
+        // update likes total and indicate success to user
+        const docSnapshot = await updateDocument('projects', projectId, likesTotalPayload);
+        console.log(`Updated project '${docSnapshot.id}' with ${docSnapshot.data().likes} total likes`);
+        return docSnapshot;
+
     }
 }
 
 // helpers, don't export
 
-const createApplicationInputIsValid = async (projectId, userId) => {
-    /*
-    DESCRIPTION:    determines whether userId and projectId are valid inputs
-                    for creating an application
-
-    INPUT:          projectId (string): document ID for project being applied
-                    to
-
-                    userId (string): document ID for user applying to project
-
-    RETURN:         boolean indication as to whether the inputs are valid
-    */
-    // get document snapshots for error handling
-    const [userSnap, projectSnap, applicationSnap, projectsUsersSnap] = await Promise.all([
-        getDocSnapshotById('projects', projectId),
-        getDocSnapshotById('users', userId),
-        getDocSnapshotById('applications', `${projectId}_${userId}`),
-        getDocSnapshotById('projects_users', `${projectId}_${userId}`)
-    ]);
-    // handle case where project does not exist
-    if (!projectSnap.exists()) {
-        console.log(`Invalid 'projects' id: '${projectId}' does not exist`);
-        return false;
-    }
-    // handle case where user does not exists
-    else if (!userSnap.exists()) {
-        console.log(`Invalid 'users' id: '${userId}' does not exist`);
-        return false;
-    }
-    // handle case where user is already added to project
-    else if (projectsUsersSnap.exists()) {
-        console.log(`Invalid userId projectId combination: user id '${userId}' is already added to project id '${projectId}'`);
-        return false;
-    }
-    // handle case where user already has applied to project
-    else if (applicationSnap.exists()) {
-        console.log(`Invalid userId projectId combination: user id '${userId}' has already applied to project id '${projectId}'`);
-        return false;
-    }
-    // all tests passed return true
-    return true;
-}
-
-const getPayload = (coll, id1, id2) => {
+const getPayload = async (coll, id1, id2) => {
     /*
     DESCRIPTION:    builds association document payload based on coll input
 
@@ -254,7 +197,7 @@ const getPayload = (coll, id1, id2) => {
     RETURN:         payload object to be inserted into association collection
     */
     // handle case of projects_users
-    if (coll === 'projects_users') {
+    if (coll === 'projects_users' || coll === 'likes') {
         return {project_id: id1, user_id: id2};
     }
     // handle case of projects_technologies
@@ -264,6 +207,20 @@ const getPayload = (coll, id1, id2) => {
     // handle case of users_technologies
     else if (coll === 'users_technologies') {
         return {user_id: id1, technology_id: id2}
+    }
+    // handle case of applications
+    else if (coll === 'applications') {
+        const projectSnap = await getDocSnapshotById('projects', id1);
+        return {
+            project_id: id1,
+            user_id: id2,
+            owner_id: projectSnap.data().ownerId,
+            open: true,
+            response: 'pending'
+        }
+    }
+    else {
+        console.log(`please update 'getPayload()' in dao.js to handle this type of association`);
     }
 }
 
@@ -306,6 +263,14 @@ const createAssociationInputIsValid = async (coll, id1, coll1, id2, coll2) => {
         console.log(`Invalid '${coll1}' id: ${id1} is at capacity`);
         return false;
     }
+    // handle case of applications where user is already added to project
+    else if (coll === 'applications') {
+        const projectsUsersSnap = getDocSnapshotById('projects_users', `${id1}_${id2}`);
+        if (projectsUsersSnap.exists()) {
+            console.log(`Invalid 'id combination: user is already added to project'`);
+            return false;
+        }
+    }
     // handle case where id2 does not exist in coll2
     else if (!id2Snap.exists()) {
         console.log(`Invalid '${coll2}' id: '${id2}' does not exist`);
@@ -322,19 +287,16 @@ const createAssociationInputIsValid = async (coll, id1, coll1, id2, coll2) => {
     }
 }
 
-const incrementProjectCensusAndClose = async (coll, id) => {
+const incrementCensusAndClose = async (id) => {
     /*
     DESCRIPTION:    increments project census and closes project if necessary
 
-    INPUT:          coll (string): name of Firebase collection where the
-                    document being updated is located
-
-                    id (string): document ID of project being updated
+    INPUT:          id (string): document ID of project being updated
 
     RETURN:         new coll document snapshot
     */
     // get project snapshot to determine new census and if it needs closed
-    const projectSnap = await getDocSnapshotById(coll, id);
+    const projectSnap = await getDocSnapshotById('projects', id);
     // create update payload for incremented census
     const payload = {
         census: projectSnap.data().census + 1,
@@ -344,40 +306,91 @@ const incrementProjectCensusAndClose = async (coll, id) => {
     if (payloadNeedsUpdated){
         payload.open = false;
     }
-    const projectSnapNew = await updateDoc(coll, id, payload);
-    console.log(`Updated '${coll}' document id '${id}' census to ${projectSnapNew.data().census}`);
+    const projectSnapNew = await updateDoc('projects', id, payload);
+    console.log(`Updated 'projects' document id '${id}' census to ${projectSnapNew.data().census}`);
     if (payloadNeedsUpdated) {
-        console.log(`Closed '${coll}' document id '${id}'`);
+        console.log(`Closed 'projects' document id '${id}'`);
     }
     return projectSnapNew;
 }
+
+const incrementLikes = async (id) => {
+    /*
+    DESCRIPTION:    increments project likes
+
+    INPUT:          id (string): document ID of project being updated
+
+    RETURN:         new coll document snapshot
+    */
+    // get project snapshot to determine new census and if it needs closed
+    const projectSnap = await getDocSnapshotById('projects', id);
+    // create update payload for incremented census
+    const payload = {
+        likes: projectSnap.data().likes + 1,
+    }
+    // update project
+    const projectSnapNew = await updateDoc('projects', id, payload);
+    console.log(`Updated 'projects' document id '${id}' likes to ${projectSnapNew.data().likes}`);
+    return projectSnapNew;
+}
+
+const createAssociationHelper = {
+    'projects_users': {coll1: 'projects', coll2: 'users', field1: 'project_id', field2: 'user_id'},
+    'projects_technologies': {coll1: 'projects', coll2: 'technologies', field1: 'project_id', field2: 'technology_id'},
+    'users_technologies': {coll1: 'users', coll2: 'technologies', field1: 'user_id', field2: 'technology_id'},
+    'applications': {coll1: 'projects', coll2: 'users', field1: 'project_id', field2: 'user_id'},
+    'likes': {coll1: 'projects', coll2: 'users', field1: 'project_id', field2: 'user_id'},
+};
 
 /*
     READ
 */
 
-// see daoProject.js, daoUser.js, and daoTechnology.js
-
-const readAllDocs = async (coll) => {
+const readAllObjects = async (coll, deep = false) => {
     /*
     DESCRIPTION:    retrieves all documents in the specified collection and
-                    returns an array of custom objects. Note, the associations
-                    will not be populated in the objects.
+                    returns an array of custom objects.
 
     INPUT:          coll (string): collection to get documents from
 
-    RETURN:         array of custom objects
+                    deep (boolean): indicates whether objects association
+                    properties should be populated. If no argument is entered,
+                    returned objects will be shallow (no association arrays
+                    populated)
+
+    RETURN:         array of custom objects ([Project], [User], etc)
     */
-    // get collection snapshot
-    const collSnap = await getCollectionSnapshot(coll);
     // handle case of invalid collection
     if (!collectionIsValid(coll)) return -1;
-    // handle case of valid collection name
-    // process collection snapshot and return array of objects to user
-    return buildObjects(coll, collSnap);
+    // get collection snapshot and build objects
+    const collSnap = await getCollectionSnapshot(coll);
+    return await buildObjects(coll, collSnap, deep);
 }
 
-const readDocsByCriteria = async (coll, field, criteria) => {
+const readObjectById = async (coll, id, deep = false) => {
+    /*
+    DESCRIPTION:    retrieves document in the specified collection and returns
+                    a custom object.
+
+    INPUT:          coll (string): collection to get document from
+
+                    id (string) : document ID of desired application
+
+                    deep (boolean): indicates whether object's association
+                    properties should be populated. If no argument is entered,
+                    returned object will be shallow (no association arrays
+                    populated)
+
+    RETURN:         custom object (Project, User, etc)
+    */
+                        // handle case of invalid collection
+    if (!collectionIsValid(coll)) return -1;
+    // get document snapshot and build object
+    const docSnap = await getDocSnapshotById(coll, id);
+    return await buildObject(coll, docSnap, deep);
+}
+
+const readObjectsByCriteria = async (coll, field, criteria, deep = false) => {
         /*
     DESCRIPTION:    retrieves documents from specified collection, subject to
                     specified criteria. E.g.,
@@ -392,6 +405,11 @@ const readDocsByCriteria = async (coll, field, criteria) => {
                     criteria (value): value to compare against field for
                     equality
 
+                    deep (boolean): indicates whether object's association
+                    properties should be populated. If no argument is entered,
+                    returned object will be shallow (no association arrays
+                    populated)
+
     RETURN:         array of objects
     */
     // get query snapshot
@@ -399,7 +417,7 @@ const readDocsByCriteria = async (coll, field, criteria) => {
     // handle case of invalid collection
     if (!collectionIsValid(coll)) return -1;
     // handle case of valid collection, build array of IDs from query snapshot
-    return buildObjects(coll, querySnap);
+    return buildObjects(coll, querySnap, deep);
 }
 
 const readDocIdsByCriteria = async (coll, field, criteria) => {
@@ -425,38 +443,64 @@ const readDocIdsByCriteria = async (coll, field, criteria) => {
     return querySnap.docs.map(doc => doc.id);
 }
 
-const readApplicationByApplicationId = async (id) => {
+const readAllDocs = async (coll) => {
     /*
-    DESCRIPTION:    retrieves application document by application document id
+    DESCRIPTION:    retrieves all Firebase documents for specified collection
 
-    INPUT:          id (string) : document ID of desired application
+    INPUT:          coll (string): collection to get documents from
 
-    RETURN:         Application object
+    RETURN:         array of Firebase documents with ID included
     */
-    // get snapshot for invalid input handling
-    const docSnap = await getDocSnapshotById('applications', id);
-    if (!docSnap.exists()) {
-        console.log(`Invalid id: 'applications' does not have document id '${id}'`);
-        return -1;
-    }
-    // handle case of valid field
-    else {
-        // build "base" Application object
-        const app = Application.fromDocSnapshot(docSnap.id, docSnap);
-        // populate project, user, and owner properties with applicable objects
-        [app.project, app.user, app.owner] = await Promise.all([
-            getShallowProjectById(app.projectId),
-            getShallowUserById(app.userId),
-            getShallowUserById(app.ownerId)
-        ])
-        // return array of Application objects to calling function
-        return app;
-    }
+    // get collection snapshot
+    const collSnap = await getCollectionSnapshot(coll);
+    // handle case of empty collection snapshot
+    if (collSnap.empty) return [];
+    // handle case of non-empty collection
+    return collSnap.docs.map((doc) => {
+        return {...doc.data(), id: doc.id};
+    });
+}
+
+const readAssociationObjectsByType = async (assocColl, assocField, assocId, coll, field, deep = false) => {
+    /*
+    DESCRIPTION:    returns an array of associations based on arguments passed.
+                    Note, this function is not for the feint of heart :P
+
+    INPUT:          assocColl (string): association collection that stores
+                    the relationship
+
+                    assocField (string): field pertaining to the document you
+                    want to get associations for. E.g., if the user wants
+                    projects by user => assocField = user_id
+
+                    assocId (string): document ID of the document user desires
+                    associations for
+
+                    coll (string): collection where the associations live.
+                    If the user wants projects by user => coll = 'projects'
+
+                    field (string): field in assocColl pertaining to the
+                    document ID of the associations
+
+    RETURN:         array of objects
+    */   
+    // get query snapshot from association collection
+    const querySnap = await getCollectionSnapshotByCriteria(assocColl, assocField, '==', assocId);
+    // get document snapshots from original collection
+    const docSnaps = await Promise.all(querySnap.docs.map((doc) => {
+        return getDocSnapshotById(coll, doc.data()[field]);
+    }));
+    // build objects from document snapshots
+    const objects = await Promise.all(docSnaps.map((doc) => {
+        return buildObject(coll, doc, deep);
+    }));
+    // return objects to calling function
+    return objects
 }
 
 // helpers, don't export
 
-const buildObjects = (coll, collSnap) => {
+const buildObjects = async (coll, collSnap, deep = false) => {
     /*
     DESCRIPTION:    builds array of appropriate objects based on collection
                     passed and collection snapshot
@@ -465,18 +509,21 @@ const buildObjects = (coll, collSnap) => {
 
                     collSnap (collectionSnapshot): collectionSnapshot
 
+                    deep (boolean): indicates whether objects association
+                    properties should be populated. If no argument is entered,
+                    returned objects will be shallow (no association arrays
+                    populated)
+
     RETURN:         array of Project, User, or Technology objects
     */
-    // initialize array vessel to return to calling function
-    const objects = [];
-    // loop through collection snapshot docs, build object, add to array
-    for (const doc of collSnap.docs) {
-        objects.push(buildObject(coll, doc));
-    }
+    // build array of objects to return to the user
+    const objects =  await Promise.all(collSnap.docs.map((doc) => {
+        return buildObject(coll, doc, deep);
+    }));
     return objects;
 }
 
-const buildObject = (coll, doc) => {
+const buildObject = async (coll, doc, deep = false) => {
     /*
     DESCRIPTION:    builds appropriate object based on collection passed and
                     document from collection snapshot
@@ -486,15 +533,26 @@ const buildObject = (coll, doc) => {
                     doc (documnent): document from collectionSnapshot's docs
                     property
 
+                    deep (boolean): indicates whether object's association
+                    properties should be populated. If no argument is entered,
+                    returned object will be shallow (no association arrays
+                    populated)
+
     RETURN:         Project, User, Technology, or Application object
     */
     // handle case of 'projects' collection
     if (coll === 'projects') {
-        return Project.fromDocSnapshot(doc.id, doc);
+        const project = Project.fromDocSnapshot(doc.id, doc);
+        // if user wants deep object, populate associations
+        if (deep) await populateAssociations('projects', project);
+        return project;
     }
     // handle case of 'users' collection
     else if (coll === 'users') {
-        return User.fromDocSnapshot(doc.id, doc);
+        const user = User.fromDocSnapshot(doc.id, doc);
+        // if user wants deep object, populate associations
+        if (deep) await populateAssociations('users', user);
+        return user;
     }
     // handle case of 'technologies' collection
     else if (coll === 'technologies') {
@@ -502,7 +560,10 @@ const buildObject = (coll, doc) => {
     }
     // handle case of 'applications' collection
     else if (coll === 'applications') {
-        return Application.fromDocSnapshot(doc.id, doc);
+        const application = Application.fromDocSnapshot(doc.id, doc);
+        // if user wants deep object, populate associations
+        if (deep) await populateAssociations('applications', application);
+        return application;
     }
 }
 
@@ -516,7 +577,7 @@ const collectionIsValid = async (coll) => {
     RETURN:         boolean indication of whether collection argument passed
                     is valid
     */
-    const colls = ['projects', 'users', 'technologies', 'appliactions'];
+    const colls = ['projects', 'users', 'technologies', 'applications'];
     if (!colls.includes(coll)) {
         console.log(`Invalid collection: please use 'projects', 'users', 'technologies', or 'applications'`);
         return false;
@@ -543,6 +604,73 @@ const readQuerySnapshotById = async (coll, field, id) => {
     const querySnap = await getCollectionSnapshotByCriteria(coll, field, '==', id);
     return querySnap;
 
+}
+
+const populateAssociations = async (coll, object) => {
+    /*
+    DESCRIPTION:    populates passed object's association properties
+
+    INPUT:          coll (string): collection to get documents from
+
+                    object (object): object whose associations need populated
+
+    RETURN:         NA - alters original object passed
+    */
+    // handle case of invalid collection
+    if (!collectionIsValid(coll)) return -1;
+    // handle Project object
+    if (coll === 'projects') {
+        [object.owner, object.users, object.technologies] = await Promise.all([
+            readObjectById('users', object.ownerId, false),
+            readAssociationObjectsByType(
+                'projects_users',
+                'project_id',
+                object.id,
+                'users',
+                'user_id',
+                false // import to keep deep set to false
+            ),
+            readAssociationObjectsByType(
+                'projects_technologies',
+                'project_id',
+                object.id,
+                'technologies',
+                'technology_id',
+                false // import to keep deep set to false
+            )
+        ]);
+    }
+    // handle User object
+    else if (coll === 'users') {
+        [object.technologies, object.projects] = await Promise.all([
+            readAssociationObjectsByType(
+                'users_technologies',
+                'user_id',
+                object.id,
+                'technologgies',
+                'technology_id',
+                false // import to keep deep set to false
+            ),
+            readAssociationObjectsByType(
+                'projects_users',
+                'user_id',
+                object.id,
+                'projects',
+                'project_id',
+                false // import to keep deep set to false
+            )
+        ]);
+    }
+    // handle Technology object, do nothing
+    else if (coll === 'technologies') return object;
+    // handle Application object
+    else {
+        [object.project, object.user, object.owner] = await Promise.all([
+            readObjectById('projects', object.projectId, false),
+            readObjectById('users', object.userId, false),
+            readObjectById('users', object.ownerId, false)
+        ]);
+    }
 }
 
 /*
@@ -612,13 +740,13 @@ const deleteDoc = async (coll, id) => {
     }
 }
 
-const deleteAssociation = async (coll, id1, id2) => {
+const deleteAssociationByIds = async (coll, id1, id2) => {
     /*
     DESCRIPTION:    deletes association document for provided collection. Also,
                     updates project document if removing user from project
 
-    INPUT:          coll (string): name of Firebase collection where the
-                    document being updated is located
+    INPUT:          coll (string): name of Firebase ASSOCIATION collection
+                    where document is stored
 
                     id1 (string): document ID from first table being associated
 
@@ -627,63 +755,52 @@ const deleteAssociation = async (coll, id1, id2) => {
 
     RETURN:         NA
     */
-    // parse association collection name to get individual collection names
-    const [coll1, coll2] = coll.split('_');
-    // get document snapshots for invalid input handling
-    const [id1Snap, id2Snap, collSnap] = await Promise.all([
-        getDocSnapshotById(coll1, id1),
-        getDocSnapshotById(coll2, id2),
-        getDocSnapshotById(coll, `${id1}_${id2}`)
-    ]);
-    // handle case where coll does not exist in database
-    if (collSnap.empty) {
-        console.log(`Collection '${coll}' does not exist`);
-        return -1;
-    }
-    // handle case where id1 does not exist in coll1
-    else if (!id1Snap.exists()) {
-        console.log(`Invalid '${coll1}' id: '${id1}' does not exist`);
-        return -1;
-    }
-    // handle case of projects_users where id2 is the project owner
-    else if (coll === 'projects_users' && !id1Snap.data().owner === id2) {
-        console.log(`Invalid '${coll2}' id: ${id2} is the project owner`);
-        return -1;
-    }
-    // handle case where id2 does not exist in coll2
-    else if (!id2Snap.exists()) {
-        console.log(`Invalid '${coll2}' id: '${id2}' does not exist`);
-        return -1;
-    }
-    // handle case where id1_id2 does not exist in coll
-    else if (!collSnap.exists()) {
-        console.log(`Invalid id1 id2 combo: '${id1}_${id2}' does not exist in '${coll}'`);
-        return -1;
-    }
+    // user helper object in obtaining associated collection names
+    const coll1 = deleteAssociationHelper[coll].coll1;
+    const coll2 = deleteAssociationHelper[coll].coll2;
+    // handle case where input is invalid
+    const inputIsValid = await deleteAssociationInputIsValid(coll, coll1, id1, coll2, id2);
+    if (!inputIsValid) return -1;
     // handle case inputs are valid 
-    else {
-        // delete association document from Firebase
-        const ref = await deleteDocById(coll, `${id1}_${id2}`);
-        console.log(`Deleted '${coll}' document with id: ${ref.id}`);
-        // handle case of projects_users
-        if (coll === 'projects_users') {
-            // create update payload for decremented census
-            const payload = {
-                census: id1Snap.data().census - 1,
-            }
-            // handle case where project needs opened
-            const payloadNeedsUpdated = id1Snap.data().census === id1Snap.data().capacity;
-            if (payloadNeedsUpdated){
-                payload.open = true;
-            }
-            const collSnapNew = await updateDoc(coll1, id1, payload);
-            console.log(`Updated '${coll1}' document id '${id1}' census to ${collSnapNew.data().census}`);
-            if (payloadNeedsUpdated) {
-                console.log(`Opened '${coll1}' document id '${id1}'`);
-            }
-        }
-        return ref;
-    }
+    // delete association document from Firebase
+    const ref = await deleteDocById(coll, `${id1}_${id2}`);
+    console.log(`Deleted '${coll}' document with id: ${ref.id}`);
+    // handle case of projects_users, decrement project census and (maybe) close
+    if (coll === 'projects_users') await decrementCensusByProjectId(id1);
+    // handle case of likes, decrement project likes
+    if (coll === 'likes') await decrementLikesByProjectId(id1);
+    return ref;
+}
+
+const deleteAssociationById = async (coll, id) => {
+    /*
+    DESCRIPTION:    deletes association document for provided collection. Also,
+                    updates project document if removing user from project
+
+    INPUT:          coll (string): name of Firebase ASSOCIATION collection
+                    where document is stored
+
+                    id (string): document ID of association document to delete
+
+    RETURN:         NA
+    */
+    // user helper object in obtaining associated collection names
+    const coll1 = deleteAssociationHelper[coll].coll1;
+    const coll2 = deleteAssociationHelper[coll].coll2;
+    // parse association ID for individual IDs
+    const [id1, id2] = id.split('_');
+    // handle case where input is invalid
+    const inputIsValid = await deleteAssociationInputIsValid(coll, coll1, id1, coll2, id2);
+    if (!inputIsValid) return -1;
+    // handle case inputs are valid 
+    // delete association document from Firebase
+    const ref = await deleteDocById(coll, `${id1}_${id2}`);
+    console.log(`Deleted '${coll}' document with id: ${ref.id}`);
+    // handle case of projects_users, decrement project census and (maybe) close
+    if (coll === 'projects_users') await decrementCensusByProjectId(id1);
+    // handle case of likes, decrement project likes
+    if (coll === 'likes') await decrementLikesByProjectId(id1);
+    return ref;
 }
 
 const deleteDocAndAssociations = async (coll, id) => {
@@ -716,54 +833,193 @@ const deleteDocAndAssociations = async (coll, id) => {
             }
         }
         // delete main doc
-        const docRef = await deleteDocById(coll, id);
-        console.log(`Deleted ${coll} document with id: '${docRef.id}'`);
+        const docRef = await deleteAssociationById(coll, id);
         return docRef;
+    }
+}
+
+const deleteLike = async (projectId, userId) => {
+    /*
+    DESCRIPTION:    deletes like document for provided projectId and userId.
+                    Also, decrements project documents likes total.
+
+    INPUT:          project id and user id in string format
+
+    RETURN:         NA
+    */
+    // get document snapshots for invalid input handling
+    const projectSnap = await getDocSnapshotById('projects', projectId);
+    const userSnap = await getDocSnapshotById('users', userId);
+    const likesSnap = await getDocSnapshotById('likes', `${projectId}_${userId}`);
+    // handle case where projectId does not exist in Firebase
+    if (!projectSnap.exists()) {
+        console.log(`invalid projectId: '${projectId}' does not exist`);
+        return -1;
+    }
+    // handle case where userId does not exist in Firebase
+    else if (!userSnap.exists()) {
+        console.log(`invalid userId: '${userId}' does not exist`);
+        return -1;
+    }
+    // handle case where projectId_userId does not exist in likes
+    else if (!likesSnap.exists()) {
+        console.log(`invalid projectId userId combination: user '${userId}' has not liked project '${projectId}'`);
+        return -1;
+    }
+    // handle case where inputs are valid 
+    else {
+        // delete likes document
+        const deleteRef = await deleteDocById('likes', `${projectId}_${userId}`);
+        console.log(`Deleted likes document with id: ${deleteRef.id}`);
+        // get new likes total and build update payload
+        const newLikes = projectSnap.data().likes - 1;
+        console.log('oldLikes: ', projectSnap.data().likes);
+        console.log('newLikes: ', newLikes);
+        const payload = {
+            likes: newLikes
+        }
+        // update likes total and indicate success to user
+        const docSnapshot = await updateDocument('projects', projectId, payload);
+        console.log(`Updated project '${docSnapshot.id}' with ${docSnapshot.data().likes} total likes`);
+        return deleteRef;
+
     }
 }
 
 // helpers, don't export
 
+const deleteAssociationHelper = {
+    'projects_users': {coll1: 'projects', coll2: 'users', field1: 'project_id', field2: 'user_id'},
+    'projects_technologies': {coll1: 'projects', coll2: 'technologies', field1: 'project_id', field2: 'technology_id'},
+    'users_technologies': {coll1: 'users', coll2: 'technologies', field1: 'user_id', field2: 'technology_id'},
+    'applications': {coll1: 'projects', coll2: 'users', field1: 'project_id', field2: 'user_id'},
+    'likes': {coll1: 'projects', coll2: 'users', field1: 'project_id', field2: 'user_id'},
+};
+
 const deleteAssociationsHelper = {
     'projects': [
         {coll: 'projects_users', field: 'project_id'},
-        {coll: 'projects_technologies', field: 'project_id'}
+        {coll: 'projects_technologies', field: 'project_id'},
+        {coll: 'likes', field: 'project_id'},
+        {coll: 'applications', field: 'project_id'}
     ],
     'users': [
         {coll: 'projects_users', field: 'user_id'},
-        {coll: 'projects_technologies', field: 'user_id'}
+        {coll: 'projects_technologies', field: 'user_id'},
+        {coll: 'likes', field: 'user_id'},
+        {coll: 'applications', field: 'user_id'}
     ],
-    'technologies': []
 };
+
+const deleteAssociationInputIsValid = async (coll, coll1, id1, coll2, id2) => {
+    /*
+    DESCRIPTION:    determines whether inputs represent a valid association
+                    document to be deleted
+
+    INPUT:          
+
+    RETURN:         boolean indication as to whether input is valid for
+                    deleting an association document      
+    */
+    // get document snapshots for invalid input handling
+    const [id1Snap, id2Snap, collSnap] = await Promise.all([
+        getDocSnapshotById(coll1, id1),
+        getDocSnapshotById(coll2, id2),
+        getDocSnapshotById(coll, `${id1}_${id2}`)
+    ]);
+    // handle case where coll does not exist in database
+    if (collSnap.empty) {
+        console.log(`Collection '${coll}' does not exist`);
+        return false;
+    }
+    // handle case where id1 does not exist in coll1
+    else if (!id1Snap.exists()) {
+        console.log(`Invalid '${coll1}' id: '${id1}' does not exist`);
+        return false;
+    }
+    // handle case of projects_users where id2 is the project owner
+    else if (coll === 'projects_users' && !id1Snap.data().owner === id2) {
+        console.log(`Invalid '${coll2}' id: ${id2} is the project owner`);
+        return false;
+    }
+    // handle case where id2 does not exist in coll2
+    else if (!id2Snap.exists()) {
+        console.log(`Invalid '${coll2}' id: '${id2}' does not exist`);
+        return false;
+    }
+    // handle case where id1_id2 does not exist in coll
+    else if (!collSnap.exists()) {
+        console.log(`Invalid id1 id2 combo: '${id1}_${id2}' does not exist in '${coll}'`);
+        return false;
+    }
+    // all tests passed, return true
+    return true;
+}
+
+const decrementCensusByProjectId = async (id) => {
+    /*
+    DESCRIPTION:    decrements project census and potentially clears the open
+                    flag 
+
+    INPUT:          id (string): id of project to decrement census and
+                    potentially clear open flag for         
+
+    RETURN:         NA
+    */
+    // get project document snapshot for current census
+    const projectSnap = await getDocSnapshotById('projects', id);
+    // create update payload for decremented census
+    const payload = {
+        census: projectSnap.data().census - 1,
+    }
+    // handle case where project needs opened
+    const openNeedsUpdated = projectSnap.data().census === projectSnap.data().capacity;
+    if (openNeedsUpdated){
+        payload.open = true;
+    }
+    const collSnapNew = await updateDoc('projects', id, payload);
+    console.log(`Updated 'projects' document id '${id}' census to ${collSnapNew.data().census}`);
+    if (openNeedsUpdated) {
+        console.log(`Opened 'projects' document id '${id}'`);
+    } 
+}
+
+const decrementLikesByProjectId = async (id) => {
+    /*
+    DESCRIPTION:    decrements project likes
+
+    INPUT:          id (string): id of project to decrement likes for
+
+    RETURN:         NA
+    */
+    // get project document snapshot for current census
+    const projectSnap = await getDocSnapshotById('projects', id);
+    // create update payload for decremented census
+    const payload = {
+        likes: projectSnap.data().likes - 1,
+    }
+    const collSnapNew = await updateDoc('projects', id, payload);
+    console.log(`Updated 'projects' document id '${id}' likes to ${collSnapNew.data().likes}`);
+}
 
 export {
     // CREATE
-    createApplication,
     createAssociation,
     createDoc,
     createDocWithId,
     createNewLike,
     // READ
-    getAllProjects,
-    getAllTechnologies,
-    getAllUsers,
-    getOwnerByUserId,
-    getProjectById,
-    getDeepProjectsByUserId,
-    getProjectsByUserId,
-    getTechnologiesByProjectId,
-    getTechnologiesByUserId,
-    getTechnologyById,
-    getUserById,
-    getUsersByProjectId,
     readAllDocs,
-    readApplicationByApplicationId,
+    readAllObjects,
+    readAssociationObjectsByType,
     readDocIdsByCriteria,
-    readDocsByCriteria,
+    readObjectsByCriteria,
+    readObjectById,
     // UPDATE
     updateDoc,
     // DELETE
-    deleteAssociation,
+    deleteAssociationById,
+    deleteAssociationByIds,
     deleteDoc,
     deleteDocAndAssociations,
     deleteLike,

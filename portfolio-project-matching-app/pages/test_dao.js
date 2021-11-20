@@ -4,32 +4,23 @@ import {
     createAssociation,
     createDoc,
     createNewLike,
-    createNewProjectDoc,
-    createNewProjectsTechnologiesDoc,
-    createNewProjectsUsersDoc,
-    createNewUserDoc,
-    deleteAssociation,
+    deleteAssociationById,
+    deleteAssociationByIds,
     deleteDoc,
     deleteDocAndAssociations,
     deleteLike,
-    deleteProjectsUsersDoc,
-    deleteUserDoc,
-    getProjectById,
     readAllDocs,
-    readApplicationsById,
+    readAssociationObjectsByType,
     readDocIdsByCriteria,
+    readAllObjects,
+    readObjectById,
     updateDoc,
-    updateProject,
 } from '../backend/dao'
 import { Project } from '../models/Project'
 import { User } from '../models/User'
 
 const test_createProject = () => {
     const runSomeFunc = async () => {
-        // DELETE PROJECT
-        // const coll = 'projects';
-        // const id = 'aI0TV2UfGcUTAWIZLTQp';
-        // await deleteDocAndAssociations(coll, id);
     }
 
     useEffect(() => {

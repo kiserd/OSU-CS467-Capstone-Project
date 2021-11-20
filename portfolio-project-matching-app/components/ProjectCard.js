@@ -5,7 +5,7 @@ import styles from './ProjectCard.module.css'
 
 import { useState, useEffect } from 'react'
 // backend
-import { createAssociation, createApplication } from '../backend/dao.js'
+import { createAssociation } from '../backend/dao.js'
 // component
 import Button from '../components/Button'
 // import UserIcon from '../components/UserIcon'
@@ -33,7 +33,7 @@ const ProjectCard = ({ project }) => {
         }
         // handle case where user is logged in
         else {
-            const docSnap = await createApplication(project.id, authUser.user.id)
+            const docSnap = await createAssociation('applications', project.id, authUser.user.id)
             // handle case where user is already added to project
             if (docSnap === -1) {
                 alert(`Error creating application -- tidy up this log later`)
