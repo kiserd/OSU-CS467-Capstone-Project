@@ -11,11 +11,9 @@ const Nav = () => {
     let router = useRouter();
     const [path, setPath] = useState('');
     let authUser = useAuth();
-    useEffect(
-        () => {
-            setPath(router.pathname);
-        }
-    )
+    useEffect(() => {
+        setPath(router.pathname);
+    });
     return (
         <nav className={styles.navWarm}>
             <ul className="grid grid-cols-3">

@@ -49,6 +49,6 @@ const getTechnologyById = async (technologyId) => {
 
 export {
     // READ
-    getAllTechnologies,
-    getTechnologyById,
+    // getAllTechnologies,
+    // getTechnologyById,
 }

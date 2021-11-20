@@ -1,7 +1,7 @@
 // library
 import { useState, useEffect } from 'react'
 // backend
-import { readApplicationsById, readApplicationIdsById, readDocIdsByCriteria, readDocsByCriteria } from '../backend/dao.js';
+import { readObjectsByCriteria } from '../backend/dao.js';
 // component
 import ApplicationCard from '../components/ApplicationCard'
 import Button from '../components/Button'
@@ -52,11 +52,11 @@ const myApplications = () => {
             alert('must be logged in to view this page')
         }
         // get outgoing applications and set statge
-        readDocsByCriteria('applications', 'user_id', authUser.user.id).then((apps) => {
+        readObjectsByCriteria('applications', 'user_id', authUser.user.id).then((apps) => {
             if (isMounted) setVisibleOutApplications(apps)
         })
         // get incoming applications and set stgatge
-        readDocsByCriteria('applications', 'owner_id', authUser.user.id).then((apps) => {
+        readObjectsByCriteria('applications', 'owner_id', authUser.user.id).then((apps) => {
             if (isMounted) setVisibleInApplications(apps)
         })
         // cleanup function to assign false to isMounted
