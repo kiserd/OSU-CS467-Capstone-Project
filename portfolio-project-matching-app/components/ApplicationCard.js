@@ -71,10 +71,10 @@ const ApplicationCard = ({ appId, isOutgoing }) => {
                                     </div>
                             }
                         </div>
-                        <div className='pt-2'>
+                        <div data-testid='responseDiv' className='pt-2'>
                             Response: {app.response}
                         </div>
-                        <div className='pt-2'>
+                        <div data-testid='statusDiv' className='pt-2'>
                             Status: {app.open ? 'Open' : 'Closed'}
                         </div>
                         <div className='pt-8'>
@@ -85,7 +85,7 @@ const ApplicationCard = ({ appId, isOutgoing }) => {
                                 </div>
                                 :
                                 !app.open ?
-                                <div data-testid='rejectedAcceptedButtonDiv'></div>
+                                <div data-testid='rejectedApprovedButtonDiv'></div>
                                 :
                                 isOutgoing ?
                                 <div data-testid='outgoingPendingButtonDiv'>
