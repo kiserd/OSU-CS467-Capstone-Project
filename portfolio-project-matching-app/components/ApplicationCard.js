@@ -80,19 +80,19 @@ const ApplicationCard = ({ appId, isOutgoing }) => {
                         <div className='pt-8'>
                             {
                                 !app.open && app.response === 'Cancelled' ?
-                                <div>
+                                <div data-testid='cancelledButtonDiv'>
                                     <Button text='Re-Open Application' type='btnGeneral' onClick={() => onAction('Pending')}/>
                                 </div>
                                 :
                                 !app.open ?
-                                <div></div>
+                                <div data-testid='rejectedAcceptedButtonDiv'></div>
                                 :
                                 isOutgoing ?
-                                <div>
+                                <div data-testid='outgoingPendingButtonDiv'>
                                     <Button text='Cancel Application' type='btnWarning' onClick={() => onAction('Cancelled')}/>
                                 </div>
                                 :
-                                <div>
+                                <div data-testid='incomingPendingButtonDiv'>
                                     <div className='inline pr-2'>
                                         <Button text='Approve' type='btnGeneral' onClick={() => onAction('Approved')}/>
                                     </div>
@@ -105,7 +105,7 @@ const ApplicationCard = ({ appId, isOutgoing }) => {
                     </div>
                 // handle case where app is still being fetched and state empty
                 :
-                    <div>
+                    <div data-testid='loadingDiv'>
                     Loading...
                     </div>
             }
