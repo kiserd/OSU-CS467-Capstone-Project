@@ -33,7 +33,7 @@ const FilterButtons = ({ category, choices, onAdd, onRemove }) => {
     }, [choices])
 
     return (
-        <div className=''>
+        <div data-testid='filterButtonsDiv' className=''>
             <div className='text-lg'>
                 {category}
             </div>

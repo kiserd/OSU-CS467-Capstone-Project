@@ -30,29 +30,31 @@ const fakeApplication = {
     user: {id: 1, username: "user username"}
 };
 
-test('Loading message renders as expected', () => {
+test('Loading message renders as expected', async () => {
     // force readObjectById() to return our fake application
-    readObjectById.mockResolvedValue(fakeApplication);
+    const fakeAppPromise = Promise.resolve(fakeApplication);
+    readObjectById.mockImplementationOnce(() => fakeAppPromise);
 
     // ARRANGE: render component
-    act(() => {
-        render(
-            <ApplicationCard
-            appId={'id'}
-            isOutgoing={true}
-            />
-        );
-    });
+    render(
+        <ApplicationCard
+        appId={'id'}
+        isOutgoing={true}
+        />
+    );
 
     // ASSERT: make sure loading message appears
     expect(screen.getByTestId('loadingDiv')).toBeInTheDocument();
+    // force test to wait until promises resolve before finishing
+    await act(() => fakeAppPromise);
 });
 
 test('Application correctly renders as outgoing', async () => {
     // trying out giving mocked readObjectById an alias
     readObjectById.mockName('mockedReadApplication');
     // force readObjectById() to return our fake application
-    readObjectById.mockResolvedValue(fakeApplication);
+    const fakeAppPromise = Promise.resolve(fakeApplication)
+    readObjectById.mockImplementationOnce(() => fakeAppPromise);
 
     // ARRANGE: render component
     render(
@@ -68,14 +70,12 @@ test('Application correctly renders as outgoing', async () => {
     expect(await screen.findByTestId('outgoingPendingButtonDiv')).toBeInTheDocument();
     // ASSERT: make sure mocked readObjectById() only called once
     expect(readObjectById).toHaveBeenCalledTimes(1);
-    // making sure alias sticks to readObjectById()
-    console.log(readObjectById.getMockName());
-    // testing things out, checking to see what mocked function was called with
-    console.log(readObjectById.mock.results);
+    // force test to wait until promises resolve before finishing
+    await act(() => fakeAppPromise);
 });
 
 test('clicking Cancel correctly updates pending application', async () => {
-    const fakeApplicationSubsequent = {
+    const fakeApplication2 = {
         id: 'id',
         response: "Cancelled",
         open: false,
@@ -89,9 +89,11 @@ test('clicking Cancel correctly updates pending application', async () => {
     // trying out giving mocked readObjectById an alias
     readObjectById.mockName('mockedReadObject');
     // force readObjectById() to return our fake application
+    const fakeAppPromise = Promise.resolve(fakeApplication);
+    const fakeAppPromise2 = Promise.resolve(fakeApplication2)
     readObjectById
-    .mockResolvedValueOnce(fakeApplication)
-    .mockResolvedValueOnce(fakeApplicationSubsequent);
+    .mockImplementationOnce(() => fakeAppPromise)
+    .mockImplementationOnce(() => fakeAppPromise2);
 
     // ARRANGE: render component
     render(
@@ -114,6 +116,9 @@ test('clicking Cancel correctly updates pending application', async () => {
     expect(await screen.findByTestId('statusDiv')).toHaveTextContent('Status: Closed');
     // ASSERT: make sure response is updated
     expect(await screen.findByTestId('responseDiv')).toHaveTextContent('Response: Cancelled');
+    // force test to wait until promises resolve before finishing
+    await act(() => fakeAppPromise);
+    await act(() => fakeAppPromise2);
 });
 
 test('clicking Re-Open correctly updates pending application', async () => {
@@ -131,9 +136,11 @@ test('clicking Re-Open correctly updates pending application', async () => {
     // trying out giving mocked readObjectById an alias
     readObjectById.mockName('mockedReadObject');
     // force readObjectById() to return our fake application
+    const fakeAppPromise = Promise.resolve(fakeApplication);
+    const fakeAppPromise2 = Promise.resolve(fakeApplication2);
     readObjectById
-    .mockResolvedValueOnce(fakeApplication2)
-    .mockResolvedValueOnce(fakeApplication);
+    .mockImplementationOnce(() => fakeAppPromise2)
+    .mockImplementationOnce(() => fakeAppPromise);
 
     // ARRANGE: render component
     render(
@@ -152,12 +159,19 @@ test('clicking Re-Open correctly updates pending application', async () => {
     userEvent.click(reOpenButton);
     // ASSERT: make sure application was cancelled and shows Re-Open button
     expect(await screen.findByTestId('outgoingPendingButtonDiv')).toBeInTheDocument();
+    // ASSERT: make sure open status is updated
+    expect(await screen.findByTestId('statusDiv')).toHaveTextContent('Status: Open');
+    // ASSERT: make sure response is updated
+    expect(await screen.findByTestId('responseDiv')).toHaveTextContent('Response: Pending');
+    // force test to wait until promises resolve before finishing
+    await act(() => fakeAppPromise);
+    await act(() => fakeAppPromise2);
 });
 
 test('clicking Accept correctly updates pending application', async () => {
     const fakeApplication2 = {
         id: 'id',
-        response: "Accepted",
+        response: "Approved",
         open: false,
         owner_id: "owner id",
         user_id: "user id",
@@ -169,9 +183,11 @@ test('clicking Accept correctly updates pending application', async () => {
     // trying out giving mocked readObjectById an alias
     readObjectById.mockName('mockedReadObject');
     // force readObjectById() to return our fake application
+    const fakeAppPromise = Promise.resolve(fakeApplication);
+    const fakeAppPromise2 = Promise.resolve(fakeApplication2);
     readObjectById
-    .mockResolvedValueOnce(fakeApplication)
-    .mockResolvedValueOnce(fakeApplication2);
+    .mockImplementationOnce(() => fakeAppPromise)
+    .mockImplementationOnce(() => fakeAppPromise2);
 
     // ARRANGE: render component
     render(
@@ -190,4 +206,11 @@ test('clicking Accept correctly updates pending application', async () => {
     userEvent.click(approveButton);
     // ASSERT: make sure application was cancelled and shows Re-Open button
     expect(await screen.findByTestId('rejectedApprovedButtonDiv')).toBeInTheDocument();
+    // ASSERT: make sure open status is updated
+    expect(await screen.findByTestId('statusDiv')).toHaveTextContent('Status: Closed');
+    // ASSERT: make sure response is updated
+    expect(await screen.findByTestId('responseDiv')).toHaveTextContent('Response: Approved');
+    // force test to wait until promises resolve before finishing
+    await act(() => fakeAppPromise);
+    await act(() => fakeAppPromise2);
 });
