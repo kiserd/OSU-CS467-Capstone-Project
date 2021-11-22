@@ -35,41 +35,61 @@ const fakeUser = {user: {id: 'id'}};
 const fakeLikeSnap = {id: 'id', project_id: 'project id', user_id: 'user id'};
 
 test('Dislike button renders as expected', async () => {
+    /*
+        ARRANGE
+    */
     // force useAuth to return object with user that has id
     useAuth.mockReturnValue(fakeUser);
     // force readAssociation() to return something !== -1
     const fakeLikeSnapPromise = Promise.resolve(fakeLikeSnap);
     readAssociationById.mockImplementation(() => fakeLikeSnapPromise);
 
-    // ARRANGE: render component
+    // render component
     render(
         <ProjectCard
         initialProject={project}
         />
     );
     
-    // ASSERT: make sure Dislike button renders
+    /*
+        ASSERT
+    */
+    // make sure Dislike button renders
     expect(await screen.findByText('Dislike')).toBeInTheDocument();
+
+    /*
+        CLEANUP
+    */
     // force test to wait until promises resolve before finishing
     await act(() => fakeLikeSnapPromise);
 });
 
 test('Like button renders as expected', async () => {
+    /*
+        ARRANGE
+    */
     // force useAuth to return object with user that has id
     useAuth.mockReturnValue({user: {id: 'id'}});
     // foce readAssociation() to return -1 (indicating no like history)
     const fakeLikeSnapPromise = Promise.resolve(-1);
     readAssociationById.mockImplementation(() => fakeLikeSnapPromise);
 
-    // ARRANGE: render component
+    // render component
     render(
         <ProjectCard
         initialProject={project}
         />
     );
 
-    // ASSERT: make sure Like button renders
+    /*
+        ASSERT
+    */
+    // make sure Like button renders
     expect(await screen.findByText('Like')).toBeInTheDocument();
+
+    /*
+        CLEANUP
+    */
     // force test to wait until promises resolve before finishing
     await act(() => fakeLikeSnapPromise);
 });

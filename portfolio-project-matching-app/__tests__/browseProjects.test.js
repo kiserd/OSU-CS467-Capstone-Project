@@ -47,35 +47,6 @@ project2.owner = {id: 'id3', username: 'user3'};
 
 const projects = [project1, project2];
 
-// const projects = [
-//     {
-//         id: 'id1',
-//         name: 'Wastegram',
-//         description: 'post stuff about food waste',
-//         capacity: 5,
-//         census: 2,
-//         open: true,
-//         ownerId: 'id1',
-//         ownerRef: 'owner ref',
-//         users: [{id: 'id1', username: 'user1'}, {id: 'id2', username: 'user2'}],
-//         technologies: [{id: 'id1', name: 'Javascript'}, {id: 'id2', name: 'C++'}],
-//         owner: {id: 'id1', username: 'user1'},
-//     },
-//     {
-//         id: 'id2',
-//         name: 'Pet Finder',
-//         description: 'find lost pets',
-//         capacity: 4,
-//         census: 2,
-//         open: true,
-//         ownerId: 'id3',
-//         ownerRef: 'owner ref',
-//         users: [{id: 'id3', username: 'user3'}, {id: 'id4', username: 'user4'}],
-//         technologies: [{id: 'id3', name: 'CSS'}, {id: 'id4', name: 'React'}],
-//         owner: {id: 'id3', username: 'user3'},
-//     },
-// ]
-
 const technologies = [
     {
         id: 'id1',
@@ -101,7 +72,10 @@ const fakeUser = {user: {id: 'id'}};
 // dummy likes document snapshot
 const fakeLikeSnap = {id: 'id', project_id: 'project id', user_id: 'user id'};
 
-test('', async () => {
+test('Clicking available filter moves button to selected filters', async () => {
+    /*
+        ARRANGE
+    */
     // force useAuth to return object with user that has id
     useAuth.mockReturnValue(fakeUser);
     // force readAssociation() to return something !== -1
@@ -113,22 +87,37 @@ test('', async () => {
     readAllObjects
     .mockImplementationOnce(() => fakeProjectsPromise)
     .mockImplementationOnce(() => fakeTechnologiesPromise);
-    // ARRANGE: render component
+    // render component
     render(<BrowseProjects />);
+
+    /*
+        ASSERT
+    */
     // expect selected filters div to be empty
     expect(await screen.findByTestId('selectedFiltersDiv')).toBeEmptyDOMElement();
+
+    /*
+        ACT
+    */
     // assign name to elements to improve readability
     const filterButtonsDiv = await screen.findByTestId('filterButtonsDiv');
     let jsButton = within(filterButtonsDiv).getByRole('button', {name: 'Javascript'});
     // click Javascript filter button
     userEvent.click(jsButton);
+
+    /*
+        ASSERT
+    */
     // expect Javascript button to have moved to selected filters section
     jsButton = within(filterButtonsDiv).getByRole('button', {name: 'Javascript'});
     const selectedFiltersDiv = await screen.findByTestId('selectedFiltersDiv');
     expect(selectedFiltersDiv).toContainElement(jsButton);
+
+    /*
+        CLEANUP
+    */
     // force test to wait until promises resolve before finishing
     await act(() => fakeLikeSnapPromise);
     await act(() => fakeProjectsPromise);
     await act(() => fakeTechnologiesPromise);
-    // screen.debug();
 });
