@@ -72,7 +72,7 @@ const fakeUser = {user: {id: 'id'}};
 // dummy likes document snapshot
 const fakeLikeSnap = {id: 'id', project_id: 'project id', user_id: 'user id'};
 
-test('Clicking available filter moves button to selected filters', async () => {
+test('Adding and removing filters behaves as expected', async () => {
     /*
         ARRANGE
     */
