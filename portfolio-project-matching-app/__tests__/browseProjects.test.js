@@ -115,11 +115,17 @@ test('', async () => {
     .mockImplementationOnce(() => fakeTechnologiesPromise);
     // ARRANGE: render component
     render(<BrowseProjects />);
+    // expect selected filters div to be empty
+    expect(await screen.findByTestId('selectedFiltersDiv')).toBeEmptyDOMElement();
     // assign name to elements to improve readability
-    const availableFiltersDiv = await screen.findByTestId('availableFiltersDiv');
-    const jsButton = within(availableFiltersDiv).getByRole('button', {name: 'Javascript'});
+    const filterButtonsDiv = await screen.findByTestId('filterButtonsDiv');
+    let jsButton = within(filterButtonsDiv).getByRole('button', {name: 'Javascript'});
     // click Javascript filter button
     userEvent.click(jsButton);
+    // expect Javascript button to have moved to selected filters section
+    jsButton = within(filterButtonsDiv).getByRole('button', {name: 'Javascript'});
+    const selectedFiltersDiv = await screen.findByTestId('selectedFiltersDiv');
+    expect(selectedFiltersDiv).toContainElement(jsButton);
     // force test to wait until promises resolve before finishing
     await act(() => fakeLikeSnapPromise);
     await act(() => fakeProjectsPromise);
