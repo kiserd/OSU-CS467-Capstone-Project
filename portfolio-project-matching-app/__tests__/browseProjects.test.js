@@ -110,8 +110,55 @@ test('Clicking available filter moves button to selected filters', async () => {
     */
     // expect Javascript button to have moved to selected filters section
     jsButton = within(filterButtonsDiv).getByRole('button', {name: 'Javascript'});
+    const availableFiltersDiv = await screen.findByTestId('availableFiltersDiv');
     const selectedFiltersDiv = await screen.findByTestId('selectedFiltersDiv');
+    expect(availableFiltersDiv).not.toContainElement(jsButton);
     expect(selectedFiltersDiv).toContainElement(jsButton);
+    // expect Wastegram to appear in ProjectCard list
+    expect(await screen.findByText('Wastegram')).toBeInTheDocument();
+    // expect Pet Finder to not appear in ProjectCard list
+    expect(await screen.queryByText('Pet Finder')).not.toBeInTheDocument();
+
+    /*
+        ACT
+    */
+    // assign name to elements to improve readability
+    let cssButton = within(filterButtonsDiv).getByRole('button', {name: 'CSS'});
+    // click CSS filter button
+    userEvent.click(cssButton);
+
+    /*
+    ASSERT
+    */
+    // expect Javascript button to have moved to selected filters section
+    cssButton = within(filterButtonsDiv).getByRole('button', {name: 'CSS'});
+    expect(availableFiltersDiv).not.toContainElement(cssButton);
+    expect(selectedFiltersDiv).toContainElement(cssButton);
+    expect(availableFiltersDiv)
+    // expect neither Wastegram or Pet Finder to appear in ProjectCard list
+    expect(await screen.queryByText('Wastegram')).not.toBeInTheDocument();
+    expect(await screen.queryByText('Pet Finder')).not.toBeInTheDocument();
+
+    /*
+        ACT
+    */
+    // click CSS and Javascript buttons to de-activate filters
+    userEvent.click(cssButton);
+    userEvent.click(jsButton);
+
+    /*
+        ASSERT
+    */
+    // expect both buttons to move to available filters
+    cssButton = within(filterButtonsDiv).getByRole('button', {name: 'CSS'});
+    jsButton = within(filterButtonsDiv).getByRole('button', {name: 'Javascript'});
+    expect(availableFiltersDiv).toContainElement(cssButton);
+    expect(selectedFiltersDiv).not.toContainElement(cssButton);
+    expect(availableFiltersDiv).toContainElement(jsButton);
+    expect(selectedFiltersDiv).not.toContainElement(jsButton);
+    // expect both projects to appear in ProjectCard list
+    expect(await screen.findByText('Wastegram')).toBeInTheDocument();
+    expect(await screen.findByText('Pet Finder')).toBeInTheDocument();
 
     /*
         CLEANUP
