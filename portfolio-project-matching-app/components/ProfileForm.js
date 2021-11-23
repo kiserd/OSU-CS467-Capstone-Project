@@ -11,7 +11,8 @@ import {
     updateDoc, 
     getAllTechnologies, 
     createAssociation, 
-    deleteAssociation 
+    deleteAssociation,
+    getUserById
 } from '../backend/dao'
 
 let technologies = [{id: 1, name: 'Javascript'}, {id: 2, name: 'C++'}, {id: 3, name: 'React'}, {id: 4, name: 'Flutter'}]
@@ -29,7 +30,10 @@ const myProfile = () => {
 
         // array representing technologies selected to be associated with project
         const [selectedTechnologies, updateSelectedTechnologies] = useState([]);
-        let [userProfileValues, setUserprofileValues] = useState({
+
+        const [userTechnologies, updateUserTechnologies] = useState([]);
+
+        const [userProfileValues, setUserprofileValues] = useState({
             email: '',
             introduction: '',
             username: '',
@@ -37,11 +41,19 @@ const myProfile = () => {
         
         useEffect(()=>{
             if (auth && auth.user){
-                setUserprofileValues({
-                    ...userProfileValues, 
-                    username: auth.user.username,
-                    email: auth.user.email,
-                    introduction: auth.user.introduction
+                getUserById(auth.user.id).then((result)=>{
+                    console.log(`in useEffect: ${JSON.stringify(result)}`)
+                    setUserprofileValues({
+                        ...userProfileValues, 
+                        username: result.username,
+                        email: result.email,
+                        introduction: result.introduction
+                    });
+                    const technologies = result.technologies.map((technology) => {
+                        return {value: technology, label: technology.name};
+                    });
+                    console.log(`User Technologies: ${JSON.stringify(technologies)}`)
+                    updateUserTechnologies([allTechnologies[1]]);
                 });
             }
         }, [auth]);
@@ -55,6 +67,7 @@ const myProfile = () => {
                 technologies = technologies.map((technology) => {
                     return {value: technology, label: technology.name};
                 });
+                console.log(`All Technologies: ${JSON.stringify(technologies)}`)
                 // set state if component is still mounted
                 if (isMounted) setAllTechnologies(technologies);
             })
@@ -68,6 +81,17 @@ const myProfile = () => {
         const handleInputChange = e => {
             const { name, value } = e.target;
             setUserprofileValues({...userProfileValues, [name]: value});
+        }
+
+        const updateToDBValues= async () => {
+            const user_id = auth.user.id;
+            // get profile values from db
+            let userValues = await getUserById(user_id);
+            setUserprofileValues({...userValues, [user_id]: userValues})
+            // set user technologies
+            
+            // get timezone from db
+
         }
     
         const handleSubmit = async (e) => {
@@ -103,6 +127,8 @@ const myProfile = () => {
                 }
                 
             }
+            // Fetch user info again so form values reflect changes to user
+            await updateToDBValues();
             console.log("Form submitted");
             console.log(userProfileValues);
         }
@@ -143,7 +169,7 @@ const myProfile = () => {
                                 </div>
 
                                 <div className='mb-4 mt-4'>
-                                    <MultipleInputDropdown options={allTechnologies} onChange={addTechnology} name='technologies'/>
+                                    <MultipleInputDropdown options={allTechnologies} selectedIndexes={//a list of indexes} onChange={addTechnology} name='technologies'/>
                                 </div>
                                 <div className='mb-4'>
                                     <Button text="Submit"/>

@@ -1,7 +1,7 @@
 import React from 'react'
 import Select from 'react-select'
 
-const MultipleInputDropdown = ({options, onChange, name}) => {
+const MultipleInputDropdown = ({options, onChange, name, selectedIndexes=[]}) => {
     const theme = (theme) => ({
       ...theme,
       borderRadius: '0.375rem',
@@ -31,6 +31,7 @@ const MultipleInputDropdown = ({options, onChange, name}) => {
           instanceId='selected-value'
           name={name} 
           options={options} 
+          defaultValue={selectedIndexes.map((idx)=>options[idx])} 
           onChange={onChange} 
           isMulti 
           isClearable 
