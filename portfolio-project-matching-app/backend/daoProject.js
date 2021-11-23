@@ -124,55 +124,6 @@ const createNewProjectsTechnologiesDoc = async (projectId, technologyId) => {
     }
 }
 
-const createNewLike = async (projectId, userId) => {
-    /*
-    DESCRIPTION:    creates new likes document for provided project id and
-                    user id.
-
-    INPUT:          project id and user id in string format
-
-    RETURN:         NA
-    */
-    // get document snapshots for invalid input handling
-    const projectSnap = await getDocSnapshotById('projects', projectId);
-    const userSnap = await getDocSnapshotById('users', userId);
-    const likesSnap = await getDocSnapshotById('likes', `${projectId}_${userId}`);
-    // handle case where projectId does not exist in Firebase
-    if (!projectSnap.exists()) {
-        console.log(`invalid projectId: '${projectId}' does not exist`);
-        return -1;
-    }
-    // handle case where userId does not exist in Firebase
-    else if (!userSnap.exists()) {
-        console.log(`invalid userId: '${userId}' does not exist`);
-        return -1;
-    }
-    // handle case where projectId_userId already exists in likes
-    else if (likesSnap.exists()) {
-        console.log(`invalid projectId userId combination: '${userId}' already liked project '${projectId}'`);
-        return -1;
-    }
-    // handle case where inputs are valid 
-    else {
-        // build likes object to send to Firebase
-        const likesPayload = {
-            project_id: projectId,
-            user_id: userId
-        }
-        const newDocRef = await addNewDocWithId('likes', `${projectId}_${userId}`, likesPayload);
-        console.log(`Created likes document with id: ${newDocRef.id}`);
-        // get new likes total and build update payload
-        const likesTotalPayload = {
-            likes: projectSnap.data().likes + 1,
-        }
-        // update likes total and indicate success to user
-        const docSnapshot = await updateDocument('projects', projectId, likesTotalPayload);
-        console.log(`Updated project '${docSnapshot.id}' with ${docSnapshot.data().likes} total likes`);
-        return docSnapshot;
-
-    }
-}
-
 /*
     READ
 */
@@ -354,54 +305,6 @@ const updateProject = async (projectId, payload) => {
     DELETE
 */
 
-const deleteLike = async (projectId, userId) => {
-    /*
-    DESCRIPTION:    deletes like document for provided projectId and userId.
-                    Also, decrements project documents likes total.
-
-    INPUT:          project id and user id in string format
-
-    RETURN:         NA
-    */
-    // get document snapshots for invalid input handling
-    const projectSnap = await getDocSnapshotById('projects', projectId);
-    const userSnap = await getDocSnapshotById('users', userId);
-    const likesSnap = await getDocSnapshotById('likes', `${projectId}_${userId}`);
-    // handle case where projectId does not exist in Firebase
-    if (!projectSnap.exists()) {
-        console.log(`invalid projectId: '${projectId}' does not exist`);
-        return -1;
-    }
-    // handle case where userId does not exist in Firebase
-    else if (!userSnap.exists()) {
-        console.log(`invalid userId: '${userId}' does not exist`);
-        return -1;
-    }
-    // handle case where projectId_userId does not exist in likes
-    else if (!likesSnap.exists()) {
-        console.log(`invalid projectId userId combination: user '${userId}' has not liked project '${projectId}'`);
-        return -1;
-    }
-    // handle case where inputs are valid 
-    else {
-        // delete likes document
-        const deleteRef = await deleteDocById('likes', `${projectId}_${userId}`);
-        console.log(`Deleted likes document with id: ${deleteRef.id}`);
-        // get new likes total and build update payload
-        const newLikes = projectSnap.data().likes - 1;
-        console.log('oldLikes: ', projectSnap.data().likes);
-        console.log('newLikes: ', newLikes);
-        const payload = {
-            likes: newLikes
-        }
-        // update likes total and indicate success to user
-        const docSnapshot = await updateDocument('projects', projectId, payload);
-        console.log(`Updated project '${docSnapshot.id}' with ${docSnapshot.data().likes} total likes`);
-        return deleteRef;
-
-    }
-}
-
 const deleteProjectDoc = async (projectId) => {
     /*
     DESCRIPTION:    deletes project document associating projectId
@@ -488,22 +391,22 @@ const deleteProjectsTechnologiesDoc = async (projectId, technologyId) => {
 
 export {
     // CREATE
-    createNewLike,
-    createNewProjectDoc,
-    createNewProjectsUsersDoc,
-    createNewProjectsTechnologiesDoc,
+    // createNewProjectDoc,
+    // createNewProjectsUsersDoc,
+    // createNewProjectsTechnologiesDoc,
+    
     // READ
-    getAllProjects,
-    getOwnerByUserId,
-    getProjectById,
-    getShallowProjectById,
-    getTechnologiesByProjectId,
-    getUsersByProjectId,
+    // getAllProjects,
+    // getOwnerByUserId,
+    // getProjectById,
+    // getShallowProjectById,
+    // getTechnologiesByProjectId,
+    // getUsersByProjectId,
     // UPDATE
-    updateProject,
+    // updateProject,
+
     // DELETE
-    deleteLike,
-    deleteProjectDoc,
-    deleteProjectsTechnologiesDoc,
-    deleteProjectsUsersDoc,
+    // deleteProjectDoc,
+    // deleteProjectsTechnologiesDoc,
+    // deleteProjectsUsersDoc,
 }

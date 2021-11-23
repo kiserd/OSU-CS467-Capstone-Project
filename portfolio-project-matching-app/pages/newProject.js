@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react'
 import {
     createAssociation,
     createDoc,
-    getAllTechnologies,
+    readAllObjects,
 } from '../backend/dao'
 // components
 import Input from '../components/Input'
@@ -30,7 +30,7 @@ const newProject = () => {
         // tracks whether component mounted, cleanup will assign false
         let isMounted = true
         // get technologies and set state if component mounted
-        getAllTechnologies().then((technologies) => {
+        readAllObjects('technologies').then((technologies) => {
             // The Select component from react-select expects the 'options' prop to be an object with keys 'value' and 'label'
             technologies = technologies.map((technology) => {
                 return {value: technology, label: technology.name};
@@ -93,9 +93,10 @@ const newProject = () => {
         // get open field value by examining capacity
         const openStatus = payload.capacity === 1 ? false : true;
         // build on payload object with values from form
-        // there has to be a better way to do this
         const newPayload = payload;
-        newPayload.census = 1;
+        newPayload.census = 0; // createAssociation will increment to 1
+        newPayload.capacity = parseInt(newPayload.capacity, 10)
+        newPayload.likes = 0;
         newPayload.ownerId = authUser.user.id;
         newPayload.open = openStatus
         // set payload statge

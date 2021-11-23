@@ -1,7 +1,11 @@
 // library
 import { useState, useEffect } from 'react'
 // backend
-import { updateDoc, createAssociation, readApplicationByApplicationId } from '../backend/dao'
+import {
+    updateDoc,
+    createAssociation,
+    readObjectById,
+} from '../backend/dao'
 // component
 import Button from '../components/Button'
 import UserIcon from '../components/UserIcon'
@@ -22,7 +26,7 @@ const ApplicationCard = ({ appId, isOutgoing }) => {
         }
         // update Firebase document and get updated Application object
         await updateDoc('applications', app.id, payload)
-        const updatedApp = await readApplicationByApplicationId(app.id)
+        const updatedApp = await readObjectById('applications', app.id, true)
         // handle case of approved application
         if (response === 'Approved') {
             createAssociation('projects_users', app.project_id, app.user_id)
@@ -34,7 +38,7 @@ const ApplicationCard = ({ appId, isOutgoing }) => {
         // tracks whether component mounted, cleanup will assign false
         let isMounted = true
         // get Application object and set state if component mounted
-        readApplicationByApplicationId(appId).then((app) => {
+        readObjectById('applications', appId, true).then((app) => {
             if (isMounted) setApp(app)
         })
         // cleanup function to assign false to isMounted
@@ -67,28 +71,28 @@ const ApplicationCard = ({ appId, isOutgoing }) => {
                                     </div>
                             }
                         </div>
-                        <div className='pt-2'>
+                        <div data-testid='responseDiv' className='pt-2'>
                             Response: {app.response}
                         </div>
-                        <div className='pt-2'>
+                        <div data-testid='statusDiv' className='pt-2'>
                             Status: {app.open ? 'Open' : 'Closed'}
                         </div>
                         <div className='pt-8'>
                             {
                                 !app.open && app.response === 'Cancelled' ?
-                                <div>
+                                <div data-testid='cancelledButtonDiv'>
                                     <Button text='Re-Open Application' type='btnGeneral' onClick={() => onAction('Pending')}/>
                                 </div>
                                 :
                                 !app.open ?
-                                <div></div>
+                                <div data-testid='rejectedApprovedButtonDiv'></div>
                                 :
                                 isOutgoing ?
-                                <div>
+                                <div data-testid='outgoingPendingButtonDiv'>
                                     <Button text='Cancel Application' type='btnWarning' onClick={() => onAction('Cancelled')}/>
                                 </div>
                                 :
-                                <div>
+                                <div data-testid='incomingPendingButtonDiv'>
                                     <div className='inline pr-2'>
                                         <Button text='Approve' type='btnGeneral' onClick={() => onAction('Approved')}/>
                                     </div>
@@ -101,7 +105,7 @@ const ApplicationCard = ({ appId, isOutgoing }) => {
                     </div>
                 // handle case where app is still being fetched and state empty
                 :
-                    <div>
+                    <div data-testid='loadingDiv'>
                     Loading...
                     </div>
             }
