@@ -33,14 +33,14 @@ const FilterButtons = ({ category, choices, onAdd, onRemove }) => {
     }, [choices])
 
     return (
-        <div className=''>
+        <div data-testid='filterButtonsDiv' className=''>
             <div className='text-lg'>
                 {category}
             </div>
             <div className='text-sm text-gray-400'>
                 {selectedChoices.length !== 0 && 'Remove filters'}
             </div>
-            <div>
+            <div data-testid='selectedFiltersDiv'>
                 {selectedChoices.map((choice) => {
                     return (
                         <div key={choice.id} className='py-1 pr-2'>
@@ -52,7 +52,7 @@ const FilterButtons = ({ category, choices, onAdd, onRemove }) => {
             <div className='text-sm text-gray-400'>
                 Choose filters
             </div>
-            <div className='flex flex-wrap'>
+            <div data-testid='availableFiltersDiv' className='flex flex-wrap'>
                 {availableChoices.map((choice) => {
                     return (
                         <div key={choice.id} className='py-1 pr-2'>
