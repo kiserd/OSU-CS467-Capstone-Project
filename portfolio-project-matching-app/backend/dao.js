@@ -848,11 +848,11 @@ const deleteDocAndAssociations = async (coll, id) => {
         for (const map of deleteAssociationsHelper[coll]) {
             const querySnap = await readQuerySnapshotById(map.coll, map.field, id);
             for (const doc of querySnap.docs) {
-                await deleteDoc(map.coll, doc.id);
+                await deleteAssociationById(map.coll, doc.id);
             }
         }
         // delete main doc
-        const docRef = await deleteAssociationById(coll, id);
+        const docRef = await deleteDoc(coll, id);
         return docRef;
     }
 }
@@ -924,7 +924,7 @@ const deleteAssociationsHelper = {
     ],
     'users': [
         {coll: 'projects_users', field: 'user_id'},
-        {coll: 'projects_technologies', field: 'user_id'},
+        {coll: 'users_technologies', field: 'user_id'},
         {coll: 'likes', field: 'user_id'},
         {coll: 'applications', field: 'user_id'}
     ],
