@@ -77,7 +77,6 @@ const myApplications = () => {
         RETURN:         NA
         */
         // helper arrays to harbor Applications during staging
-        console.log('addFilter choice: ', choice)
         let newOutHidden = hiddenOutApplications
         let newOutVisible = visibleOutApplications
         let newInHidden = hiddenInApplications
