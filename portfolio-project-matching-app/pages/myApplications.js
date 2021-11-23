@@ -144,11 +144,6 @@ const myApplications = () => {
         setVisibleOutApplications(newOutVisible)
         setHiddenInApplications(newInHidden)
         setHiddenOutApplications(newOutHidden)
-        console.log('ADD FILTER')
-        console.log('visibleIn: ', newInVisible)
-        console.log('hiddenIn: ', newInHidden)
-        console.log('visibleOut: ', newOutVisible)
-        console.log('hiddenOut: ', newOutHidden)
     }
 
     const removeFilter = (choice) => {
@@ -162,7 +157,6 @@ const myApplications = () => {
         RETURN:         NA
         */
         // helper arrays to harbor Applications during staging
-        console.log('removeFilter choice: ', choice)
         let newOutHidden = hiddenOutApplications
         const newOutVisible = visibleOutApplications
         let newInHidden = hiddenInApplications
@@ -199,11 +193,6 @@ const myApplications = () => {
         setVisibleOutApplications(newOutVisible)
         setHiddenInApplications(newInHidden)
         setHiddenOutApplications(newOutHidden)
-        console.log('REMOVE FILTER')
-        console.log('visibleIn: ', newInVisible)
-        console.log('hiddenIn: ', newInHidden)
-        console.log('visibleOut: ', newOutVisible)
-        console.log('hiddenOut: ', newOutHidden)
     }
 
     const toggleOutgoing = () => {
