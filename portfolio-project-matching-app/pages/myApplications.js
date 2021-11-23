@@ -221,7 +221,7 @@ const myApplications = () => {
                     </div>
                     <ApplicationList apps={isOutgoing ? visibleOutApplications : visibleInApplications} isOutgoing={isOutgoing} />
                 </div>
-                <div className='sticky top-4 m-2 p-2 col-span-1 h-auto defaultBorder bg-white shadow-2xl'>
+                <div className='sticky top-4 m-2 p-2 col-span-1 h-auto max-h-96 defaultBorder bg-white shadow-2xl'>
                     <div className='text-xl font-medium text-center'>
                         Filters
                     </div>

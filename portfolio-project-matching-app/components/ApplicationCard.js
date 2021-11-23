@@ -9,6 +9,8 @@ import {
 // component
 import Button from '../components/Button'
 import UserIcon from '../components/UserIcon'
+// styles
+import styles from './ProjectCard.module.css'
 
 
 const ApplicationCard = ({ appId, isOutgoing }) => {
@@ -48,7 +50,7 @@ const ApplicationCard = ({ appId, isOutgoing }) => {
     }, [])
 
     return (
-        <div className='p-2 w-full h-full border-2 border-gray-400 rounded-md'>
+        <div className={styles.project}>
             {
                 // handle case where application fetched and state set
                 app ?

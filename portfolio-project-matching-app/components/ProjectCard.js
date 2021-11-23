@@ -1,8 +1,5 @@
 // library
 import Link from 'next/link'
-
-import styles from './ProjectCard.module.css'
-
 import { useState, useEffect } from 'react'
 // backend
 import {
@@ -16,6 +13,8 @@ import Button from '../components/Button'
 // import UserIcon from '../components/UserIcon'
 // context
 import { useAuth } from '../context/AuthContext'
+// styles
+import styles from './ProjectCard.module.css'
 
 
 const ProjectCard = ({ initialProject }) => {
