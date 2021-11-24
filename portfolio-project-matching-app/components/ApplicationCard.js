@@ -31,7 +31,7 @@ const ApplicationCard = ({ appId, isOutgoing }) => {
         const updatedApp = await readObjectById('applications', app.id, true)
         // handle case of approved application
         if (response === 'Approved') {
-            createAssociation('projects_users', app.project_id, app.user_id)
+            createAssociation('projects_users', app.projectId, app.userId)
         }
         setApp(updatedApp)
     }
