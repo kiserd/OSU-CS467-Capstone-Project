@@ -265,7 +265,7 @@ const createAssociationInputIsValid = async (coll, id1, coll1, id2, coll2) => {
     }
     // handle case of applications where user is already added to project
     else if (coll === 'applications') {
-        const projectsUsersSnap = getDocSnapshotById('projects_users', `${id1}_${id2}`);
+        const projectsUsersSnap = await getDocSnapshotById('projects_users', `${id1}_${id2}`);
         if (projectsUsersSnap.exists()) {
             console.log(`Invalid 'id combination: user is already added to project'`);
             return false;
