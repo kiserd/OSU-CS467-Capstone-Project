@@ -7,7 +7,7 @@ import ProfileForm from '../components/ProfileForm'
 const myProfile = () => {
         
         return (
-            <div>
+            <div className='background'>
                 <Link href="/myProjects" passHref>
                     {/* Link's child must take an href, so Button must be wrapped with <a> tags */}
                     <a>

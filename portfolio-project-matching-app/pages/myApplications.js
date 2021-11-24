@@ -77,7 +77,6 @@ const myApplications = () => {
         RETURN:         NA
         */
         // helper arrays to harbor Applications during staging
-        console.log('addFilter choice: ', choice)
         let newOutHidden = hiddenOutApplications
         let newOutVisible = visibleOutApplications
         let newInHidden = hiddenInApplications
@@ -144,11 +143,6 @@ const myApplications = () => {
         setVisibleOutApplications(newOutVisible)
         setHiddenInApplications(newInHidden)
         setHiddenOutApplications(newOutHidden)
-        console.log('ADD FILTER')
-        console.log('visibleIn: ', newInVisible)
-        console.log('hiddenIn: ', newInHidden)
-        console.log('visibleOut: ', newOutVisible)
-        console.log('hiddenOut: ', newOutHidden)
     }
 
     const removeFilter = (choice) => {
@@ -162,7 +156,6 @@ const myApplications = () => {
         RETURN:         NA
         */
         // helper arrays to harbor Applications during staging
-        console.log('removeFilter choice: ', choice)
         let newOutHidden = hiddenOutApplications
         const newOutVisible = visibleOutApplications
         let newInHidden = hiddenInApplications
@@ -199,11 +192,6 @@ const myApplications = () => {
         setVisibleOutApplications(newOutVisible)
         setHiddenInApplications(newInHidden)
         setHiddenOutApplications(newOutHidden)
-        console.log('REMOVE FILTER')
-        console.log('visibleIn: ', newInVisible)
-        console.log('hiddenIn: ', newInHidden)
-        console.log('visibleOut: ', newOutVisible)
-        console.log('hiddenOut: ', newOutHidden)
     }
 
     const toggleOutgoing = () => {
@@ -221,7 +209,7 @@ const myApplications = () => {
                     </div>
                     <ApplicationList apps={isOutgoing ? visibleOutApplications : visibleInApplications} isOutgoing={isOutgoing} />
                 </div>
-                <div className='sticky top-4 m-2 p-2 col-span-1 h-auto defaultBorder bg-white shadow-2xl'>
+                <div className='sticky top-4 m-2 p-2 col-span-1 h-auto max-h-96 defaultBorder bg-white shadow-2xl'>
                     <div className='text-xl font-medium text-center'>
                         Filters
                     </div>

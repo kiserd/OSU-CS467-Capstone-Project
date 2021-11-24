@@ -1,7 +1,7 @@
 // library
 import { useState, useEffect } from 'react'
 // backend
-import { getDeepProjectsByUserId, readAssociationObjectsByType } from '../backend/dao.js'
+import { readAssociationObjectsByType } from '../backend/dao.js'
 // component
 import ProjectCard from '../components/ProjectCard'
 // context
@@ -35,12 +35,12 @@ const myProjects = () => {
     }, [])
 
     return (
-        <div>
+        <div className='background'>
             {authUser.user ? 
             projects.map((project) => {
                 return (
                     <div key={project.id} className='p-2'>
-                        <ProjectCard project={project} />
+                        <ProjectCard initialProject={project} />
                     </div>
                 )
             })

@@ -1,8 +1,5 @@
 // library
 import Link from 'next/link'
-
-import styles from './ProjectCard.module.css'
-
 import { useState, useEffect } from 'react'
 // backend
 import {
@@ -16,6 +13,8 @@ import Button from '../components/Button'
 // import UserIcon from '../components/UserIcon'
 // context
 import { useAuth } from '../context/AuthContext'
+// styles
+import styles from './ProjectCard.module.css'
 
 
 const ProjectCard = ({ initialProject }) => {
@@ -56,11 +55,12 @@ const ProjectCard = ({ initialProject }) => {
         else {
             const docSnap = await createAssociation('applications', project.id, authUser.user.id)
             // handle case where user is already added to project
-            if (docSnap === -1) {
-                alert(`Error creating application`)
+            if (docSnap === -1) alert(`Error creating application`)
+            // handle successful case
+            else {
+                // raise alert to indicate successful application
+                alert(`Application created successfully! See application in My Profile -> My Applications`)
             }
-            // raise alert to indicate successful application
-            alert(`Application '${docSnap.id}' created successfully. See application in My Profile -> My Applications`)
         }
     }
 
