@@ -3,12 +3,15 @@ Authors:
 - Joshua Kaiser
 - Charlie Ylijoki
 - Donald Logan Kiser
+
 Backend:
 - Firebase (DB / Auth / Hosting)
 - Next.js
+
 Frontend:
 - React
 - TailwindCSS
+
 Testing:
 - testing-library/react
 - Jest
