@@ -387,6 +387,8 @@ const readObjectById = async (coll, id, deep = false) => {
     if (!collectionIsValid(coll)) return -1;
     // get document snapshot and build object
     const docSnap = await getDocSnapshotById(coll, id);
+    // handle case where document does not exist
+    if (!docSnap.exists()) return -1;
     return await buildObject(coll, docSnap, deep);
 }
 
