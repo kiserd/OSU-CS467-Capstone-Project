@@ -59,7 +59,7 @@ const ProjectCard = ({ initialProject }) => {
             // handle successful case
             else {
                 // raise alert to indicate successful application
-                alert(`Application '${docSnap.id}' created successfully. See application in My Profile -> My Applications`)
+                alert(`Application created successfully! See application in My Profile -> My Applications`)
             }
         }
     }
