@@ -55,11 +55,12 @@ const ProjectCard = ({ initialProject }) => {
         else {
             const docSnap = await createAssociation('applications', project.id, authUser.user.id)
             // handle case where user is already added to project
-            if (docSnap === -1) {
-                alert(`Error creating application`)
+            if (docSnap === -1) alert(`Error creating application`)
+            // handle successful case
+            else {
+                // raise alert to indicate successful application
+                alert(`Application '${docSnap.id}' created successfully. See application in My Profile -> My Applications`)
             }
-            // raise alert to indicate successful application
-            alert(`Application '${docSnap.id}' created successfully. See application in My Profile -> My Applications`)
         }
     }
 

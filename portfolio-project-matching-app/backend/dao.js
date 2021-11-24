@@ -120,8 +120,11 @@ const createAssociation = async (coll, id1, id2) => {
     // user helper object in obtaining associated collection names
     const coll1 = deleteAssociationHelper[coll].coll1;
     const coll2 = deleteAssociationHelper[coll].coll2;
+    console.log('coll1: ', coll1)
+    console.log('coll2: ', coll2)
     // handle case where coll does not exist in database
     const inputIsValid = await createAssociationInputIsValid(coll, id1, coll1, id2, coll2);
+    console.log('inputIsValid: ', inputIsValid);
     if (!inputIsValid) return -1;
     // handle case inputs are valid 
     // build association document to send to Firebase
@@ -249,22 +252,22 @@ const createAssociationInputIsValid = async (coll, id1, coll1, id2, coll2) => {
         getDocSnapshotById(coll, `${id1}_${id2}`)
     ]);
     // handle case where coll does not exist in database
-    if (collSnap.empty) {
+    if (!associationCollIsValid(coll)) {
         console.log(`Collection '${coll}' does not exist`);
         return false;
     }
     // handle case where id1 does not exist in coll1
-    else if (!id1Snap.exists()) {
+    if (!id1Snap.exists()) {
         console.log(`Invalid '${coll1}' id: '${id1}' does not exist`);
         return false;
     }
     // handle case of projects_users where project is not open
-    else if (coll === 'projects_users' && !id1Snap.data().open) {
+    if (coll === 'projects_users' && !id1Snap.data().open) {
         console.log(`Invalid '${coll1}' id: ${id1} is at capacity`);
         return false;
     }
     // handle case of applications where user is already added to project
-    else if (coll === 'applications') {
+    if (coll === 'applications') {
         const projectsUsersSnap = await getDocSnapshotById('projects_users', `${id1}_${id2}`);
         if (projectsUsersSnap.exists()) {
             console.log(`Invalid 'id combination: user is already added to project'`);
@@ -272,19 +275,17 @@ const createAssociationInputIsValid = async (coll, id1, coll1, id2, coll2) => {
         }
     }
     // handle case where id2 does not exist in coll2
-    else if (!id2Snap.exists()) {
+    if (!id2Snap.exists()) {
         console.log(`Invalid '${coll2}' id: '${id2}' does not exist`);
         return false;
     }
     // handle case where id1_id2 already exists in coll
-    else if (collSnap.exists()) {
+    if (collSnap.exists()) {
         console.log(`Invalid id1 id2 combo: '${id1}_${id2}' already exists in '${coll}'`);
         return false;
     }
     // all tests passed, return true
-    else {
-        return true;
-    }
+    return true;
 }
 
 const incrementCensusAndClose = async (id) => {
@@ -341,6 +342,26 @@ const createAssociationHelper = {
     'applications': {coll1: 'projects', coll2: 'users', field1: 'project_id', field2: 'user_id'},
     'likes': {coll1: 'projects', coll2: 'users', field1: 'project_id', field2: 'user_id'},
 };
+
+const associationCollIsValid = (coll) => {
+    /*
+    DESCRIPTION:    determines whether coll is either 'projects_users', 
+                    'projects_technologies', 'users_technologies', 'likes', or
+                    'applications'
+
+    INPUT:          coll (string): collection name being tested
+
+    RETURN:         boolean indication of whether collection argument passed
+                    is valid
+    */
+    const colls = ['projects_users', 'projects_technologies', 'users_technologies', 'applications', 'likes'];
+    if (!colls.includes(coll)) {
+        console.log(`Invalid collection: please use 'projects', 'users', 'technologies', or 'applications'`);
+        return false;
+    }
+    // all tests passed, return true to indicate valid collection
+    return true;
+}
 
 /*
     READ
