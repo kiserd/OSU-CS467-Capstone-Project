@@ -120,11 +120,8 @@ const createAssociation = async (coll, id1, id2) => {
     // user helper object in obtaining associated collection names
     const coll1 = deleteAssociationHelper[coll].coll1;
     const coll2 = deleteAssociationHelper[coll].coll2;
-    console.log('coll1: ', coll1)
-    console.log('coll2: ', coll2)
     // handle case where coll does not exist in database
     const inputIsValid = await createAssociationInputIsValid(coll, id1, coll1, id2, coll2);
-    console.log('inputIsValid: ', inputIsValid);
     if (!inputIsValid) return -1;
     // handle case inputs are valid 
     // build association document to send to Firebase
