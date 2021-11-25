@@ -9,7 +9,7 @@ import FilterButtons from '../components/FilterButtons.js';
 // context
 import { useAuth } from '../context/AuthContext'
 // models
-import { FilteredApplication } from '../models/FilteredApplication.js';
+import { Applications } from '../models/Applications';
 
 const myApplications = () => {
     // get auth'd user
@@ -30,16 +30,10 @@ const myApplications = () => {
     ])
 
     // array harboring visible incoming applications
-    const [visibleInApplications, setVisibleInApplications] = useState([])
+    const [incoming, setIncoming] = useState({visible: [], filtered: []})
 
     // array harboring visible outgoing applications
-    const [visibleOutApplications, setVisibleOutApplications] = useState([])
-
-    // array harboring hidden incoming applications
-    const [hiddenInApplications, setHiddenInApplications] = useState([])
-
-    // array harboring hidden outgoing applications
-    const [hiddenOutApplications, setHiddenOutApplications] = useState([])
+    const [outgoing, setOutgoing] = useState({visible: [], filtered: []})
 
     // determines whether incoming or outgoing applications are displayed
     const [isOutgoing, setIsOutgoing] = useState(true)
@@ -53,11 +47,11 @@ const myApplications = () => {
         }
         // get outgoing applications and set statge
         readObjectsByCriteria('applications', 'user_id', authUser.user.id).then((apps) => {
-            if (isMounted) setVisibleOutApplications(apps)
+            if (isMounted) setOutgoing(Applications.fromApplicationArray(apps))
         })
         // get incoming applications and set stgatge
         readObjectsByCriteria('applications', 'owner_id', authUser.user.id).then((apps) => {
-            if (isMounted) setVisibleInApplications(apps)
+            if (isMounted) setIncoming(Applications.fromApplicationArray(apps))
         })
         // cleanup function to assign false to isMounted
         return function cleanup() {
@@ -67,138 +61,51 @@ const myApplications = () => {
 
     const addFilter = (choice) => {
         /*
-        DESCRIPTION:    moves applications lacking the provided filter from
-                        visibleApplications to hiddenApplications and converts
-                        them from Application objects to FilteredApplication
-                        objects
+        DESCRIPTION:    processes Application objects in Applications object
+                        field arrays and sets state with copies
 
         INPUT:          filter object being added
 
         RETURN:         NA
         */
-        // helper arrays to harbor Applications during staging
-        let newOutHidden = hiddenOutApplications
-        let newOutVisible = visibleOutApplications
-        let newInHidden = hiddenInApplications
-        let newInVisible = visibleInApplications
+        // process Application arrays in Applications objects
+        incoming.addFilter(choice);
+        outgoing.addFilter(choice);
 
-        // handle case of open status filter
-        if (choice.type === 'open') {
-            // loop through hidden applications and potentially add filter
-            for (const app of newOutHidden) app.addOpenFilter(choice)
-            for (const app of newInHidden) app.addOpenFilter(choice)
-            // loop through visible incoming applications and process
-            for (const visibleApp of newInVisible) {
-                if (visibleApp.isOpen() !== choice.open) {
-                    // create FilteredApplication to add to hidden array
-                    const filteredApp = FilteredApplication.fromOpen(visibleApp, choice)
-                    newInHidden.push(filteredApp)
-                    newInVisible = newInVisible.filter((element) => {
-                        return element.id !== visibleApp.id
-                    })
-                }
-            }
-            // loop through visible outgoing applications and process
-            for (const visibleApp of newOutVisible) {
-                if (visibleApp.isOpen() !== choice.open) {
-                    // create FilteredApplication to add to hidden array
-                    const filteredApp = FilteredApplication.fromOpen(visibleApp, choice)
-                    newOutHidden.push(filteredApp)
-                    newOutVisible = newOutVisible.filter((element) => {
-                        return element.id !== visibleApp.id
-                    })
-                }
-            }
-        }
-        // handle case of response filter
-        if (choice.type === 'response') {
-            // loop through hidden applications and potentially add filter
-            for (const app of newOutHidden) app.addResponseFilter(choice)
-            for (const app of newInHidden) app.addResponseFilter(choice)
-            // loop through visible incoming applications and process
-            for (const visibleApp of newInVisible) {
-                if (!visibleApp.hasResponse(choice)) {
-                    // create FilteredApplication to add to hidden array
-                    const filteredApp = FilteredApplication.fromResponse(visibleApp, choice)
-                    newInHidden.push(filteredApp)
-                    newInVisible = newInVisible.filter((element) => {
-                        return element.id !== visibleApp.id
-                    })
-                }
-            }
-            // loop through visible outgoing applications and process
-            for (const visibleApp of newOutVisible) {
-                if (!visibleApp.hasResponse(choice)) {
-                    // create FilteredApplication to add to hidden array
-                    const filteredApp = FilteredApplication.fromResponse(visibleApp, choice)
-                    newOutHidden.push(filteredApp)
-                    newOutVisible = newOutVisible.filter((element) => {
-                        return element.id !== visibleApp.id
-                    })
-                }
-            }
-        }
+        // create copies of state objects
+        const tempIn = Applications.fromExistingApplications(incoming.visible, incoming.filtered);
+        const tempOut = Applications.fromExistingApplications(outgoing.visible, outgoing.filtered);
+        
         // set state based on work done above
-        setVisibleInApplications(newInVisible)
-        setVisibleOutApplications(newOutVisible)
-        setHiddenInApplications(newInHidden)
-        setHiddenOutApplications(newOutHidden)
+        setIncoming(tempIn)
+        setOutgoing(tempOut)
     }
 
     const removeFilter = (choice) => {
         /*
-        DESCRIPTION:    moves applications lacking the provided filter from
-                        hidden array to visible array and converts them
-                        from FilteredApplication objects to Application objects
+        DESCRIPTION:    processes Application objects in Applications object
+                        field arrays and sets state with copies
 
-        INPUT:          choice (object): represents filter being removed
+        INPUT:          filter object being removed
 
         RETURN:         NA
         */
-        // helper arrays to harbor Applications during staging
-        let newOutHidden = hiddenOutApplications
-        const newOutVisible = visibleOutApplications
-        let newInHidden = hiddenInApplications
-        const newInVisible = visibleInApplications
+        // process Application arrays in Applications objects
+        incoming.removeFilter(choice);
+        outgoing.removeFilter(choice);
 
-        // loop through hidden incoming applications and process
-        for (const hiddenApp of newInHidden) {
-            // remove filter if applicable
-            if (choice.type === 'open') hiddenApp.removeOpenFilter(choice)
-            if (choice.type === 'response') hiddenApp.removeResponseFilter(choice)
-            // if last remaining filter removed, move project to visible
-            if (hiddenApp.filtersIsEmpty()) {
-                newInVisible.push(hiddenApp.application)
-                newInHidden = newInHidden.filter((element) => {
-                    return element.application.id !== hiddenApp.application.id
-                })
-            }
-        }
-        // loop through hidden outgoing applications and process
-        for (const hiddenApp of newOutHidden) {
-            // remove filter if applicable
-            if (choice.type === 'open') hiddenApp.removeOpenFilter(choice)
-            if (choice.type === 'response') hiddenApp.removeResponseFilter(choice)
-            // if last remaining filter removed, move project to visible
-            if (hiddenApp.filtersIsEmpty()) {
-                newOutVisible.push(hiddenApp.application)
-                newOutHidden = newInHidden.filter((element) => {
-                    return element.application.id !== hiddenApp.application.id
-                })
-            }
-        }
+        // create copies of state objects
+        const tempIn = Applications.fromExistingApplications(incoming.visible, incoming.filtered);
+        const tempOut = Applications.fromExistingApplications(outgoing.visible, outgoing.filtered);
+        
         // set state based on work done above
-        setVisibleInApplications(newInVisible)
-        setVisibleOutApplications(newOutVisible)
-        setHiddenInApplications(newInHidden)
-        setHiddenOutApplications(newOutHidden)
+        setIncoming(tempIn)
+        setOutgoing(tempOut)
     }
 
     const toggleOutgoing = () => {
         setIsOutgoing(isOutgoing ? false : true)
     }
-
-
 
     return (
         <div className='background'>
@@ -207,21 +114,13 @@ const myApplications = () => {
                     <div className='p-2'>
                         <Button text={isOutgoing ? 'Show Incoming' : 'Show Outgoing'} type='btnGeneral' onClick={toggleOutgoing}/>
                     </div>
-                    <ApplicationList apps={isOutgoing ? visibleOutApplications : visibleInApplications} isOutgoing={isOutgoing} />
+                    <ApplicationList apps={isOutgoing ? outgoing.visible : incoming.visible} isOutgoing={isOutgoing} />
                 </div>
                 <div className='sticky top-4 m-2 p-2 col-span-1 h-auto max-h-96 defaultBorder bg-white shadow-2xl'>
                     <div className='text-xl font-medium text-center'>
                         Filters
                     </div>
                     <hr className='w-full border-b-2 border-custom-cool-extraDark'/>
-                    {/* <div className='py-1'>
-                        <FilterButtons 
-                        category='Incoming / Outgoing'
-                        choices={inOutChoices}
-                        onAdd={() => {}}
-                        onRemove={() => {}}
-                        />
-                    </div> */}
                     <div className='py-1'>
                         <FilterButtons 
                         category='Open Status'
