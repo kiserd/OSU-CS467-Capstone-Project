@@ -73,8 +73,8 @@ const myApplications = () => {
         outgoing.addFilter(choice);
 
         // create copies of state objects
-        const tempIn = Applications.fromExistingApplications(incoming.visible, incoming.filtered);
-        const tempOut = Applications.fromExistingApplications(outgoing.visible, outgoing.filtered);
+        const tempIn = Applications.fromExisting(incoming);
+        const tempOut = Applications.fromExisting(outgoing);
         
         // set state based on work done above
         setIncoming(tempIn)
@@ -95,8 +95,8 @@ const myApplications = () => {
         outgoing.removeFilter(choice);
 
         // create copies of state objects
-        const tempIn = Applications.fromExistingApplications(incoming.visible, incoming.filtered);
-        const tempOut = Applications.fromExistingApplications(outgoing.visible, outgoing.filtered);
+        const tempIn = Applications.fromExisting(incoming);
+        const tempOut = Applications.fromExisting(outgoing);
         
         // set state based on work done above
         setIncoming(tempIn)

@@ -26,24 +26,22 @@ class Applications {
         return applications;
     }
 
-    static fromExistingApplications(visible, filtered) {
+    static fromExisting(apps) {
         /*
         DESCRIPTION:    takes an existing Applications object and essentially
                         copies fields in constructing this object
 
-        INPUT:          visible (array): array of Application objects
-
-                        filtered (array): array of filteredApplication objects
+        INPUT:          apps (object): Applications object
 
         RETURN:         Applications object with visible set to provided
-                        visible argument and filtered property set to provided
-                        filtered argument
+                        visible property and filtered property set to provided
+                        filtered property
         */
         // instantiate new Applications object
         const applications = new Applications();
         // initialize visible to provided array and filtered to start empty
-        applications.visible = visible;
-        applications.filtered = filtered;
+        applications.visible = apps.visible;
+        applications.filtered = apps.filtered;
         // return to calling function
         return applications;
     }
