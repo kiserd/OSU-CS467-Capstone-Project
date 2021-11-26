@@ -24,6 +24,12 @@ const ProjectCard = ({ initialProject }) => {
     // indicates whether current user has liked the project
     const [hasLiked, setHasLiked] = useState(false)
 
+    // indicates whether user has already applied to project
+    const [hasApplied, setHasApplied] = useState(true)
+
+    // indicates whether user has already joined project
+    const [hasJoined, setHasJoined] = useState(true)
+
     // harbors updated project (helps with like function)
     const [project, setProject] = useState(initialProject)
 
@@ -33,8 +39,14 @@ const ProjectCard = ({ initialProject }) => {
             // get like doc snapshot and set hasLiked accordingly
             readAssociationById('likes', `${project.id}_${authUser.user.id}`)
             .then((likeSnap) => {if (likeSnap !== -1) setHasLiked(true)})
+            // determine whether user has already applied
+            readAssociationById('applications', `${project.id}_${authUser.user.id}`)
+            .then((appSnap) => {if (appSnap === -1) setHasApplied(false)})
+            // determine whether user has already joined
+            readAssociationById('projects_users', `${project.id}_${authUser.user.id}`)
+            .then((joinSnap) => {if (joinSnap === -1) setHasJoined(false)})
         }
-    })
+    }, [])
 
     const applyToProject = async (e) => {
         /*
@@ -60,6 +72,8 @@ const ProjectCard = ({ initialProject }) => {
             else {
                 // raise alert to indicate successful application
                 alert(`Application created successfully! See application in My Profile -> My Applications`)
+                // set hasApplied state
+                setHasApplied(true)
             }
         }
     }
@@ -138,10 +152,22 @@ const ProjectCard = ({ initialProject }) => {
             <div className='mt-2 flex flex-wrap'>
                 <div className='self-center'>
                     {project.census} out of {project.capacity} ({project.capacity - project.census} positions left)
-                    </div>
+                </div>
+                {
+                hasJoined ?
+                <div className='p-1'>
+                    <Button text='Already Joined' onClick={() => {}} type='btnDisabled' />
+                </div>
+                :
+                hasApplied ?
+                <div className='p-1'>
+                    <Button text='Already Applied' onClick={() => {}} type='btnDisabled' />
+                </div>
+                :
                 <div className='p-1'>
                     <Button text='join' onClick={applyToProject} type='btnGeneral' />
                 </div>
+                }
             </div>
             <div className='flex flex-wrap'>
                 {/* Commented out, but leaving in just in case we decide to add this back */}
