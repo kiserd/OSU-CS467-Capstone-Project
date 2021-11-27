@@ -52,7 +52,7 @@ const myProfile = () => {
                         introduction: result.introduction
                     });
                     console.log('result:', result);
-                    setUserTechnologies([...userTechnologies, ...result.technologies]);
+                    setUserTechnologies(result.technologies);
                 });
             }
         }, [auth]);
