@@ -1,12 +1,12 @@
 import { useState, useEffect } from 'react'
 import Button from '../components/Button'
 import Input from '../components/Input'
-import InputDropdown from '../components/InputDropdown'
 import Textarea from '../components/Textarea'
 import MultipleInputDropdown from '../components/MultipleInputDropdown'
 import NewLogin from './NewLogin'
 import styles from './ProfileForm.module.css'
 import { useAuth } from '../context/AuthContext'
+import { useRouter } from 'next/router'
 import { 
     updateDoc, 
     getAllTechnologies, 
@@ -18,6 +18,7 @@ import {
 
 
 const myProfile = () => {
+        const router = useRouter();
         let auth = useAuth();
         
         // array of all technologies in the database
@@ -120,9 +121,12 @@ const myProfile = () => {
             // Create associations between user and technologies
                 // Delete technologies in selected technologies that aren't in auth.user.technologies
                 // Add new technologies that are not in auth.user.technologies
-            const formattedAllTechnologies = allTechnologies.map(technology => technology.value.id);
-            const formattedUserTechnologies = auth.user.technologies.map(tech => tech.id);
-            const formattedSelectedTechnologies = selectedTechnologies.map(tech => tech.id);
+            const formattedAllTechnologies = allTechnologies.map(tech => tech.value.id);
+            const formattedUserTechnologies = userTechnologies.map(tech => tech.id);
+            const formattedSelectedTechnologies = selectedTechnologies.map(tech => tech.value.id);
+            console.log(`formattedAllTechnologies: ${formattedAllTechnologies}`)
+            console.log(`formattedUserTechnologies: ${formattedUserTechnologies}`)
+            console.log(`formattedSelectedTechnologies: ${formattedSelectedTechnologies}`)
             for (const technology of formattedAllTechnologies) {
                 if(formattedUserTechnologies.includes(technology) && !formattedSelectedTechnologies.includes(technology)){
                     console.log(`removing technology: ${technology}`);
@@ -135,8 +139,8 @@ const myProfile = () => {
                 }
                 
             }
-            // Fetch user info again so form values reflect changes to user
-            // await updateToDBValues();
+            // Refresh page so form reflects changes.
+            router.push('/myProfile');
             console.log("Form submitted");
             console.log(userProfileValues);
         }
