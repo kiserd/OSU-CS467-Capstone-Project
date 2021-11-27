@@ -15,12 +15,7 @@ import {
     getUserById
 } from '../backend/dao'
 
-let technologies = [{id: 1, name: 'Javascript'}, {id: 2, name: 'C++'}, {id: 3, name: 'React'}, {id: 4, name: 'Flutter'}]
 
-// The Select component from react-select expects the 'options' prop to be an object with keys 'value' and 'label'
-technologies = technologies.map((technology) => {
-    return {value: technology.name, label: technology.name}
-})
 
 const myProfile = () => {
         let auth = useAuth();
@@ -31,7 +26,9 @@ const myProfile = () => {
         // array representing technologies selected to be associated with project
         const [selectedTechnologies, updateSelectedTechnologies] = useState([]);
 
-        const [userTechnologies, updateUserTechnologies] = useState([]);
+        const [userTechnologies, setUserTechnologies] = useState({list: []});
+
+        const [userTechIndexes, setUserTechIndexes] = useState({list: []});
 
         const [userProfileValues, setUserprofileValues] = useState({
             email: '',
@@ -40,6 +37,8 @@ const myProfile = () => {
         });
         
         useEffect(()=>{
+            // Updates userProfileValues and userTechnologies
+            // depends on auth
             if (auth && auth.user){
                 getUserById(auth.user.id).then((result)=>{
                     console.log(`in useEffect: ${JSON.stringify(result)}`)
@@ -49,16 +48,19 @@ const myProfile = () => {
                         email: result.email,
                         introduction: result.introduction
                     });
-                    const technologies = result.technologies.map((technology) => {
-                        return {value: technology, label: technology.name};
-                    });
-                    console.log(`User Technologies: ${JSON.stringify(technologies)}`)
-                    updateUserTechnologies([allTechnologies[1]]);
+                    console.log(`result.technologies 123: ${JSON.stringify(result.technologies)}`)
+                    const technologies = result.technologies;
+                    setUserTechnologies({list: [...userTechnologies.list, ...result.technologies]});
+                    console.log(`userTechnologies 123: ${JSON.stringify(userTechnologies)}`)
+                    
                 });
             }
         }, [auth]);
 
         useEffect(()=>{
+            // updates allTechnologies
+            // runs once on component mounting
+
             // tracks whether component mounted, cleanup will assign false
             let isMounted = true
             // get technologies and set state if component mounted
@@ -78,71 +80,89 @@ const myProfile = () => {
             }
         }, []);
 
+        useEffect(()=>{
+            // Updates selected technologies
+
+            // depends on allTechnologies and auth
+            console.log('useEffect')
+            updateTechIndexArray();
+            let defaultTechnologies = userTechIndexes.list.map(idx=>{
+                console.log(`Technology at idx: ${allTechnologies[idx]}`);    
+                return allTechnologies[idx];
+            });
+            console.log(`Indexes: ${JSON.stringify(userTechIndexes.list)} \ndefaultTechnologies: ${JSON.stringify(defaultTechnologies)}`)
+            updateSelectedTechnologies(selectedTechnologies => [...selectedTechnologies, defaultTechnologies[0]]);
+        }, [allTechnologies, auth])
+
         const handleInputChange = e => {
             const { name, value } = e.target;
             setUserprofileValues({...userProfileValues, [name]: value});
         }
 
-        const updateToDBValues= async () => {
-            const user_id = auth.user.id;
-            // get profile values from db
-            let userValues = await getUserById(user_id);
-            setUserprofileValues({...userValues, [user_id]: userValues})
-            // set user technologies
+        // const updateToDBValues= async () => {
+        //     const user_id = auth.user.id;
+        //     // get profile values from db
+        //     let userValues = await getUserById(user_id);
+        //     setUserprofileValues({...userValues, [user_id]: userValues})
+        //     // set user technologies
             
-            // get timezone from db
+        //     // updateTechIndexArray();
+        //     // get timezone from db
 
+        // }
+
+        const updateTechIndexArray = () => {
+            let result = [];
+            console.log(`at.length: ${allTechnologies.length}\nut.length: ${userTechnologies.length}`)
+            for (let i = 0; i < allTechnologies.length; i++) {
+                for (let j = 0; j < userTechnologies.length; j++) {
+                    if (allTechnologies[i].value.id === userTechnologies[j].id) {
+                        console.log(`at: ${allTechnologies[i].value.id}\nut: ${userTechnologies[j].id}`)
+                        result.push(i);
+                    }
+                }
+            }
+            console.log(`Updating tech index array: ${result}`);
+            setUserTechIndexes({list: result});
         }
     
         const handleSubmit = async (e) => {
             e.preventDefault();
             // Update simple user values
-            console.log(`${JSON.stringify(userProfileValues)}`)
             await updateDoc('users', auth.user.id, userProfileValues);
 
             // Create associations between user and technologies
                 // Delete technologies in selected technologies that aren't in auth.user.technologies
                 // Add new technologies that are not in auth.user.technologies
-            console.log(`auth.user.technologies: ${JSON.stringify(auth.user.technologies)}`)
-            console.log(`selectedTechnologies: ${JSON.stringify(selectedTechnologies)}`)
             const formattedAllTechnologies = allTechnologies.map(technology => technology.value.id);
             const formattedUserTechnologies = auth.user.technologies.map(tech => tech.id);
             const formattedSelectedTechnologies = selectedTechnologies.map(tech => tech.id);
-            console.log(`All Technologies: ${JSON.stringify(formattedAllTechnologies)}`)
-            console.log(`User Technologies: ${JSON.stringify(formattedUserTechnologies)}`)
-            console.log(`Selected Technologies: ${JSON.stringify(formattedSelectedTechnologies)}`)
             for (const technology of formattedAllTechnologies) {
-                console.log(`Technology: ${JSON.stringify(technology)}`);
-
-                console.log(`formattedUserTechnologies has technology? ${formattedUserTechnologies.includes(technology)}`)
-                console.log(`formattedSelectedTechnologies has selected technology? ${formattedSelectedTechnologies.includes(technology)}`)
-
                 if(formattedUserTechnologies.includes(technology) && !formattedSelectedTechnologies.includes(technology)){
                     // Remove technology_user association
-                    console.log('removing technology')
                     await deleteAssociation('users_technologies', auth.user.id, technology);
                 } else if (formattedSelectedTechnologies.includes(technology) && !formattedUserTechnologies.includes(technology)){
-                    console.log('adding technology')
                     await createAssociation('users_technologies', auth.user.id, technology);
                 }
                 
             }
             // Fetch user info again so form values reflect changes to user
-            await updateToDBValues();
+            // await updateToDBValues();
             console.log("Form submitted");
             console.log(userProfileValues);
         }
 
         const addTechnology = (e) => {
             updateSelectedTechnologies(e.map(choice => choice.value));
+            
         }
         
-        const timezones = [
-            {id: 1, name:'Pacific'},
-            {id: 2, name:'Mountain'},
-            {id: 3, name:'Central'},
-            {id: 4, name:'Eastern'}
-        ]
+        // const timezones = [
+        //     {id: 1, name:'Pacific'},
+        //     {id: 2, name:'Mountain'},
+        //     {id: 3, name:'Central'},
+        //     {id: 4, name:'Eastern'}
+        // ]
     
         return (
             <div>
@@ -169,7 +189,7 @@ const myProfile = () => {
                                 </div>
 
                                 <div className='mb-4 mt-4'>
-                                    <MultipleInputDropdown options={allTechnologies} selectedIndexes={//a list of indexes} onChange={addTechnology} name='technologies'/>
+                                    <MultipleInputDropdown options={allTechnologies} value={selectedTechnologies}  onChange={addTechnology} name='technologies'/>
                                 </div>
                                 <div className='mb-4'>
                                     <Button text="Submit"/>
