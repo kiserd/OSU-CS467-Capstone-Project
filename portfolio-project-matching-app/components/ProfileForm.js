@@ -24,11 +24,11 @@ const myProfile = () => {
         const [allTechnologies, setAllTechnologies] = useState([]);
 
         // array representing technologies selected to be associated with project
-        const [selectedTechnologies, updateSelectedTechnologies] = useState([]);
+        const [selectedTechnologies, setSelectedTechnologies] = useState([]);
 
-        const [userTechnologies, setUserTechnologies] = useState({list: []});
+        const [userTechnologies, setUserTechnologies] = useState([]);
 
-        const [userTechIndexes, setUserTechIndexes] = useState({list: []});
+        const [userTechIndexes, setUserTechIndexes] = useState([]);
 
         const [userProfileValues, setUserprofileValues] = useState({
             email: '',
@@ -39,20 +39,16 @@ const myProfile = () => {
         useEffect(()=>{
             // Updates userProfileValues and userTechnologies
             // depends on auth
+            console.log(`UseEffect 1`)
             if (auth && auth.user){
                 getUserById(auth.user.id).then((result)=>{
-                    console.log(`in useEffect: ${JSON.stringify(result)}`)
                     setUserprofileValues({
                         ...userProfileValues, 
                         username: result.username,
                         email: result.email,
                         introduction: result.introduction
                     });
-                    console.log(`result.technologies 123: ${JSON.stringify(result.technologies)}`)
-                    const technologies = result.technologies;
-                    setUserTechnologies({list: [...userTechnologies.list, ...result.technologies]});
-                    console.log(`userTechnologies 123: ${JSON.stringify(userTechnologies)}`)
-                    
+                    setUserTechnologies([...userTechnologies, ...result.technologies]);
                 });
             }
         }, [auth]);
@@ -60,7 +56,7 @@ const myProfile = () => {
         useEffect(()=>{
             // updates allTechnologies
             // runs once on component mounting
-
+            console.log(`UseEffect 2`)
             // tracks whether component mounted, cleanup will assign false
             let isMounted = true
             // get technologies and set state if component mounted
@@ -69,12 +65,10 @@ const myProfile = () => {
                 technologies = technologies.map((technology) => {
                     return {value: technology, label: technology.name};
                 });
-                console.log(`All Technologies: ${JSON.stringify(technologies)}`)
                 // set state if component is still mounted
                 if (isMounted) setAllTechnologies(technologies);
             })
             // cleanup function to assign false to isMounted
-            console.log('use effect')
             return function cleanup() {
                 isMounted = false
             }
@@ -84,32 +78,24 @@ const myProfile = () => {
             // Updates selected technologies
 
             // depends on allTechnologies and auth
-            console.log('useEffect')
-            updateTechIndexArray();
-            let defaultTechnologies = userTechIndexes.list.map(idx=>{
-                console.log(`Technology at idx: ${allTechnologies[idx]}`);    
+            console.log(`UseEffect 3`)
+            if (allTechnologies.length > 0 && userTechnologies.length > 0){
+                updateTechIndexArray();
+            }
+        }, [allTechnologies, userTechnologies, auth])
+
+
+        useEffect(() => {
+            let defaultTechnologies = userTechIndexes.map(idx=>{
                 return allTechnologies[idx];
             });
-            console.log(`Indexes: ${JSON.stringify(userTechIndexes.list)} \ndefaultTechnologies: ${JSON.stringify(defaultTechnologies)}`)
-            updateSelectedTechnologies(selectedTechnologies => [...selectedTechnologies, defaultTechnologies[0]]);
-        }, [allTechnologies, auth])
+            setSelectedTechnologies([...selectedTechnologies, ...defaultTechnologies])
+        }, [userTechIndexes]);
 
         const handleInputChange = e => {
             const { name, value } = e.target;
             setUserprofileValues({...userProfileValues, [name]: value});
         }
-
-        // const updateToDBValues= async () => {
-        //     const user_id = auth.user.id;
-        //     // get profile values from db
-        //     let userValues = await getUserById(user_id);
-        //     setUserprofileValues({...userValues, [user_id]: userValues})
-        //     // set user technologies
-            
-        //     // updateTechIndexArray();
-        //     // get timezone from db
-
-        // }
 
         const updateTechIndexArray = () => {
             let result = [];
@@ -123,7 +109,7 @@ const myProfile = () => {
                 }
             }
             console.log(`Updating tech index array: ${result}`);
-            setUserTechIndexes({list: result});
+            setUserTechIndexes([...userTechIndexes, ...result]);
         }
     
         const handleSubmit = async (e) => {
@@ -139,9 +125,12 @@ const myProfile = () => {
             const formattedSelectedTechnologies = selectedTechnologies.map(tech => tech.id);
             for (const technology of formattedAllTechnologies) {
                 if(formattedUserTechnologies.includes(technology) && !formattedSelectedTechnologies.includes(technology)){
+                    console.log(`removing technology: ${technology}`);
                     // Remove technology_user association
                     await deleteAssociation('users_technologies', auth.user.id, technology);
                 } else if (formattedSelectedTechnologies.includes(technology) && !formattedUserTechnologies.includes(technology)){
+                    console.log(`adding technology: ${technology}`);
+                    // Add technology_user association
                     await createAssociation('users_technologies', auth.user.id, technology);
                 }
                 
@@ -153,16 +142,8 @@ const myProfile = () => {
         }
 
         const addTechnology = (e) => {
-            updateSelectedTechnologies(e.map(choice => choice.value));
-            
+            setSelectedTechnologies(e.map(choice => choice));
         }
-        
-        // const timezones = [
-        //     {id: 1, name:'Pacific'},
-        //     {id: 2, name:'Mountain'},
-        //     {id: 3, name:'Central'},
-        //     {id: 4, name:'Eastern'}
-        // ]
     
         return (
             <div>
