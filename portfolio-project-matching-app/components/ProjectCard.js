@@ -46,6 +46,11 @@ const ProjectCard = ({ initialProject }) => {
             readAssociationById('projects_users', `${project.id}_${authUser.user.id}`)
             .then((joinSnap) => {if (joinSnap === -1) setHasJoined(false)})
         }
+        // handle case where user is NOT logged in
+        else {
+            setHasApplied(false);
+            setHasApplied(false);
+        }
     }, [])
 
     const applyToProject = async (e) => {
