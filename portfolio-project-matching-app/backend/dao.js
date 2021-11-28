@@ -686,7 +686,7 @@ const populateAssociations = async (coll, object) => {
                 'users_technologies',
                 'user_id',
                 object.id,
-                'technologgies',
+                'technologies',
                 'technology_id',
                 false // import to keep deep set to false
             ),
