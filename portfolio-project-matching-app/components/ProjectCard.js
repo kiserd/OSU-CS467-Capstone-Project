@@ -25,10 +25,10 @@ const ProjectCard = ({ initialProject }) => {
     const [hasLiked, setHasLiked] = useState(false)
 
     // indicates whether user has already applied to project
-    const [hasApplied, setHasApplied] = useState(true)
+    const [hasApplied, setHasApplied] = useState(false)
 
     // indicates whether user has already joined project
-    const [hasJoined, setHasJoined] = useState(true)
+    const [hasJoined, setHasJoined] = useState(false)
 
     // harbors updated project (helps with like function)
     const [project, setProject] = useState(initialProject)
@@ -41,10 +41,10 @@ const ProjectCard = ({ initialProject }) => {
             .then((likeSnap) => {if (likeSnap !== -1) setHasLiked(true)})
             // determine whether user has already applied
             readAssociationById('applications', `${project.id}_${authUser.user.id}`)
-            .then((appSnap) => {if (appSnap === -1) setHasApplied(false)})
+            .then((appSnap) => {if (appSnap !== -1) setHasApplied(true)})
             // determine whether user has already joined
             readAssociationById('projects_users', `${project.id}_${authUser.user.id}`)
-            .then((joinSnap) => {if (joinSnap === -1) setHasJoined(false)})
+            .then((joinSnap) => {if (joinSnap !== -1) setHasJoined(true)})
         }
     }, [])
 
