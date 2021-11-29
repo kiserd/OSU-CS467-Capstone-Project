@@ -33,5 +33,3 @@ jobs:
       working-directory: ./portfolio-project-matching-app
     - run: npm test
       working-directory: ./portfolio-project-matching-app
-    - run: npm run build --if-present
-      working-directory: ./portfolio-project-matching-app
