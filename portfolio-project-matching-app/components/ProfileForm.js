@@ -164,7 +164,7 @@ const myProfile = () => {
         return (
             <div>
             { auth && auth.user ? 
-                <div className='background p-2 w-full h-full'>
+                <div className='p-2 w-full h-full'>
                     <div className='w-full mx-auto max-w-md defaultBorder'>
                         <div className='p-2 divide-y divide-gray-400'>
                             <form onSubmit={handleSubmit} className="mx-10">
