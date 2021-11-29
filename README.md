@@ -1,3 +1,22 @@
+## Portfolio Project Matching App
+Authors:
+- Joshua Kaiser
+- Charlie Ylijoki
+- Donald Logan Kiser
+
+Backend:
+- Firebase (DB / Auth / Hosting)
+- Next.js
+
+Frontend:
+- React
+- TailwindCSS
+
+Testing:
+- testing-library/react
+- Jest
+
+
 This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
 
 ## Getting Started
