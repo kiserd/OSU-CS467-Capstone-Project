@@ -158,7 +158,7 @@ const GoogleSignUpButton = () => {
 
 const SignUp = () => {
     return (
-        <div className='bg-gray-200 p-2 w-full h-full'>
+        <div className='background p-2 w-full h-full'>
             <div className='w-full mx-auto max-w-md border-2 border-gray-400 rounded-md shadow-md'>
                 <div className='p-2 divide-y divide-gray-700'></div>
                 <EmailPasswordSignUp />

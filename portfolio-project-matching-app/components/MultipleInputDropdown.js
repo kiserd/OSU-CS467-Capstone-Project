@@ -1,7 +1,7 @@
 import React from 'react'
 import Select from 'react-select'
 
-const MultipleInputDropdown = ({options, onChange, name}) => {
+const MultipleInputDropdown = ({options, onChange, name, value=[]}) => {
     const theme = (theme) => ({
       ...theme,
       borderRadius: '0.375rem',
@@ -14,14 +14,26 @@ const MultipleInputDropdown = ({options, onChange, name}) => {
     const customStyles = {
       multiValueLabel: (base) => ({
         ...base,
-        border: '1px solid #9f7aea',
-        borderRadius: '0.375rem',
+        // backgroundColor: '#e9d8a6',
+        borderLeft: '1px solid #005f73',
+        borderTop: '1px solid #005f73',
+        borderBottom: '1px solid #005f73',
+        borderTopLeftRadius: '0.375rem',
+        borderBottomLeftRadius: '0.375rem',
       }),
       multiValueRemove: (base) => ({
         ...base,
-        backgroundColor: 'white',
-        border: `1px solid red`,
-        borderRadius: '0.375rem',
+        // backgroundColor: '#e9d8a6',
+        color: '#ae2012',
+        borderRight: `1px solid #005f73`,
+        borderTop: `1px solid #005f73`,
+        borderBottom: `1px solid #005f73`,
+        borderTopRightRadius: '0.375rem',
+        borderBottomRightRadius: '0.375rem',
+        ':hover': {
+          backgroundColor: '#ae2012',
+          color: 'white',
+        },
         
       }),
     }
@@ -31,6 +43,7 @@ const MultipleInputDropdown = ({options, onChange, name}) => {
           instanceId='selected-value'
           name={name} 
           options={options} 
+          value={value} 
           onChange={onChange} 
           isMulti 
           isClearable 

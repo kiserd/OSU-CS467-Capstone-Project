@@ -15,3 +15,7 @@
 .btnWarning {
     @apply btn bg-gray-100 border-red-600 text-red-600 hover:text-red-900 hover:border-red-900 hover:bg-red-100 focus:ring-red-900 focus:bg-red-100;
 }
+
+.btnDisabled {
+    @apply btn bg-gray-300 border-gray-700 text-gray-800;
+}

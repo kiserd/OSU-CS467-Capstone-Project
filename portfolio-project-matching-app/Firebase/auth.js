@@ -52,12 +52,12 @@ const signupWithGoogle = async() => {
         let userDoc = await readObjectById('users', user.uid, true);
         if (userDoc === -1){
             // If the user is here for the first time, make them a new user doc
-            await createDocWithId('users', {
-                // Some default values for their username, email, and introduction
+            const payload = {
                 email: user.email,
                 username: user.email,
                 introduction: `Hi, I'm ${user.displayName}`,
-            }, user.uid);
+            }
+            await createDocWithId('users', payload, user.uid);
             userDoc = await readObjectById('users', user.uid, true);
         } else {
             throw({code: 'auth/email-already-in-use'})
@@ -84,13 +84,12 @@ const signUpWithEmailAndPassword = async(email, password) => {
         let userDoc = await readObjectById('users', user.uid, true);
         if (userDoc === -1){
             // If the user is here for the first time, make them a new user doc
-            await createDocWithId('users',
-            {
-                // Some default values for their username, email, and introduction
+            const payload = {
                 email: user.email,
                 username: user.email,
-                introduction: `Hi, I'm anonymous`,
-            }, user.uid);
+                introduction: `Hi, I'm anonymous`
+            }
+            await createDocWithId('users', payload, user.uid);
             userDoc = await readObjectById('users', user.uid, true);
         }
         return userDoc;
